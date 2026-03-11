@@ -1,3 +1,48 @@
+<?php
+session_start();
+
+// Configuração de erros
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+// Tratamento da URL 
+$uri = $_SERVER['REQUEST_URI'];
+$uri = explode('?', $uri)[0];
+$uri = explode('/', $uri);
+$rota = $uri[2] ?? '';
+
+// Rotas Públicas (sem autenticação)
+if ($rota == 'login') {
+    require_once 'login.php';
+    exit();
+}
+if ($rota == 'logout') {
+    require_once 'logout.php';
+    exit();
+}
+
+// Trava de segurança: redireciona para login se não estiver autenticado
+if (!isset($_SESSION['id_usuario'])) {
+    header("Location: /financas/login");
+    exit();
+}
+
+// Conexão com o banco de dados 
+try {
+    $dsn = 'mysql:dbname=financas_pessoais;port=3306;host=localhost';
+    $pdo = new PDO($dsn, 'admin', '@admin123');
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    die("Erro ao conectar: " . $e->getMessage());
+}
+
+// Prepara os dados de PUT, se houver
+$metodo = $_SERVER['REQUEST_METHOD'];
+if ($metodo == 'PUT') parse_str(file_get_contents('php://input'), $_PUT);
+
+?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -79,35 +124,6 @@
 </head>
 
 <body>
-    <?php
-    session_start();
-    $_SESSION['id_usuario'] = 7;
-
-    // Configuração de erros
-    ini_set('display_errors', 1);
-    ini_set('display_startup_errors', 1);
-    error_reporting(E_ALL);
-
-    // Tratamento da URL 
-    $uri = $_SERVER['REQUEST_URI'];
-    $uri = explode('?', $uri)[0];
-    $uri = explode('/', $uri);
-
-    $metodo = $_SERVER['REQUEST_METHOD'];
-    if ($metodo == 'PUT') parse_str(file_get_contents('php://input'), $_PUT);
-
-    // Conexão com o banco de dados 
-    try {
-        $dsn = 'mysql:dbname=financas_pessoais;port=3306;host=localhost';
-        $user = 'admin';
-        $password = '@admin123';
-        $pdo = new PDO($dsn, $user, $password);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    } catch (PDOException $e) {
-        die("Erro ao conectar: " . $e->getMessage());
-    }
-    ?>
-
     <!-- Menu -->
     <div class="nav-bar">
         <a href="/financas">🏠 Dashboard</a>
@@ -115,7 +131,12 @@
         <a href="/financas/contas">🏦 Contas</a>
         <a href="/financas/categorias">📂 Categorias</a>
         <a href="/financas/metas">🎯 Metas</a>
-        <a href="/financas/usuarios">👤 Usuários</a>
+
+        <?php if (isset($_SESSION['perfil']) && $_SESSION['perfil'] == 'admin'): ?>
+            <a href="/financas/usuarios">👤 Usuários</a>
+        <?php endif; ?>
+
+        <a href="/financas/logout">🚪 Sair</a>
     </div>
 
     <?php
