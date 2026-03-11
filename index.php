@@ -149,20 +149,33 @@ if ($metodo == 'PUT') parse_str(file_get_contents('php://input'), $_PUT);
         else echo "<h2>Página não encontrada</h2>";
     } else {
         // Dashboard
-        $sqlEntrada = "SELECT SUM(valor) as total FROM transacoes WHERE tipo_transacao = 'Entrada'";
-        $totalEntrada = $pdo->query($sqlEntrada)->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+        $id_logado = $_SESSION['id_usuario'];
 
-        $sqlSaida = "SELECT SUM(valor) as total FROM transacoes WHERE tipo_transacao = 'Saida'";
-        $totalSaida = $pdo->query($sqlSaida)->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+        // Total Recebido
+        $stmtEntrada = $pdo->prepare("SELECT SUM(t.valor) as total FROM transacoes t JOIN contas c ON t.id_conta = c.id_conta WHERE t.tipo_transacao = 'Entrada' AND c.id_usuario = ?");
+        $stmtEntrada->execute([$id_logado]);
+        $totalEntrada = $stmtEntrada->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
 
-        $saldoGeral = $totalEntrada - $totalSaida;
+        // Total Gasto
+        $stmtSaida = $pdo->prepare("SELECT SUM(t.valor) as total FROM transacoes t JOIN contas c ON t.id_conta = c.id_conta WHERE t.tipo_transacao = 'Saida' AND c.id_usuario = ?");
+        $stmtSaida->execute([$id_logado]);
+        $totalSaida = $stmtSaida->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
 
+        // Balanço Geral
+        $stmtSaldo = $pdo->prepare("SELECT SUM(saldo_inicial) as total FROM contas WHERE id_usuario = ?");
+        $stmtSaldo->execute([$id_logado]);
+        $saldoGeral = $stmtSaldo->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+
+        // Busca as últimas 5 transações para a tabela inferior
         $sqlRecentes = "SELECT t.*, c.nome_banco, cat.nome_categoria 
         FROM transacoes t 
         JOIN contas c ON t.id_conta = c.id_conta 
         JOIN categorias cat ON t.id_categoria = cat.id_categoria 
+        WHERE c.id_usuario = ?
         ORDER BY t.data_transacao DESC LIMIT 5";
-        $recentes = $pdo->query($sqlRecentes)->fetchAll(PDO::FETCH_ASSOC);
+        $stmtRecentes = $pdo->prepare($sqlRecentes);
+        $stmtRecentes->execute([$id_logado]);
+        $recentes = $stmtRecentes->fetchAll(PDO::FETCH_ASSOC);
     ?>
         <h1>Resumo Financeiro</h1>
 
