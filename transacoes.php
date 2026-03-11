@@ -131,7 +131,8 @@ class Transacoes
 
             $this->pdo->commit();
 
-            echo "<p style='color:green'>Transação registrada e Saldo atualizado!</p> <a href='/financas/transacoes'>Voltar</a>";
+            header("Location: /financas/transacoes");
+            exit();
         } catch (Exception $e) {
             $this->pdo->rollBack();
             echo "<p style='color:red'>Erro ao registrar: " . $e->getMessage() . "</p>";
@@ -244,7 +245,7 @@ class Transacoes
 
     // DELETE
     public function deletar($id)
-    {
+   {
         try {
             $this->pdo->beginTransaction();
 
@@ -267,11 +268,13 @@ class Transacoes
 
                 $stmtDelete->execute([$id]);
                 $this->pdo->commit();
-                echo "<p style='color:green'>Transação excluída e Saldo atualizado!</p> <a href='/financas/transacoes'>Voltar</a>";
+                
+                echo "Transação excluída e Saldo atualizado!";
             }
         } catch (Exception $e) {
             $this->pdo->rollBack();
-            echo "<p style='color:red'>Erro ao excluir: " . $e->getMessage() . "</p>";
+            http_response_code(400);
+            echo "Erro ao excluir: " . $e->getMessage();
         }
     }
 }

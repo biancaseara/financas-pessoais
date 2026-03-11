@@ -103,7 +103,12 @@ class Metas
             $dados['data_limite']
         ]);
 
-        echo $sucesso ? "<p style='color:green'>Meta criada!</p> <a href='/financas/metas'>Voltar</a>" : "<p style='color:red'>Erro ao criar meta.</p>";
+        if ($sucesso) {
+            header("Location: /financas/metas");
+            exit();
+        } else {
+            echo "<p style='color:red'>Erro ao criar meta.</p>";
+        }
     }
 
     // GET com ID

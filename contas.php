@@ -67,7 +67,12 @@ class Conta
             $dados['cor_identificacao'],
         ]);
 
-        echo $sucesso ? "<p style='color:green'>Conta criada com sucesso!</p> <a href='/financas/contas'>Voltar</a>" : "<p style='color:red'>Erro ao criar conta.</p>";
+        if ($sucesso) {
+            header("Location: /financas/contas");
+            exit();
+        } else {
+            echo "<p style='color:red'>Erro ao criar conta.</p>";
+        }
     }
 
     // GET com ID

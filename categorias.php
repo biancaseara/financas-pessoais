@@ -73,7 +73,12 @@ class Categoria
         ]);
 
 
-        echo $sucesso ? "<p style='color:green'>Categoria criada!</p> <a href='/financas/categorias'>Voltar</a>" : "<p style='color:red'>Erro ao criar.</p>";
+        if ($sucesso) {
+            header("Location: /financas/categorias");
+            exit();
+        } else {
+            echo "<p style='color:red'>Erro ao criar categoria.</p>";
+        }
     }
 
     // GET com ID
