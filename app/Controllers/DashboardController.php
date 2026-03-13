@@ -1,12 +1,14 @@
 <?php
 require_once BASE_PATH . '/core/Controller.php';
 
-class DashboardController extends Controller {
-    
-    public function index() {
+class DashboardController extends Controller
+{
+
+    public function index()
+    {
         if (!isset($_SESSION['id_usuario'])) {
-            $_SESSION['id_usuario'] = 7; 
-            $_SESSION['perfil'] = 'admin';
+            header("Location: /financas/auth/login");
+            exit;
         }
 
         $id_usuario = $_SESSION['id_usuario'];

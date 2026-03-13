@@ -17,4 +17,3 @@ require_once BASE_PATH . '/core/Router.php';
 // Inicia o Roteador
 $router = new Router();
 $router->run();
-?>
