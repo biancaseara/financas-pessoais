@@ -1,4 +1,3 @@
 RewriteEngine on
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^ index.php [L,QSA]
+# Esconde a pasta public da URL e joga todo o tráfego para lá
+RewriteRule ^(.*)$ public/$1 [L]
