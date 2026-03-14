@@ -23,6 +23,7 @@
                 <a href="/financas/usuarios">👤 Usuários</a>
             <?php endif; ?>
 
+            <a href="/financas/investimentos">📈 Investimentos</a>
             <a href="/financas/auth/logout">🚪 Sair</a>
         <?php endif; ?>
     </div>
