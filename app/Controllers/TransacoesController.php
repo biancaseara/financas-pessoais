@@ -19,13 +19,20 @@ class TransacoesController extends Controller {
     public function store() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $transacaoModel = $this->model('Transacao');
+            
+            $id_conta_destino = !empty($_POST['id_conta_destino']) ? $_POST['id_conta_destino'] : null;
+            
+            // Se for transferência, a categoria fica nula. Se não, pega o que veio do formulário.
+            $id_categoria = ($_POST['tipo_transacao'] == 'Transferencia') ? null : $_POST['id_categoria'];
+
             $transacaoModel->cadastrar(
                 $_POST['id_conta'], 
-                $_POST['id_categoria'], 
+                $id_categoria, // <- Variável atualizada aqui
                 $_POST['descricao'], 
                 $_POST['valor'], 
                 $_POST['data_transacao'], 
-                $_POST['tipo_transacao']
+                $_POST['tipo_transacao'],
+                $id_conta_destino
             );
             header("Location: /financas/transacoes");
         }

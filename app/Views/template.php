@@ -6,11 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema Financeiro</title>
     <link rel="stylesheet" href="/financas/public/css/style.css">
+    
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 </head>
 
 <body>
-    <?php if (isset($_SESSION['id_usuario'])): ?>
-        <div class="nav-bar">
+    <div class="nav-bar">
+        <?php if (isset($_SESSION['id_usuario'])): ?>
             <a href="/financas">🏠 Dashboard</a>
             <a href="/financas/transacoes">💸 Transações</a>
             <a href="/financas/contas">🏦 Contas</a>
@@ -22,14 +24,13 @@
             <?php endif; ?>
 
             <a href="/financas/auth/logout">🚪 Sair</a>
-        </div>
-    <?php endif; ?>
+        <?php endif; ?>
+    </div>
 
     <div class="container">
         <?php require_once $arquivoView; ?>
     </div>
-
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-</body>
+    
+    </body>
 
 </html>

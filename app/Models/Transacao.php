@@ -9,10 +9,11 @@ class Transacao {
     }
 
     public function listarTodos() {
+        // Trocamos 'JOIN categorias' por 'LEFT JOIN categorias'
         $sql = "SELECT t.*, c.nome_banco, cat.nome_categoria 
                 FROM transacoes t 
                 JOIN contas c ON t.id_conta = c.id_conta 
-                JOIN categorias cat ON t.id_categoria = cat.id_categoria 
+                LEFT JOIN categorias cat ON t.id_categoria = cat.id_categoria 
                 ORDER BY t.data_transacao DESC";
         return $this->pdo->query($sql)->fetchAll();
     }
@@ -23,18 +24,31 @@ class Transacao {
         return $stmt->fetch();
     }
 
-    public function cadastrar($id_conta, $id_categoria, $descricao, $valor, $data_transacao, $tipo_transacao) {
+    public function cadastrar($id_conta, $id_categoria, $descricao, $valor, $data_transacao, $tipo_transacao, $id_conta_destino = null) {
         try {
             $this->pdo->beginTransaction();
 
-            $sql = "INSERT INTO transacoes (id_conta, id_categoria, descricao, valor, data_transacao, tipo_transacao) VALUES (?, ?, ?, ?, ?, ?)";
+            // Insere a transação com a nova coluna
+            $sql = "INSERT INTO transacoes (id_conta, id_categoria, descricao, valor, data_transacao, tipo_transacao, id_conta_destino) VALUES (?, ?, ?, ?, ?, ?, ?)";
             $stmt = $this->pdo->prepare($sql);
-            $stmt->execute([$id_conta, $id_categoria, $descricao, $valor, $data_transacao, $tipo_transacao]);
+            $stmt->execute([$id_conta, $id_categoria, $descricao, $valor, $data_transacao, $tipo_transacao, $id_conta_destino]);
 
-            $valor_ajuste = ($tipo_transacao == 'Saida') ? ($valor * -1) : $valor;
-            $sqlSaldo = "UPDATE contas SET saldo_inicial = saldo_inicial + ? WHERE id_conta = ?";
-            $stmtSaldo = $this->pdo->prepare($sqlSaldo);
-            $stmtSaldo->execute([$valor_ajuste, $id_conta]);
+            // Regras de atualização de saldo
+            if ($tipo_transacao == 'Transferencia') {
+                // 1. Tira o dinheiro da conta origem
+                $stmtOrigem = $this->pdo->prepare("UPDATE contas SET saldo_inicial = saldo_inicial - ? WHERE id_conta = ?");
+                $stmtOrigem->execute([$valor, $id_conta]);
+
+                // 2. Coloca o dinheiro na conta destino
+                $stmtDestino = $this->pdo->prepare("UPDATE contas SET saldo_inicial = saldo_inicial + ? WHERE id_conta = ?");
+                $stmtDestino->execute([$valor, $id_conta_destino]);
+            } else {
+                // Regra normal para Entrada ou Saída
+                $valor_ajuste = ($tipo_transacao == 'Saida') ? ($valor * -1) : $valor;
+                $sqlSaldo = "UPDATE contas SET saldo_inicial = saldo_inicial + ? WHERE id_conta = ?";
+                $stmtSaldo = $this->pdo->prepare($sqlSaldo);
+                $stmtSaldo->execute([$valor_ajuste, $id_conta]);
+            }
 
             $this->pdo->commit();
             return true;
@@ -43,7 +57,7 @@ class Transacao {
             return false;
         }
     }
-
+    
     public function atualizar($id, $id_conta, $id_categoria, $descricao, $valor, $data_transacao, $tipo_transacao) {
         try {
             $this->pdo->beginTransaction();
