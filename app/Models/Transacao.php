@@ -1,15 +1,17 @@
 <?php
 
-class Transacao {
+class Transacao
+{
     private $pdo;
 
-    public function __construct() {
+    public function __construct()
+    {
         $db = new Database();
         $this->pdo = $db->getConnection();
     }
 
-    public function listarTodos() {
-        // Trocamos 'JOIN categorias' por 'LEFT JOIN categorias'
+    public function listarTodos()
+    {
         $sql = "SELECT t.*, c.nome_banco, cat.nome_categoria 
                 FROM transacoes t 
                 JOIN contas c ON t.id_conta = c.id_conta 
@@ -18,101 +20,114 @@ class Transacao {
         return $this->pdo->query($sql)->fetchAll();
     }
 
-    public function buscarPorId($id) {
+    public function buscarPorId($id)
+    {
         $stmt = $this->pdo->prepare("SELECT * FROM transacoes WHERE id_transacao = ?");
         $stmt->execute([$id]);
         return $stmt->fetch();
     }
 
-    public function cadastrar($id_conta, $id_categoria, $descricao, $valor, $data_transacao, $tipo_transacao, $id_conta_destino = null) {
+    public function cadastrar($id_conta, $id_categoria, $descricao, $valor, $data_transacao, $tipo_transacao, $id_conta_destino = null)
+    {
+        // SEM ACENTO AQUI
+        if ($tipo_transacao == 'Transferencia' && empty($id_conta_destino)) {
+            die("Erro crítico: Conta de destino não informada para a transferência.");
+        }
+
         try {
             $this->pdo->beginTransaction();
 
-            // Insere a transação com a nova coluna
             $sql = "INSERT INTO transacoes (id_conta, id_categoria, descricao, valor, data_transacao, tipo_transacao, id_conta_destino) VALUES (?, ?, ?, ?, ?, ?, ?)";
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([$id_conta, $id_categoria, $descricao, $valor, $data_transacao, $tipo_transacao, $id_conta_destino]);
 
-            // Regras de atualização de saldo
             if ($tipo_transacao == 'Transferencia') {
-                // 1. Tira o dinheiro da conta origem
-                $stmtOrigem = $this->pdo->prepare("UPDATE contas SET saldo_inicial = saldo_inicial - ? WHERE id_conta = ?");
-                $stmtOrigem->execute([$valor, $id_conta]);
-
-                // 2. Coloca o dinheiro na conta destino
-                $stmtDestino = $this->pdo->prepare("UPDATE contas SET saldo_inicial = saldo_inicial + ? WHERE id_conta = ?");
-                $stmtDestino->execute([$valor, $id_conta_destino]);
+                $this->pdo->prepare("UPDATE contas SET saldo_inicial = saldo_inicial - ? WHERE id_conta = ?")->execute([$valor, $id_conta]);
+                $this->pdo->prepare("UPDATE contas SET saldo_inicial = saldo_inicial + ? WHERE id_conta = ?")->execute([$valor, $id_conta_destino]);
             } else {
-                // Regra normal para Entrada ou Saída
                 $valor_ajuste = ($tipo_transacao == 'Saida') ? ($valor * -1) : $valor;
-                $sqlSaldo = "UPDATE contas SET saldo_inicial = saldo_inicial + ? WHERE id_conta = ?";
-                $stmtSaldo = $this->pdo->prepare($sqlSaldo);
-                $stmtSaldo->execute([$valor_ajuste, $id_conta]);
+                $this->pdo->prepare("UPDATE contas SET saldo_inicial = saldo_inicial + ? WHERE id_conta = ?")->execute([$valor_ajuste, $id_conta]);
             }
 
             $this->pdo->commit();
             return true;
         } catch (Exception $e) {
             $this->pdo->rollBack();
-            return false;
+            die("Erro no Banco: " . $e->getMessage());
         }
     }
-    
-    public function atualizar($id, $id_conta, $id_categoria, $descricao, $valor, $data_transacao, $tipo_transacao) {
+
+    public function atualizar($id, $id_conta, $id_categoria, $descricao, $valor, $data_transacao, $tipo_transacao, $id_conta_destino = null)
+    {
+        if ($tipo_transacao == 'Transferencia' && empty($id_conta_destino)) {
+            die("Erro crítico: Conta de destino não informada.");
+        }
+
         try {
             $this->pdo->beginTransaction();
 
-            // 1. Reverter saldo antigo
             $antiga = $this->buscarPorId($id);
-            $reverso = ($antiga['tipo_transacao'] == 'Entrada') ? ($antiga['valor'] * -1) : $antiga['valor'];
             
-            $sqlRevert = "UPDATE contas SET saldo_inicial = saldo_inicial + ? WHERE id_conta = ?";
-            $stmtRev = $this->pdo->prepare($sqlRevert);
-            $stmtRev->execute([$reverso, $antiga['id_conta']]);
+            // VERIFICAÇÃO CEGA: Usando o ID_destino como prova extra para evitar falhas
+            $isTransferenciaAntiga = ($antiga['tipo_transacao'] == 'Transferencia' || !empty($antiga['id_conta_destino']));
 
-            // 2. Atualizar a transação
-            $sqlUp = "UPDATE transacoes SET id_conta=?, id_categoria=?, descricao=?, valor=?, data_transacao=?, tipo_transacao=? WHERE id_transacao=?";
-            $stmtUp = $this->pdo->prepare($sqlUp);
-            $stmtUp->execute([$id_conta, $id_categoria, $descricao, $valor, $data_transacao, $tipo_transacao, $id]);
+            // 1. REVERTER O SALDO ANTIGO
+            if ($isTransferenciaAntiga) {
+                $this->pdo->prepare("UPDATE contas SET saldo_inicial = saldo_inicial + ? WHERE id_conta = ?")->execute([$antiga['valor'], $antiga['id_conta']]);
+                $this->pdo->prepare("UPDATE contas SET saldo_inicial = saldo_inicial - ? WHERE id_conta = ?")->execute([$antiga['valor'], $antiga['id_conta_destino']]);
+            } else {
+                $reverso = ($antiga['tipo_transacao'] == 'Entrada') ? ($antiga['valor'] * -1) : $antiga['valor'];
+                $this->pdo->prepare("UPDATE contas SET saldo_inicial = saldo_inicial + ? WHERE id_conta = ?")->execute([$reverso, $antiga['id_conta']]);
+            }
 
-            // 3. Aplicar o novo saldo
-            $novoValor = ($tipo_transacao == 'Saida') ? ($valor * -1) : $valor;
-            $sqlAplica = "UPDATE contas SET saldo_inicial = saldo_inicial + ? WHERE id_conta = ?";
-            $stmtAplica = $this->pdo->prepare($sqlAplica);
-            $stmtAplica->execute([$novoValor, $id_conta]);
+            // 2. ATUALIZAR A TRANSAÇÃO NO BANCO
+            $sqlUp = "UPDATE transacoes SET id_conta=?, id_categoria=?, descricao=?, valor=?, data_transacao=?, tipo_transacao=?, id_conta_destino=? WHERE id_transacao=?";
+            $this->pdo->prepare($sqlUp)->execute([$id_conta, $id_categoria, $descricao, $valor, $data_transacao, $tipo_transacao, $id_conta_destino, $id]);
+
+            // 3. APLICAR O NOVO SALDO
+            $isTransferenciaNova = ($tipo_transacao == 'Transferencia' || !empty($id_conta_destino));
+
+            if ($isTransferenciaNova) {
+                $this->pdo->prepare("UPDATE contas SET saldo_inicial = saldo_inicial - ? WHERE id_conta = ?")->execute([$valor, $id_conta]);
+                $this->pdo->prepare("UPDATE contas SET saldo_inicial = saldo_inicial + ? WHERE id_conta = ?")->execute([$valor, $id_conta_destino]);
+            } else {
+                $novoValor = ($tipo_transacao == 'Saida') ? ($valor * -1) : $valor;
+                $this->pdo->prepare("UPDATE contas SET saldo_inicial = saldo_inicial + ? WHERE id_conta = ?")->execute([$novoValor, $id_conta]);
+            }
 
             $this->pdo->commit();
             return true;
         } catch (Exception $e) {
             $this->pdo->rollBack();
-            return false;
+            die("Erro ao atualizar: " . $e->getMessage());
         }
     }
 
-    public function deletar($id) {
+    public function deletar($id)
+    {
         try {
             $this->pdo->beginTransaction();
 
             $transacao = $this->buscarPorId($id);
             if ($transacao) {
-                $valor = $transacao['valor'];
-                $tipo = $transacao['tipo_transacao'];
-                $id_conta = $transacao['id_conta'];
+                $isTransferencia = ($transacao['tipo_transacao'] == 'Transferencia' || !empty($transacao['id_conta_destino']));
 
-                $ajuste = ($tipo == 'Entrada') ? ($valor * -1) : $valor;
-                $stmtUpdate = $this->pdo->prepare("UPDATE contas SET saldo_inicial = saldo_inicial + ? WHERE id_conta = ?");
-                $stmtUpdate->execute([$ajuste, $id_conta]);
+                if ($isTransferencia) {
+                    $this->pdo->prepare("UPDATE contas SET saldo_inicial = saldo_inicial + ? WHERE id_conta = ?")->execute([$transacao['valor'], $transacao['id_conta']]);
+                    $this->pdo->prepare("UPDATE contas SET saldo_inicial = saldo_inicial - ? WHERE id_conta = ?")->execute([$transacao['valor'], $transacao['id_conta_destino']]);
+                } else {
+                    $ajuste = ($transacao['tipo_transacao'] == 'Entrada') ? ($transacao['valor'] * -1) : $transacao['valor'];
+                    $this->pdo->prepare("UPDATE contas SET saldo_inicial = saldo_inicial + ? WHERE id_conta = ?")->execute([$ajuste, $transacao['id_conta']]);
+                }
 
-                $stmtDelete = $this->pdo->prepare("DELETE FROM transacoes WHERE id_transacao = ?");
-                $stmtDelete->execute([$id]);
-                
+                $this->pdo->prepare("DELETE FROM transacoes WHERE id_transacao = ?")->execute([$id]);
                 $this->pdo->commit();
                 return true;
             }
             return false;
         } catch (Exception $e) {
             $this->pdo->rollBack();
-            return false;
+            die("Erro ao excluir: " . $e->getMessage());
         }
     }
 }

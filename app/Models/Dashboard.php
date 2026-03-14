@@ -4,7 +4,6 @@ class Dashboard {
     private $pdo;
 
     public function __construct() {
-        // Instancia a classe Database que criamos na pasta config
         $db = new Database();
         $this->pdo = $db->getConnection();
     }
@@ -15,12 +14,12 @@ class Dashboard {
         $stmt->execute([$id_usuario]);
         $entrada = $stmt->fetch()['total'] ?? 0;
 
-        // Total Gasto
+        // Total Gasto (Sem acento em 'Saida')
         $stmt = $this->pdo->prepare("SELECT SUM(t.valor) as total FROM transacoes t JOIN contas c ON t.id_conta = c.id_conta WHERE t.tipo_transacao = 'Saida' AND c.id_usuario = ?");
         $stmt->execute([$id_usuario]);
         $saida = $stmt->fetch()['total'] ?? 0;
 
-        // Balanço Geral (Saldo inicial das contas)
+        // Balanço Geral
         $stmt = $this->pdo->prepare("SELECT SUM(saldo_inicial) as total FROM contas WHERE id_usuario = ?");
         $stmt->execute([$id_usuario]);
         $saldo = $stmt->fetch()['total'] ?? 0;
@@ -36,7 +35,7 @@ class Dashboard {
         $sql = "SELECT t.*, c.nome_banco, cat.nome_categoria 
                 FROM transacoes t 
                 JOIN contas c ON t.id_conta = c.id_conta 
-                JOIN categorias cat ON t.id_categoria = cat.id_categoria 
+                LEFT JOIN categorias cat ON t.id_categoria = cat.id_categoria 
                 WHERE c.id_usuario = ?
                 ORDER BY t.data_transacao DESC LIMIT 5";
         

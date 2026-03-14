@@ -22,12 +22,12 @@ class TransacoesController extends Controller {
             
             $id_conta_destino = !empty($_POST['id_conta_destino']) ? $_POST['id_conta_destino'] : null;
             
-            // Se for transferência, a categoria fica nula. Se não, pega o que veio do formulário.
+            // Sem acento na palavra Transferencia
             $id_categoria = ($_POST['tipo_transacao'] == 'Transferencia') ? null : $_POST['id_categoria'];
 
             $transacaoModel->cadastrar(
                 $_POST['id_conta'], 
-                $id_categoria, // <- Variável atualizada aqui
+                $id_categoria, 
                 $_POST['descricao'], 
                 $_POST['valor'], 
                 $_POST['data_transacao'], 
@@ -60,14 +60,21 @@ class TransacoesController extends Controller {
     public function update($id) {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $transacaoModel = $this->model('Transacao');
+            
+            $id_conta_destino = !empty($_POST['id_conta_destino']) ? $_POST['id_conta_destino'] : null;
+            
+            // Sem acento na palavra Transferencia
+            $id_categoria = ($_POST['tipo_transacao'] == 'Transferencia') ? null : $_POST['id_categoria'];
+
             $transacaoModel->atualizar(
                 $id,
                 $_POST['id_conta'], 
-                $_POST['id_categoria'], 
+                $id_categoria, 
                 $_POST['descricao'], 
                 $_POST['valor'], 
                 $_POST['data_transacao'], 
-                $_POST['tipo_transacao']
+                $_POST['tipo_transacao'],
+                $id_conta_destino
             );
             header("Location: /financas/transacoes");
         }

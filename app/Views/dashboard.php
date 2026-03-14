@@ -28,11 +28,20 @@
     </tr>
     <?php if (count($recentes) > 0): ?>
         <?php foreach ($recentes as $r): ?>
-            <?php $cor = ($r['tipo_transacao'] == 'Entrada') ? 'green' : 'red'; ?>
+            <?php 
+                // Sem acento na Saida
+                if ($r['tipo_transacao'] == 'Entrada') {
+                    $cor = 'green';
+                } elseif ($r['tipo_transacao'] == 'Saida') {
+                    $cor = 'red';
+                } else {
+                    $cor = 'blue';
+                }
+            ?>
             <tr>
                 <td><?= date('d/m/Y', strtotime($r['data_transacao'])) ?></td>
                 <td><?= htmlspecialchars($r['descricao']) ?></td>
-                <td><?= htmlspecialchars($r['nome_categoria']) ?></td>
+                <td><?= htmlspecialchars($r['nome_categoria'] ?? '🔄 Transferência') ?></td>
                 <td><?= htmlspecialchars($r['nome_banco'] ?? '—') ?></td>
                 <td style="color: <?= $cor ?>; font-weight: bold;">
                     R$ <?= number_format($r['valor'], 2, ',', '.') ?>
