@@ -3,11 +3,14 @@
 <form action="/financas/categorias/store" method="POST" class="d-flex flex-column" style="margin-bottom: 20px;">
     <div class="d-flex">
         <input name="nome_categoria" placeholder="Nome da Categoria (Ex: Alimentação)" required style="flex-grow: 1;">
-        <select name="tipo" required>
+        
+        <select name="tipo" id="tipo_categoria" required>
             <option value="" disabled selected>Selecione o Tipo</option>
             <option value="R">Receita (Entrada)</option>
             <option value="D">Despesa (Saída)</option>
         </select>
+
+        <input type="number" step="0.01" name="limite_mensal" id="box_limite" placeholder="Limite Mensal (R$) - Opcional" style="display: none; flex-grow: 1;">
     </div>
     <div class="d-flex" style="margin-top: 10px;">
         <button type="submit">Salvar Categoria</button>
@@ -27,6 +30,10 @@
                 <div>
                     <b>Categoria:</b> <?= htmlspecialchars($item['nome_categoria']) ?> <br>
                     <b>Tipo:</b> <span style="color: <?= $cor ?>; font-weight:bold;"><?= $labelTipo ?></span>
+                    
+                    <?php if (!empty($item['limite_mensal'])): ?>
+                        <br><b style="color: #666;">Limite Mensal:</b> R$ <?= number_format($item['limite_mensal'], 2, ',', '.') ?>
+                    <?php endif; ?>
                 </div>
                 
                 <div class="d-flex">
@@ -42,3 +49,15 @@
 <?php else: ?>
     <p>Nenhuma categoria cadastrada.</p>
 <?php endif; ?>
+
+<script>
+$(document).ready(function() {
+    $('#tipo_categoria').change(function() {
+        if ($(this).val() == 'D') {
+            $('#box_limite').show();
+        } else {
+            $('#box_limite').hide().val('');
+        }
+    });
+});
+</script>

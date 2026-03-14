@@ -13,18 +13,20 @@ class DashboardController extends Controller
 
         $id_usuario = $_SESSION['id_usuario'];
 
-        // Instancia o Model do Dashboard
         $dashboardModel = $this->model('Dashboard');
 
         // Busca os dados no banco
         $resumo = $dashboardModel->getResumo($id_usuario);
         $recentes = $dashboardModel->getRecentes($id_usuario);
+        
+        // NOVA LINHA: Busca os orçamentos do mês atual
+        $orcamentos = $dashboardModel->getOrcamentos($id_usuario); 
 
-        // Prepara os dados para mandar para a tela
         $dados = [
             'titulo' => 'Resumo Financeiro',
             'resumo' => $resumo,
-            'recentes' => $recentes
+            'recentes' => $recentes,
+            'orcamentos' => $orcamentos // <- NOVA LINHA
         ];
 
         $this->view('dashboard', $dados);

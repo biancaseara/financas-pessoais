@@ -16,10 +16,11 @@ class CategoriasController extends Controller {
     public function store() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $categoriaModel = $this->model('Categoria');
-            // Como ainda não temos o login 100% isolado, vamos usar o ID da sessão
             $id_usuario = $_SESSION['id_usuario'] ?? 7; 
             
-            $categoriaModel->cadastrar($id_usuario, $_POST['nome_categoria'], $_POST['tipo']);
+            $limite_mensal = !empty($_POST['limite_mensal']) ? $_POST['limite_mensal'] : null;
+            
+            $categoriaModel->cadastrar($id_usuario, $_POST['nome_categoria'], $_POST['tipo'], $limite_mensal);
             header("Location: /financas/categorias");
         }
     }
@@ -41,7 +42,10 @@ class CategoriasController extends Controller {
     public function update($id) {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $categoriaModel = $this->model('Categoria');
-            $categoriaModel->atualizar($id, $_POST['nome_categoria'], $_POST['tipo']);
+            
+            $limite_mensal = !empty($_POST['limite_mensal']) ? $_POST['limite_mensal'] : null;
+
+            $categoriaModel->atualizar($id, $_POST['nome_categoria'], $_POST['tipo'], $limite_mensal);
             header("Location: /financas/categorias");
         }
     }

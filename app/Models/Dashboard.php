@@ -43,4 +43,23 @@ class Dashboard {
         $stmt->execute([$id_usuario]);
         return $stmt->fetchAll();
     }
+
+    public function getOrcamentos($id_usuario) {
+        $mesAtual = date('Y-m'); // Pega o ano e o mês atual (Ex: 2026-03)
+        
+        // Puxa as categorias que têm limite e soma os gastos delas neste mês
+        $sql = "SELECT cat.nome_categoria, cat.limite_mensal, 
+                       COALESCE(SUM(t.valor), 0) as total_gasto
+                FROM categorias cat
+                LEFT JOIN transacoes t ON cat.id_categoria = t.id_categoria 
+                      AND t.tipo_transacao = 'Saida' 
+                      AND DATE_FORMAT(t.data_transacao, '%Y-%m') = ?
+                WHERE cat.id_usuario = ? AND cat.limite_mensal IS NOT NULL AND cat.limite_mensal > 0
+                GROUP BY cat.id_categoria
+                ORDER BY (COALESCE(SUM(t.valor), 0) / cat.limite_mensal) DESC";
+                
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$mesAtual, $id_usuario]);
+        return $stmt->fetchAll();
+    }
 }
