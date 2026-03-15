@@ -18,15 +18,17 @@ class DashboardController extends Controller
         // Busca os dados no banco
         $resumo = $dashboardModel->getResumo($id_usuario);
         $recentes = $dashboardModel->getRecentes($id_usuario);
-        
-        // NOVA LINHA: Busca os orçamentos do mês atual
         $orcamentos = $dashboardModel->getOrcamentos($id_usuario); 
+        
+        // NOVA LINHA: Busca os gastos para o gráfico
+        $gastosPorCategoria = $dashboardModel->getGastosPorCategoria($id_usuario);
 
         $dados = [
             'titulo' => 'Resumo Financeiro',
             'resumo' => $resumo,
             'recentes' => $recentes,
-            'orcamentos' => $orcamentos // <- NOVA LINHA
+            'orcamentos' => $orcamentos,
+            'gastosPorCategoria' => $gastosPorCategoria
         ];
 
         $this->view('dashboard', $dados);

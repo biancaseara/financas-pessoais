@@ -17,6 +17,65 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 20px;">
+    <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); flex: 1; min-width: 300px; display: flex; flex-direction: column; align-items: center;">
+        <h3 style="margin-bottom: 15px;">Despesas por Categoria (Mês Atual)</h3>
+        
+        <?php if (!empty($gastosPorCategoria)): ?>
+            <div style="width: 100%; max-width: 350px;">
+                <canvas id="graficoCategorias"></canvas>
+            </div>
+            
+            <?php
+                // Prepara os dados do PHP para o JavaScript ler
+                $labels = [];
+                $valores = [];
+                foreach ($gastosPorCategoria as $gasto) {
+                    $labels[] = $gasto['nome_categoria'];
+                    $valores[] = $gasto['total'];
+                }
+            ?>
+            
+            <script>
+                // Pega os arrays criados pelo PHP e joga pro JS
+                const labelsCategoria = <?= json_encode($labels) ?>;
+                const dadosCategoria = <?= json_encode($valores) ?>;
+                
+                // Configuração das cores do gráfico
+                const coresGrafico = [
+                    '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', 
+                    '#9966FF', '#FF9F40', '#EA6A47', '#A5D8DD'
+                ];
+
+                const ctx = document.getElementById('graficoCategorias').getContext('2d');
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labelsCategoria,
+                        datasets: [{
+                            data: dadosCategoria,
+                            backgroundColor: coresGrafico,
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                            }
+                        }
+                    }
+                });
+            </script>
+        <?php else: ?>
+            <p style="color: #666; margin-top: 20px;">Ainda não há despesas registradas neste mês.</p>
+        <?php endif; ?>
+    </div>
+</div>
+
 <?php if (!empty($orcamentos)): ?>
     <h2 style="margin-top: 30px;">Limites de Gastos (Neste Mês)</h2>
     <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 30px;">

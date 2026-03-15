@@ -62,4 +62,22 @@ class Dashboard {
         $stmt->execute([$mesAtual, $id_usuario]);
         return $stmt->fetchAll();
     }
+
+    public function getGastosPorCategoria($id_usuario) {
+        $mesAtual = date('Y-m'); // Filtra apenas o mês atual
+        
+        $sql = "SELECT cat.nome_categoria, SUM(t.valor) as total
+                FROM transacoes t
+                JOIN categorias cat ON t.id_categoria = cat.id_categoria
+                JOIN contas c ON t.id_conta = c.id_conta
+                WHERE t.tipo_transacao = 'Saida' 
+                  AND c.id_usuario = ? 
+                  AND DATE_FORMAT(t.data_transacao, '%Y-%m') = ?
+                GROUP BY cat.id_categoria
+                ORDER BY total DESC";
+                
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$id_usuario, $mesAtual]);
+        return $stmt->fetchAll();
+    }
 }
