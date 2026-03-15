@@ -81,4 +81,48 @@ class RecorrentesController extends Controller {
             header("Location: /financas/recorrentes");
         }
     }
+
+    public function lancarMes() {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $recorrenteModel = $this->model('DespesaRecorrente');
+            $transacaoModel = $this->model('Transacao'); // Puxa o model de transações para podermos salvar
+            
+            $id_usuario = $_SESSION['id_usuario'];
+            $despesas = $recorrenteModel->listarTodos($id_usuario);
+            
+            $mesAno = date('Y-m'); // Ex: 2026-03
+            $mesAnoDisplay = date('m/Y'); // Ex: 03/2026
+            $ultimoDiaMes = date('t'); // Retorna 28, 30 ou 31 dependendo do mês
+            
+            foreach ($despesas as $d) {
+                if ($d['status'] == 'Ativo') {
+                    // Proteção: Se a conta vence dia 31, mas estamos em fevereiro (que vai até 28)
+                    $diaVencimento = $d['dia_vencimento'];
+                    if ($diaVencimento > $ultimoDiaMes) {
+                        $diaVencimento = $ultimoDiaMes;
+                    }
+                    
+                    // Monta a data no formato do banco (YYYY-MM-DD)
+                    $dataVencimento = $mesAno . '-' . str_pad($diaVencimento, 2, '0', STR_PAD_LEFT);
+                    
+                    // Coloca uma tag na descrição para você saber que foi o sistema que lançou
+                    $descricaoFormatada = "🔄 " . $d['descricao'] . " (" . $mesAnoDisplay . ")";
+                    
+                    // Usa a função de cadastrar transação que já criamos lá na Fase 1
+                    $transacaoModel->cadastrar(
+                        $d['id_conta'],
+                        $d['id_categoria'],
+                        $descricaoFormatada,
+                        $d['valor'],
+                        $dataVencimento,
+                        'Saida',
+                        null
+                    );
+                }
+            }
+            
+            // Depois de lançar tudo, te redireciona para ver a mágica feita
+            header("Location: /financas/transacoes");
+        }
+    }
 }
