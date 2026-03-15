@@ -1,4 +1,12 @@
 <?php
+// Define o tempo de vida para 30 dias (em segundos)
+$tempoDeVida = 60 * 60 * 24 * 30; 
+
+// Avisa o navegador para guardar o cookie por 30 dias
+session_set_cookie_params($tempoDeVida);
+ini_set('session.gc_maxlifetime', $tempoDeVida);
+
+// Inicia a sessão com as novas regras
 session_start();
 
 // Configuração de erros (remova ou comente quando colocar em produção)

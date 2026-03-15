@@ -1,10 +1,17 @@
 <?php
 require_once BASE_PATH . '/core/Controller.php';
 
-class AuthController extends Controller {
+class AuthController extends Controller
+{
 
-    public function login() {
+    public function login()
+    {
         $erro = "";
+        // Se o usuário já estiver logado, chuta ele direto para o Dashboard!
+        if (isset($_SESSION['id_usuario'])) {
+            header("Location: /financas");
+            exit;
+        }
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $usuarioModel = $this->model('Usuario');
@@ -13,6 +20,7 @@ class AuthController extends Controller {
             if ($usuario && password_verify($_POST['senha'], $usuario['senha'])) {
                 $_SESSION['id_usuario'] = $usuario['id_usuario'];
                 $_SESSION['perfil'] = $usuario['perfil'];
+                $_SESSION['nome'] = $usuario['nome'];
                 header("Location: /financas");
                 exit;
             } else {
@@ -26,7 +34,8 @@ class AuthController extends Controller {
         ]);
     }
 
-    public function registro() {
+    public function registro()
+    {
         $erro = "";
         $sucesso = "";
 
@@ -57,7 +66,8 @@ class AuthController extends Controller {
         ]);
     }
 
-    public function logout() {
+    public function logout()
+    {
         session_destroy();
         header("Location: /financas/auth/login");
         exit;
