@@ -20,7 +20,7 @@ class Dashboard {
         $saida = $stmt->fetch()['total'] ?? 0;
 
         // Balanço Geral
-        $stmt = $this->pdo->prepare("SELECT SUM(saldo_inicial) as total FROM contas WHERE id_usuario = ?");
+        $stmt = $this->pdo->prepare("SELECT SUM(saldo_inicial) as total FROM contas WHERE id_usuario = ? AND saldo_inicial >= 0");
         $stmt->execute([$id_usuario]);
         $saldo = $stmt->fetch()['total'] ?? 0;
 
