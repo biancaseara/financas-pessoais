@@ -22,7 +22,6 @@ class TransacoesController extends Controller {
             
             $id_conta_destino = !empty($_POST['id_conta_destino']) ? $_POST['id_conta_destino'] : null;
             
-            // Sem acento na palavra Transferencia
             $id_categoria = ($_POST['tipo_transacao'] == 'Transferencia') ? null : $_POST['id_categoria'];
 
             $transacaoModel->cadastrar(
@@ -63,7 +62,6 @@ class TransacoesController extends Controller {
             
             $id_conta_destino = !empty($_POST['id_conta_destino']) ? $_POST['id_conta_destino'] : null;
             
-            // Sem acento na palavra Transferencia
             $id_categoria = ($_POST['tipo_transacao'] == 'Transferencia') ? null : $_POST['id_categoria'];
 
             $transacaoModel->atualizar(

@@ -105,7 +105,7 @@ class RecorrentesController extends Controller {
                     // Monta a data no formato do banco (YYYY-MM-DD)
                     $dataVencimento = $mesAno . '-' . str_pad($diaVencimento, 2, '0', STR_PAD_LEFT);
                     
-                    // Coloca uma tag na descrição para você saber que foi o sistema que lançou
+                    // Coloca uma tag na descrição para saber que foi o sistema que lançou
                     $descricaoFormatada = "🔄 " . $d['descricao'] . " (" . $mesAnoDisplay . ")";
                     
                     // Usa a função de cadastrar transação que já criamos lá na Fase 1
@@ -121,7 +121,7 @@ class RecorrentesController extends Controller {
                 }
             }
             
-            // Depois de lançar tudo, te redireciona para ver a mágica feita
+            // Depois de lançar tudo, redireciona o usuário para a página de transações para ver tudo lançado lá
             header("Location: /financas/transacoes");
         }
     }

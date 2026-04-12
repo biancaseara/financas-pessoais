@@ -3,9 +3,9 @@
 class Database {
     private $host = 'localhost';
     private $port = '3306';
-    private $dbname = 'financas_pessoais';
-    private $user = 'admin';
-    private $password = '@admin123';
+    private $dbname = 'NOME_DO_SEU_BANCO';
+    private $user = 'SEU_USUARIO';
+    private $password = 'SUA_SENHA';
     private $pdo;
 
     public function getConnection() {

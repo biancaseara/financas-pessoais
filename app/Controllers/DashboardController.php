@@ -20,7 +20,7 @@ class DashboardController extends Controller
         $recentes = $dashboardModel->getRecentes($id_usuario);
         $orcamentos = $dashboardModel->getOrcamentos($id_usuario); 
         
-        // NOVA LINHA: Busca os gastos para o gráfico
+        // Busca os gastos para o gráfico
         $gastosPorCategoria = $dashboardModel->getGastosPorCategoria($id_usuario);
 
         $dados = [

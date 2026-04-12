@@ -1,0 +1,7 @@
+# Ignorar arquivos de configuração com senhas reais
+config/database.php
+
+# Ignorar arquivos de log e cache do sistema operacional
+*.log
+.DS_Store
+Thumbs.db

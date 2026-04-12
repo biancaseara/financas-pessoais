@@ -12,7 +12,7 @@ class PerfilController extends Controller {
 
     public function index() {
         $usuarioModel = $this->model('Usuario');
-        // Busca APENAS os dados do usuário que está logado
+        // Busca apenas os dados do usuário que está logado
         $meusDados = $usuarioModel->buscarPorId($_SESSION['id_usuario']);
 
         $this->view('perfil/index', [
@@ -25,7 +25,7 @@ class PerfilController extends Controller {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $usuarioModel = $this->model('Usuario');
             
-            // Força a atualização APENAS no ID da sessão atual
+            // Força a atualização apenas no ID da sessão atual
             $id_logado = $_SESSION['id_usuario'];
             $perfil_atual = $_SESSION['perfil']; // Impede que a pessoa mude o próprio nível de acesso
             

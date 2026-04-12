@@ -7,7 +7,7 @@ class AuthController extends Controller
     public function login()
     {
         $erro = "";
-        // Se o usuário já estiver logado, chuta ele direto para o Dashboard!
+        // Se o usuário já estiver logado, leva ele direto para o Dashboard!
         if (isset($_SESSION['id_usuario'])) {
             header("Location: /financas");
             exit;
@@ -48,7 +48,7 @@ class AuthController extends Controller
                 $usuarioModel = $this->model('Usuario');
                 $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
 
-                // O perfil padrão sempre será 'comum' no registro público
+                // O perfil padrão sempre será 'comum' no cadastro público
                 if ($usuarioModel->cadastrar($nome, $email, $senhaHash, 'comum')) {
                     $sucesso = "Conta criada com sucesso! Você já pode fazer login.";
                 } else {

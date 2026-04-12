@@ -14,7 +14,7 @@ class Dashboard {
         $stmt->execute([$id_usuario]);
         $entrada = $stmt->fetch()['total'] ?? 0;
 
-        // Total Gasto (Sem acento em 'Saida')
+        // Total Gasto
         $stmt = $this->pdo->prepare("SELECT SUM(t.valor) as total FROM transacoes t JOIN contas c ON t.id_conta = c.id_conta WHERE t.tipo_transacao = 'Saida' AND c.id_usuario = ?");
         $stmt->execute([$id_usuario]);
         $saida = $stmt->fetch()['total'] ?? 0;

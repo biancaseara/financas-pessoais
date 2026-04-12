@@ -70,7 +70,6 @@ O banco de dados (`financas_pessoais`) é totalmente relacional, garantindo a in
 
 Este projeto está em constante evolução. Os próximos passos focam em escalar a base de código para padrões corporativos:
 
-- [ ] **Variáveis de Ambiente (`.env`):** Implementar a leitura de arquivos `.env` para isolar credenciais de banco de dados e chaves de segurança, removendo-as do código-fonte hardcoded (`config/database.php`).
 - [ ] **Autoloading com Composer (PSR-4):** Substituir as chamadas manuais de `require_once` pelo padrão PSR-4 utilizando o Composer, otimizando o carregamento de classes de Controllers e Models.
 - [ ] **Camada de Helpers:** Criar o diretório `app/Helpers/` para centralizar funções utilitárias globais (ex: formatação de moeda BRL, manipulação e conversão de datas), aplicando o princípio DRY (Don't Repeat Yourself).
 - [ ] **Filtros e Paginação:** Adicionar paginação e filtros de busca (por mês/ano e categoria) na tela de listagem de Transações.
