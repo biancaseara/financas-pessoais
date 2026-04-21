@@ -15,6 +15,9 @@ class Usuario {
     }
 
     public function cadastrar($nome, $email, $senhaHash, $aceitou_termos, $data_aceite_termos, $perfil = 'comum') {
+        $nome = strip_tags(trim($nome));
+        $email = strip_tags(trim($email));
+
         try {
             $sql = "INSERT INTO usuarios (nome, email, senha, aceitou_termos, data_aceite_termos, perfil, data_cadastro) VALUES (?, ?, ?, ?, ?, ?, NOW())";
             $stmt = $this->pdo->prepare($sql);
@@ -26,18 +29,20 @@ class Usuario {
     }
 
     public function listarTodos() {
-        return $this->pdo->query("SELECT * FROM usuarios")->fetchAll();
+        return $this->pdo->query("SELECT id_usuario, nome, email, perfil FROM usuarios")->fetchAll();
     }
 
     public function buscarPorId($id) {
-        $stmt = $this->pdo->prepare("SELECT * FROM usuarios WHERE id_usuario = ?");
+        $stmt = $this->pdo->prepare("SELECT id_usuario, nome, email, perfil FROM usuarios WHERE id_usuario = ?");
         $stmt->execute([$id]);
         return $stmt->fetch();
     }
 
-    public function atualizar($id, $nome, $email, $senha, $perfil) {
-        if (!empty($senha)) {
-            $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
+    public function atualizar($id, $nome, $email, $senhaHash, $perfil) {
+        $nome = strip_tags(trim($nome));
+        $email = strip_tags(trim($email));
+
+        if (!empty($senhaHash)) {
             $sql = "UPDATE usuarios SET nome=?, email=?, senha=?, perfil=? WHERE id_usuario=?";
             $stmt = $this->pdo->prepare($sql);
             return $stmt->execute([$nome, $email, $senhaHash, $perfil, $id]);
