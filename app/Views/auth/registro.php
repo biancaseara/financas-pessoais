@@ -13,6 +13,10 @@
         <input type="text" name="nome" placeholder="Nome Completo" required style="margin-bottom: 15px; padding: 10px;">
         <input type="email" name="email" placeholder="Seu E-mail" required style="margin-bottom: 15px; padding: 10px;">
         <input type="password" name="senha" placeholder="Crie uma Senha" required style="margin-bottom: 20px; padding: 10px;">
+        <label for="termos" style="margin-bottom: 20px; font-size: 0.9em; text-align: left;">
+            <input type="checkbox" name="termos" id="termos" required>
+            Li e aceito os <a href="/financas/legal/termos" target="_blank">termos de uso</a> e a <a href="/financas/legal/privacidade" target="_blank">política de privacidade</a>.
+        </label>
         <button type="submit" style="padding: 12px; font-size: 16px;">Cadastrar</button>
     </form>
 

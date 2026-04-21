@@ -14,11 +14,11 @@ class Usuario {
         return $stmt->fetch();
     }
 
-    public function cadastrar($nome, $email, $senhaHash, $perfil = 'comum') {
+    public function cadastrar($nome, $email, $senhaHash, $aceitou_termos, $data_aceite_termos, $perfil = 'comum') {
         try {
-            $sql = "INSERT INTO usuarios (nome, email, senha, perfil, data_cadastro) VALUES (?, ?, ?, ?, NOW())";
+            $sql = "INSERT INTO usuarios (nome, email, senha, aceitou_termos, data_aceite_termos, perfil, data_cadastro) VALUES (?, ?, ?, ?, ?, ?, NOW())";
             $stmt = $this->pdo->prepare($sql);
-            return $stmt->execute([$nome, $email, $senhaHash, $perfil]);
+            return $stmt->execute([$nome, $email, $senhaHash, $aceitou_termos, $data_aceite_termos, $perfil]);
         } catch (PDOException $e) {
             // Retorna falso se o e-mail já existir (código 23000)
             return false;
