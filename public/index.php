@@ -18,6 +18,9 @@ error_reporting(E_ALL);
 define('BASE_PATH', dirname(__DIR__));
 
 // Carrega as configurações e o Core MVC
+require_once BASE_PATH . '/core/Env.php';
+Env::load(BASE_PATH . '/.env');
+
 require_once BASE_PATH . '/config/database.php';
 require_once BASE_PATH . '/core/Controller.php';
 require_once BASE_PATH . '/core/Router.php';

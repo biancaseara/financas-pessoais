@@ -53,7 +53,14 @@ class AuthController extends Controller
 
                 // O perfil padrão sempre será 'comum' no cadastro público
                 if ($usuarioModel->cadastrar($nome, $email, $senhaHash, $aceitou_termos, $data_aceite_termos, 'comum')) {
-                    $sucesso = "Conta criada com sucesso! Você já pode fazer login.";
+                    $novo_usuario = $usuarioModel->buscarPorEmail($email);
+
+                    $_SESSION['id_usuario'] = $novo_usuario['id_usuario'];
+                    $_SESSION['perfil'] = $novo_usuario['perfil'];
+                    $_SESSION['nome'] = $novo_usuario['nome'];
+
+                    header("Location: /financas");
+                    exit;
                 } else {
                     $erro = "Este e-mail já está cadastrado.";
                 }

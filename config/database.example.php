@@ -1,15 +1,21 @@
 <?php
 
 class Database {
-    private $host = 'localhost';
-    private $port = '3306';
-    private $dbname = 'NOME_DO_SEU_BANCO';
-    private $user = 'SEU_USUARIO';
-    private $password = 'SUA_SENHA';
+    private $host;
+    private $port;
+    private $dbname;
+    private $user;
+    private $password;
     private $pdo;
 
     public function getConnection() {
         $this->pdo = null;
+
+        $this->host = $_ENV['DB_HOST'];
+        $this->port = $_ENV['DB_PORT'];
+        $this->dbname = $_ENV['DB_NAME'];
+        $this->user = $_ENV['DB_USER'];
+        $this->password = $_ENV['DB_PASSWORD'];
 
         try {
             $dsn = "mysql:host=" . $this->host . ";port=" . $this->port . ";dbname=" . $this->dbname . ";charset=utf8mb4";
