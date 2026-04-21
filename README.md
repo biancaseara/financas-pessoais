@@ -1,24 +1,25 @@
-# 💰 Sistema de Gestão Financeira Pessoal
+# 💰 PREDITIV.IA - Sistema de Gestão Financeira Pessoal
 
-Um sistema web completo para controle de finanças pessoais, construído em PHP com arquitetura MVC (Model-View-Controller) pura, sem o uso de frameworks. O objetivo do projeto é oferecer um controle rigoroso de receitas, despesas fixas, limites de gastos e carteira de investimentos.
+Um sistema web completo para controle de finanças pessoais, construído em PHP com arquitetura MVC (Model-View-Controller) pura, sem o uso de frameworks. O objetivo do projeto é oferecer um controle rigoroso de receitas, despesas fixas, limites de gastos e acompanhamento de carteira, com foco em segurança e usabilidade.
 
 ## 🚀 Funcionalidades
 
 - **Dashboard Interativo:** Resumo financeiro mensal e gráficos dinâmicos de despesas por categoria usando Chart.js.
+- **Autenticação e Conformidade (LGPD):** Sistema de login seguro com hash de senhas (`password_hash`), registro de usuários e validação obrigatória de Termos de Uso e Política de Privacidade.
 - **Gestão de Transações:** Registro de Entradas, Saídas e Transferências entre contas com cálculo automático de estornos em caso de edição/exclusão.
 - **Orçamento (Budget):** Definição de limites mensais de gastos por categoria, com barras de progresso visuais no painel.
 - **Despesas Fixas (Automação):** Cadastro de assinaturas mensais e contas fixas, com um "robô" (script) de lançamento em lote para o mês atual.
 - **Módulo de Investimentos:** Acompanhamento de carteira (CDB, Tesouro Direto, etc.) com atualização manual de rendimentos.
 - **Controle de Acesso (ACL):** Sistema de perfis com permissões de Administrador (gestão de usuários) e Usuário Comum (acesso apenas ao próprio perfil e finanças).
-- **UX/UI Aprimorada:** Interface responsiva com **Modo Escuro (Dark Mode) automático** baseado na preferência do sistema operacional (`prefers-color-scheme`). Suporte para instalação como PWA (Web App de Desktop).
+- **UX/UI Aprimorada:** Interface responsiva com **Modo Escuro (Dark Mode) automático** baseado na preferência do sistema operacional (`prefers-color-scheme`). 
 
 ## 🛠️ Tecnologias Utilizadas
 
 - **Back-end:** PHP 8+ (Vanilla / Orientado a Objetos)
-- **Banco de Dados:** MySQL
+- **Banco de Dados:** MySQL (PDO)
 - **Front-end:** HTML5, CSS3, JavaScript (Vanilla e jQuery)
 - **Bibliotecas:** Chart.js (Gráficos)
-- **Arquitetura:** MVC (Model-View-Controller)
+- **Arquitetura:** MVC (Model-View-Controller) com roteamento amigável via `.htaccess`.
 
 ## 🗄️ Estrutura do Banco de Dados
 
@@ -29,6 +30,8 @@ O banco de dados (`financas_pessoais`) é totalmente relacional, garantindo a in
 1. **`usuarios`**
    - `id_usuario` (PK)
    - `nome`, `email`, `senha` (Hash)
+   - `aceitou_termos` (TINYINT - Validação de aceite de Termos de Uso)
+   - `data_aceite_termos` (DATETIME - Registro de conformidade LGPD)
    - `perfil` (ENUM: 'admin', 'comum')
    - `data_cadastro`
 
@@ -70,16 +73,36 @@ O banco de dados (`financas_pessoais`) é totalmente relacional, garantindo a in
 
 Este projeto está em constante evolução. Os próximos passos focam em escalar a base de código para padrões corporativos:
 
-- [ ] **Autoloading com Composer (PSR-4):** Substituir as chamadas manuais de `require_once` pelo padrão PSR-4 utilizando o Composer, otimizando o carregamento de classes de Controllers e Models.
-- [ ] **Camada de Helpers:** Criar o diretório `app/Helpers/` para centralizar funções utilitárias globais (ex: formatação de moeda BRL, manipulação e conversão de datas), aplicando o princípio DRY (Don't Repeat Yourself).
-- [ ] **Filtros e Paginação:** Adicionar paginação e filtros de busca (por mês/ano e categoria) na tela de listagem de Transações.
+- [ ] **Integração de IA (Preditivo):** Implementar análises preditivas para alertar o usuário sobre possíveis estouros de orçamento com base no histórico de gastos.
+- [ ] **Autoloading com Composer (PSR-4):** Substituir as chamadas manuais de `require_once` pelo padrão PSR-4 utilizando o Composer, otimizando o carregamento de classes.
+- [ ] **Camada de Helpers:** Criar o diretório `app/Helpers/` para centralizar funções utilitárias globais (ex: formatação de moeda BRL, manipulação e conversão de datas), aplicando o princípio DRY.
 
 ## ⚙️ Como Executar Localmente
 
-1. Clone o repositório.
-2. Importe o banco de dados (crie as tabelas conforme a estrutura acima no MySQL).
-3. Configure as credenciais do banco no arquivo `config/database.php`.
-4. Inicie o servidor embutido do PHP apontando para a pasta `public`:
+### Pré-requisitos
+- Servidor Web (Apache/Nginx) ou PHP CLI
+- MySQL Server
+- Módulo `mod_rewrite` habilitado (caso use Apache)
+
+### Passos de Instalação
+
+1. Clone o repositório:
    ```bash
-   php -S localhost:8000 -t public
-5. Acesse http://localhost:8000 no seu navegador.
+   git clone [https://github.com/seu-usuario/financas-pessoais.git](https://github.com/seu-usuario/financas-pessoais.git)
+
+2. Importe o banco de dados (crie as tabelas conforme a estrutura acima no MySQL).
+
+3. Configure as credenciais do banco no arquivo config/database.php.
+
+### Rodando o Projeto
+- Opção A: Usando o Servidor Embutido do PHP (Recomendado para Desenvolvimento Rápido)
+*Abra o terminal na pasta raiz do projeto e execute:*
+   ```bash
+   php -S localhost:8000 [http://localhost:8000](http://localhost:8000)
+
+- Opção B: Usando Apache (Linux/Ubuntu)
+   1. Mova a pasta do projeto para /var/www/html/financas.
+
+   2. Certifique-se de que o .htaccess está presente na pasta raiz.
+
+   3. Acesse http://localhost/financas no seu navegador.
