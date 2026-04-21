@@ -13,9 +13,11 @@ class Router {
             array_shift($partes);
         }
 
-        $controllerName = !empty($partes[0]) ? ucfirst($partes[0]) . 'Controller' : 'DashboardController';
+        $ctrlEntrada = isset($partes[0]) ? preg_replace('/[^a-zA-Z0-9]/', '', $partes[0]) : '';
+        $controllerName = !empty($ctrlEntrada) ? ucfirst($ctrlEntrada) . 'Controller' : 'DashboardController';
 
-        $methodName = !empty($partes[1]) ? $partes[1] : 'index';
+        $metodoEntrada = isset($partes[1]) ? preg_replace('/[^a-zA-Z0-9]/', '', $partes[1]) : '';
+        $methodName = !empty($metodoEntrada) ? $metodoEntrada : 'index';
 
         $params = array_slice($partes, 2);
 
@@ -26,14 +28,13 @@ class Router {
             $controller = new $controllerName();
 
 
-            if (method_exists($controller, $methodName)) {
-
+            if (is_callable([$controller, $methodName])) {
                 call_user_func_array([$controller, $methodName], $params);
             } else {
-                echo "<h1>Erro 404</h1><p>Método '$methodName' não encontrado em $controllerName.</p>";
+                echo "<h1>Erro 404</h1><p>Método '" . htmlspecialchars($methodName) . "' não encontrado em " . htmlspecialchars($controllerName) . ".</p>";
             }
         } else {
-            echo "<h1>Erro 404</h1><p>Página não encontrada ($controllerName).</p>";
+            echo "<h1>Erro 404</h1><p>Página não encontrada (" . htmlspecialchars($controllerName) . ").</p>";
         }
     }
 }
