@@ -78,7 +78,7 @@ Este projeto está em constante evolução. Os próximos passos focam em escalar
 
 1. Clone o repositório.
 2. Importe o banco de dados (crie as tabelas conforme a estrutura acima no MySQL).
-3. Configure as credenciais do banco no arquivo `app/config/database.php`.
+3. Configure as credenciais do banco no arquivo `config/database.php`.
 4. Inicie o servidor embutido do PHP apontando para a pasta `public`:
    ```bash
    php -S localhost:8000 -t public
