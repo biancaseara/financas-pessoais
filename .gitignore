@@ -1,5 +1,4 @@
 # Ignorar arquivos de configuração com senhas reais
-config/database.php
 .env
 
 # Ignorar arquivos de log e cache do sistema operacional
