@@ -8,14 +8,16 @@ class Conta {
         $this->pdo = $db->getConnection();
     }
 
-    public function listarTodos() {
-        $sql = "SELECT * FROM contas ORDER BY nome_banco";
-        return $this->pdo->query($sql)->fetchAll();
+    public function listarTodos($id_usuario) {
+        $sql = "SELECT * FROM contas WHERE id_usuario = ? ORDER BY nome_banco";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$id_usuario]);
+        return $stmt->fetchAll();
     }
 
-    public function buscarPorId($id) {
-        $stmt = $this->pdo->prepare("SELECT * FROM contas WHERE id_conta = ?");
-        $stmt->execute([$id]);
+    public function buscarPorId($id_conta, $id_usuario) {
+        $stmt = $this->pdo->prepare("SELECT * FROM contas WHERE id_conta = ? AND id_usuario = ?");
+        $stmt->execute([$id_conta, $id_usuario]);
         return $stmt->fetch();
     }
 
@@ -25,14 +27,14 @@ class Conta {
         return $stmt->execute([$id_usuario, $nome_banco, $saldo_inicial, $cor]);
     }
 
-    public function atualizar($id, $nome_banco, $saldo_inicial, $cor) {
-        $sql = "UPDATE contas SET nome_banco=?, saldo_inicial=?, cor_identificacao=? WHERE id_conta=?";
+    public function atualizar($id_conta, $id_usuario, $nome_banco, $saldo_inicial, $cor) {
+        $sql = "UPDATE contas SET nome_banco=?, saldo_inicial=?, cor_identificacao=? WHERE id_conta=? AND id_usuario=?";
         $stmt = $this->pdo->prepare($sql);
-        return $stmt->execute([$nome_banco, $saldo_inicial, $cor, $id]);
+        return $stmt->execute([$nome_banco, $saldo_inicial, $cor, $id_conta, $id_usuario]);
     }
 
-    public function deletar($id) {
-        $stmt = $this->pdo->prepare("DELETE FROM contas WHERE id_conta = ?");
-        return $stmt->execute([$id]);
+    public function deletar($id_conta, $id_usuario) {
+        $stmt = $this->pdo->prepare("DELETE FROM contas WHERE id_conta = ? AND id_usuario = ?");
+        return $stmt->execute([$id_conta, $id_usuario]);
     }
 }
