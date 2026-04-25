@@ -17,6 +17,9 @@
             <a href="/financas/transacoes">💸 Transações</a>
             <a href="/financas/recorrentes">🔄 Despesas Fixas</a>
             <a href="/financas/contas">🏦 Contas</a>
+            
+            <a href="/financas/cartoes">💳 Cartões</a> 
+            
             <a href="/financas/categorias">📂 Categorias</a>
             <a href="/financas/metas">🎯 Metas</a>
             <a href="/financas/investimentos">📈 Investimentos</a>
