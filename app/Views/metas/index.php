@@ -1,6 +1,7 @@
-<h2><?= $titulo ?></h2>
+<h2><?= htmlspecialchars($titulo, ENT_QUOTES, 'UTF-8') ?></h2>
 
 <form action="/financas/metas/store" method="POST" class="d-flex flex-column" style="margin-bottom: 20px;">
+    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8') ?>">
     <div class="d-flex">
         <input type="text" name="titulo_meta" placeholder="Objetivo (Ex: Comprar Carro)" required style="flex-grow:1;">
         <input type="date" name="data_limite" required title="Data Limite">
@@ -45,6 +46,7 @@
                 <a href="/financas/metas/edit/<?= $item['id_meta'] ?>" style="padding: 8px 12px; background: #007BFF; color: white; text-decoration: none; border-radius: 4px; font-size: 14px;">Editar</a>
                 
                 <form action="/financas/metas/delete/<?= $item['id_meta'] ?>" method="POST" style="margin: 0;">
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8') ?>">
                     <button type="submit" style="background: #DC3545; padding: 8px 12px; font-size: 14px; border: none; cursor: pointer;" onclick="return confirm('Tem certeza que deseja desistir desta meta?');">Desistir</button>
                 </form>
             </div>

@@ -8,14 +8,16 @@ class Meta {
         $this->pdo = $db->getConnection();
     }
 
-    public function listarTodos() {
-        $sql = "SELECT * FROM metas ORDER BY data_limite ASC";
-        return $this->pdo->query($sql)->fetchAll();
+    public function listarTodos($id_usuario) {
+        $sql = "SELECT * FROM metas WHERE id_usuario = ? ORDER BY data_limite ASC";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$id_usuario]);
+        return $stmt->fetchAll();
     }
 
-    public function buscarPorId($id) {
-        $stmt = $this->pdo->prepare("SELECT * FROM metas WHERE id_meta = ?");
-        $stmt->execute([$id]);
+    public function buscarPorId($id, $id_usuario) {
+        $stmt = $this->pdo->prepare("SELECT * FROM metas WHERE id_meta = ? AND id_usuario = ?");
+        $stmt->execute([$id, $id_usuario]);
         return $stmt->fetch();
     }
 
@@ -25,14 +27,14 @@ class Meta {
         return $stmt->execute([$id_usuario, $titulo_meta, $valor_objetivo, $valor_atual, $data_limite]);
     }
 
-    public function atualizar($id, $titulo_meta, $valor_objetivo, $valor_atual, $data_limite) {
-        $sql = "UPDATE metas SET titulo_meta=?, valor_objetivo=?, valor_atual=?, data_limite=? WHERE id_meta=?";
+    public function atualizar($id, $id_usuario, $titulo_meta, $valor_objetivo, $valor_atual, $data_limite) {
+        $sql = "UPDATE metas SET titulo_meta=?, valor_objetivo=?, valor_atual=?, data_limite=? WHERE id_meta=? AND id_usuario=?";
         $stmt = $this->pdo->prepare($sql);
-        return $stmt->execute([$titulo_meta, $valor_objetivo, $valor_atual, $data_limite, $id]);
+        return $stmt->execute([$titulo_meta, $valor_objetivo, $valor_atual, $data_limite, $id, $id_usuario]);
     }
 
-    public function deletar($id) {
-        $stmt = $this->pdo->prepare("DELETE FROM metas WHERE id_meta = ?");
-        return $stmt->execute([$id]);
+    public function deletar($id, $id_usuario) {
+        $stmt = $this->pdo->prepare("DELETE FROM metas WHERE id_meta = ? AND id_usuario = ?");
+        return $stmt->execute([$id, $id_usuario]);
     }
 }
