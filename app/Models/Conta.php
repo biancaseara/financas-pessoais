@@ -37,4 +37,12 @@ class Conta {
         $stmt = $this->pdo->prepare("DELETE FROM contas WHERE id_conta = ? AND id_usuario = ?");
         return $stmt->execute([$id_conta, $id_usuario]);
     }
+
+    public function obterPatrimonioTotal($id_usuario) {
+        $sql = "SELECT SUM(saldo_inicial) as total FROM contas WHERE id_usuario = ?";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$id_usuario]);
+        $resultado = $stmt->fetch();
+        return $resultado['total'] ?? 0;
+    }
 }

@@ -144,4 +144,21 @@ class Transacao
             throw new Exception("Erro ao excluir transação: " . $e->getMessage());
         }
     }
+
+    // Soma as Entradas ou Saídas estritamente do mês informado (Débito + Crédito)
+    public function obterTotalMes($id_usuario, $mes_ano, $tipo) {
+        $sql = "SELECT SUM(t.valor) as total 
+                FROM transacoes t 
+                LEFT JOIN contas c ON t.id_conta = c.id_conta 
+                LEFT JOIN faturas f ON t.id_fatura = f.id_fatura 
+                LEFT JOIN cartoes car ON f.id_cartao = car.id_cartao 
+                WHERE (c.id_usuario = ? OR car.id_usuario = ?) 
+                AND t.tipo_transacao = ? 
+                AND t.data_transacao LIKE ?";
+        $stmt = $this->pdo->prepare($sql);
+        
+        $stmt->execute([$id_usuario, $id_usuario, $tipo, $mes_ano . '-%']);
+        $resultado = $stmt->fetch();
+        return $resultado['total'] ?? 0;
+    }
 }
