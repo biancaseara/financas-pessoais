@@ -1,7 +1,8 @@
-<h2><?= $titulo ?></h2>
+<h2><?= htmlspecialchars($titulo, ENT_QUOTES, 'UTF-8') ?></h2>
 
 <form action="/financas/recorrentes/store" method="POST" class="d-flex flex-column" style="margin-bottom: 20px;">
-    
+    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8') ?>">
+
     <div class="d-flex">
         <input type="text" name="descricao" placeholder="Descrição (Ex: Spotify, Internet)" required style="flex-grow: 1;">
         
@@ -60,6 +61,7 @@
                 <td style="display: flex; gap: 5px;">
                     <a href="/financas/recorrentes/edit/<?= $item['id_recorrente'] ?>" style="padding: 5px 10px; background: #007BFF; color: white; text-decoration: none; border-radius: 4px; font-size: 12px;">Editar</a>
                     <form action="/financas/recorrentes/delete/<?= $item['id_recorrente'] ?>" method="POST" style="margin: 0;">
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8') ?>">
                         <button type="submit" style="background: #DC3545; padding: 5px 10px; font-size: 12px; border: none; cursor: pointer;" onclick="return confirm('Deseja excluir esta despesa recorrente?');">Excluir</button>
                     </form>
                 </td>

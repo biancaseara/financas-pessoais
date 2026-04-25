@@ -6,7 +6,8 @@ $primeiroNome = explode(' ', $_SESSION['nome'])[0];
     <h1 style="margin: 0;">Olá, <?= htmlspecialchars($primeiroNome) ?>! 👋</h1>
 
     <form action="/financas/recorrentes/lancarMes" method="POST" style="margin: 0;">
-        <button type="submit" style="background-color: #6f42c1; color: white; padding: 10px 20px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2);" onclick="return confirm('Deseja lançar todas as despesas fixas ativas deste mês? (Atenção: clique apenas 1x por mês para não duplicar)');">
+        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+        <button type="submit" style="background-color: #6f42c1; color: white; padding: 10px 20px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2);" onclick="return confirm('Deseja lançar todas as despesas fixas ativas deste mês?');">
             🤖 Lançar Despesas do Mês
         </button>
     </form>

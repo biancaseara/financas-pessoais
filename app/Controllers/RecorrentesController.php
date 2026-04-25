@@ -16,22 +16,31 @@ class RecorrentesController extends Controller {
         $categoriaModel = $this->model('Categoria');
         $id_usuario = $_SESSION['id_usuario'];
 
+        if (empty($_SESSION['csrf_token'])) {
+            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        }
+
         $this->view('recorrentes/index', [
             'titulo' => 'Despesas Fixas e Assinaturas',
             'recorrentes' => $recorrenteModel->listarTodos($id_usuario),
             'contas' => $contaModel->listarTodos($id_usuario),
-            'categorias' => $categoriaModel->listarTodos($id_usuario)
+            'categorias' => $categoriaModel->listarTodos($id_usuario),
+            'csrf_token' => $_SESSION['csrf_token']
         ]);
     }
 
     public function store() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+                throw new Exception("Falha de segurança CSRF detectada.");
+            }
+
             $recorrenteModel = $this->model('DespesaRecorrente');
             $recorrenteModel->cadastrar(
                 $_SESSION['id_usuario'],
                 $_POST['id_conta'],
                 $_POST['id_categoria'],
-                $_POST['descricao'],
+                strip_tags(trim($_POST['descricao'])),
                 $_POST['valor'],
                 $_POST['dia_vencimento']
             );
@@ -48,11 +57,16 @@ class RecorrentesController extends Controller {
             $contaModel = $this->model('Conta');
             $categoriaModel = $this->model('Categoria');
 
+            if (empty($_SESSION['csrf_token'])) {
+                $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+            }
+
             $this->view('recorrentes/edit', [
                 'titulo' => 'Editar Despesa Fixa',
                 'recorrente' => $recorrente,
                 'contas' => $contaModel->listarTodos($id_usuario),
-                'categorias' => $categoriaModel->listarTodos($id_usuario)
+                'categorias' => $categoriaModel->listarTodos($id_usuario),
+                'csrf_token' => $_SESSION['csrf_token']
             ]);
         } else {
             header("Location: /financas/recorrentes");
@@ -61,13 +75,17 @@ class RecorrentesController extends Controller {
 
     public function update($id) {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+                throw new Exception("Falha de segurança CSRF detectada.");
+            }
+
             $recorrenteModel = $this->model('DespesaRecorrente');
             $recorrenteModel->atualizar(
                 $id,
                 $_SESSION['id_usuario'],
                 $_POST['id_conta'],
                 $_POST['id_categoria'],
-                $_POST['descricao'],
+                strip_tags(trim($_POST['descricao'])),
                 $_POST['valor'],
                 $_POST['dia_vencimento'],
                 $_POST['status']
@@ -78,6 +96,10 @@ class RecorrentesController extends Controller {
 
     public function delete($id) {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+                throw new Exception("Falha de segurança CSRF detectada.");
+            }
+
             $recorrenteModel = $this->model('DespesaRecorrente');
             $recorrenteModel->deletar($id, $_SESSION['id_usuario']);
             header("Location: /financas/recorrentes");
@@ -86,6 +108,10 @@ class RecorrentesController extends Controller {
 
     public function lancarMes() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+                throw new Exception("Falha de segurança CSRF detectada.");
+            }
+
             $recorrenteModel = $this->model('DespesaRecorrente');
             $transacaoModel = $this->model('Transacao');
             
@@ -98,15 +124,22 @@ class RecorrentesController extends Controller {
             
             foreach ($despesas as $d) {
                 if ($d['status'] == 'Ativo') {
-                    $diaVencimento = $d['dia_vencimento'];
-                    if ($diaVencimento > $ultimoDiaMes) {
-                        $diaVencimento = $ultimoDiaMes;
-                    }
-                    
-                    $dataVencimento = $mesAno . '-' . str_pad($diaVencimento, 2, '0', STR_PAD_LEFT);
                     $descricaoFormatada = "🔄 " . $d['descricao'] . " (" . $mesAnoDisplay . ")";
-                    
-                    $transacaoModel->cadastrar( $id_usuario, $d['id_conta'], $d['id_categoria'], $descricaoFormatada, $d['valor'], $dataVencimento, 'Saida', null);
+
+                    if (!$recorrenteModel->verificarLancamentoExistente($id_usuario, $descricaoFormatada)) {
+                        
+                        $diaVencimento = $d['dia_vencimento'];
+                        if ($diaVencimento > $ultimoDiaMes) {
+                            $diaVencimento = $ultimoDiaMes;
+                        }
+                        
+                        $dataVencimento = $mesAno . '-' . str_pad($diaVencimento, 2, '0', STR_PAD_LEFT);
+                        
+                        $transacaoModel->cadastrar(
+                            $id_usuario, $d['id_conta'], $d['id_categoria'], $descricaoFormatada, 
+                            $d['valor'], $dataVencimento, 'Saida', 'Débito', null, null
+                        );
+                    }
                 }
             }
             header("Location: /financas/transacoes");

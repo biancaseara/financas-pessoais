@@ -42,4 +42,14 @@ class DespesaRecorrente {
         $stmt = $this->pdo->prepare("DELETE FROM despesas_recorrentes WHERE id_recorrente = ? AND id_usuario = ?");
         return $stmt->execute([$id, $id_usuario]);
     }
+
+    // A trava para evitar lançamentos duplicadas
+    public function verificarLancamentoExistente($id_usuario, $descricao_formatada) {
+        $sql = "SELECT id_transacao FROM transacoes t 
+                LEFT JOIN contas c ON t.id_conta = c.id_conta
+                WHERE c.id_usuario = ? AND t.descricao = ?";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$id_usuario, $descricao_formatada]);
+        return $stmt->fetch() !== false;
+    }
 }
