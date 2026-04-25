@@ -33,7 +33,7 @@ class Transacao
         return $stmt->fetch();
     }
 
-    public function cadastrar($id_usuario, $id_conta, $id_categoria, $descricao, $valor, $data_transacao, $tipo_transacao, $id_conta_destino = null, $id_fatura = null)
+    public function cadastrar($id_usuario, $id_conta, $id_categoria, $descricao, $valor, $data_transacao, $tipo_transacao, $forma_pagamento = 'Outros', $id_conta_destino = null, $id_fatura = null)
     {
         if ($tipo_transacao == 'Transferencia' && empty($id_conta_destino)) {
             throw new Exception("Erro crítico: Conta de destino não informada para a transferência.");
@@ -42,12 +42,11 @@ class Transacao
         try {
             $this->pdo->beginTransaction();
 
-            // Insere a transação aceitando id_fatura
-            $sql = "INSERT INTO transacoes (id_conta, id_categoria, descricao, valor, data_transacao, tipo_transacao, id_conta_destino, id_fatura) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            $sql = "INSERT INTO transacoes (id_conta, id_categoria, descricao, valor, data_transacao, tipo_transacao, forma_pagamento, id_conta_destino, id_fatura) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
             $stmt = $this->pdo->prepare($sql);
-            $stmt->execute([$id_conta, $id_categoria, $descricao, $valor, $data_transacao, $tipo_transacao, $id_conta_destino, $id_fatura]);
+            $stmt->execute([$id_conta, $id_categoria, $descricao, $valor, $data_transacao, $tipo_transacao, $forma_pagamento, $id_conta_destino, $id_fatura]);
 
-            // Só mexe no saldo da conta se o $id_conta NÃO for nulo (ou seja, se for débito/dinheiro)
+            // Só mexe no saldo da conta se o $id_conta NÃO for nulo (ou seja, se for débito/dinheiro/pix)
             if ($id_conta !== null) {
                 if ($tipo_transacao == 'Transferencia') {
                     $this->pdo->prepare("UPDATE contas SET saldo_inicial = saldo_inicial - ? WHERE id_conta = ?")->execute([$valor, $id_conta]);
@@ -66,20 +65,16 @@ class Transacao
         }
     }
 
-    public function atualizar($id, $id_usuario, $id_conta, $id_categoria, $descricao, $valor, $data_transacao, $tipo_transacao, $id_conta_destino = null)
+    public function atualizar($id, $id_usuario, $id_conta, $id_categoria, $descricao, $valor, $data_transacao, $tipo_transacao, $forma_pagamento = 'Outros', $id_conta_destino = null)
     {
         try {
             $this->pdo->beginTransaction();
 
             $antiga = $this->buscarPorId($id, $id_usuario);
-            if (!$antiga) {
-                throw new Exception("Transação não encontrada ou acesso negado.");
-            }
+            if (!$antiga) throw new Exception("Transação não encontrada.");
 
-            // Só faz o recálculo de saldo se a transação for de uma Conta Bancária
             if ($antiga['id_conta'] !== null && $id_conta !== null) {
                 
-                // 1. REVERTER O SALDO ANTIGO
                 if ($antiga['tipo_transacao'] == 'Transferencia') {
                     $this->pdo->prepare("UPDATE contas SET saldo_inicial = saldo_inicial + ? WHERE id_conta = ?")->execute([$antiga['valor'], $antiga['id_conta']]);
                     $this->pdo->prepare("UPDATE contas SET saldo_inicial = saldo_inicial - ? WHERE id_conta = ?")->execute([$antiga['valor'], $antiga['id_conta_destino']]);
@@ -88,11 +83,9 @@ class Transacao
                     $this->pdo->prepare("UPDATE contas SET saldo_inicial = saldo_inicial + ? WHERE id_conta = ?")->execute([$reverso, $antiga['id_conta']]);
                 }
 
-                // 2. ATUALIZAR A TRANSAÇÃO NO BANCO
-                $sqlUp = "UPDATE transacoes SET id_conta=?, id_categoria=?, descricao=?, valor=?, data_transacao=?, tipo_transacao=?, id_conta_destino=? WHERE id_transacao=?";
-                $this->pdo->prepare($sqlUp)->execute([$id_conta, $id_categoria, $descricao, $valor, $data_transacao, $tipo_transacao, $id_conta_destino, $id]);
+                $sqlUp = "UPDATE transacoes SET id_conta=?, id_categoria=?, descricao=?, valor=?, data_transacao=?, tipo_transacao=?, forma_pagamento=?, id_conta_destino=? WHERE id_transacao=?";
+                $this->pdo->prepare($sqlUp)->execute([$id_conta, $id_categoria, $descricao, $valor, $data_transacao, $tipo_transacao, $forma_pagamento, $id_conta_destino, $id]);
 
-                // 3. APLICAR O NOVO SALDO
                 if ($tipo_transacao == 'Transferencia') {
                     $this->pdo->prepare("UPDATE contas SET saldo_inicial = saldo_inicial - ? WHERE id_conta = ?")->execute([$valor, $id_conta]);
                     $this->pdo->prepare("UPDATE contas SET saldo_inicial = saldo_inicial + ? WHERE id_conta = ?")->execute([$valor, $id_conta_destino]);
@@ -102,9 +95,9 @@ class Transacao
                 }
 
             } else {
-                // Se for cartão, apenas atualiza os dados visuais (sem mexer em saldo)
-                $sqlUp = "UPDATE transacoes SET id_categoria=?, descricao=?, valor=?, data_transacao=? WHERE id_transacao=?";
-                $this->pdo->prepare($sqlUp)->execute([$id_categoria, $descricao, $valor, $data_transacao, $id]);
+                // Se for cartão
+                $sqlUp = "UPDATE transacoes SET id_categoria=?, descricao=?, valor=?, data_transacao=?, forma_pagamento=? WHERE id_transacao=?";
+                $this->pdo->prepare($sqlUp)->execute([$id_categoria, $descricao, $valor, $data_transacao, $forma_pagamento, $id]);
             }
 
             $this->pdo->commit();
@@ -122,8 +115,6 @@ class Transacao
 
             $transacao = $this->buscarPorId($id, $id_usuario);
             if ($transacao) {
-                
-                // Estorno só acontece se a transação for de Conta Corrente (não for cartão)
                 if ($transacao['id_conta'] !== null) {
                     if ($transacao['tipo_transacao'] == 'Transferencia') {
                         $this->pdo->prepare("UPDATE contas SET saldo_inicial = saldo_inicial + ? WHERE id_conta = ?")->execute([$transacao['valor'], $transacao['id_conta']]);
@@ -145,7 +136,6 @@ class Transacao
         }
     }
 
-    // Soma as Entradas ou Saídas estritamente do mês informado (Débito + Crédito)
     public function obterTotalMes($id_usuario, $mes_ano, $tipo) {
         $sql = "SELECT SUM(t.valor) as total 
                 FROM transacoes t 

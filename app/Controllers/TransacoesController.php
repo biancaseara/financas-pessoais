@@ -46,9 +46,9 @@ class TransacoesController extends Controller
             $id_categoria = ($_POST['tipo_transacao'] == 'Transferencia') ? null : $_POST['id_categoria'];
             $tipo_transacao = $_POST['tipo_transacao'];
             
-            // Verifica se pagou com conta ou cartão
-            $metodo_pagamento = $_POST['metodo_pagamento'] ?? 'conta';
-            $id_conta = ($metodo_pagamento === 'conta') ? $_POST['id_conta'] : null;
+            $forma_pagamento = $_POST['forma_pagamento'] ?? 'Outros';
+            $is_credito = ($forma_pagamento === 'Crédito');
+            $id_conta = (!$is_credito) ? $_POST['id_conta'] : null;
 
             $valor = $_POST['valor'];
             $valor = str_replace('.', '', $valor);
@@ -57,19 +57,34 @@ class TransacoesController extends Controller
 
             $descricao = strip_tags(trim($_POST['descricao']));
 
-            // Lógica do Cartão de Crédito
-            $id_fatura = null;
-            if ($metodo_pagamento === 'cartao' && !empty($_POST['id_cartao'])) {
-                $mes_ano = date('Y-m', strtotime($_POST['data_transacao']));
-                $id_fatura = $faturaModel->buscarOuCriarAberta($_POST['id_cartao'], $mes_ano);
-            }
+            if ($is_credito && !empty($_POST['id_cartao'])) {
+                $parcelas = (int) ($_POST['parcelas'] ?? 1);
+                $valor_parcela = $valor / $parcelas;
 
-            // Transação cadastrada (agora recebe o id_fatura no final)
-            $transacaoModel->cadastrar($id_usuario,$id_conta, $id_categoria, $descricao, $valor, $_POST['data_transacao'], $tipo_transacao,$id_conta_destino, $id_fatura);
+                for ($i = 0; $i < $parcelas; $i++) {
+                    $novaData = date('Y-m-d', strtotime("+$i month", strtotime($_POST['data_transacao'])));
+                    $dataFatura = date('Y-m', strtotime($novaData));
+                    
+                    $id_fatura = $faturaModel->buscarOuCriarAberta($_POST['id_cartao'], $dataFatura);
 
-            // Se foi no cartão, atualiza o valor da fatura
-            if ($id_fatura) {
-                $faturaModel->atualizarValorTotal($id_fatura);
+                    $desc_parcelada = $descricao;
+                    if ($parcelas > 1) {
+                        $num_parcela = $i + 1;
+                        $desc_parcelada .= " ({$num_parcela}/{$parcelas})";
+                    }
+
+                    $transacaoModel->cadastrar(
+                        $id_usuario, null, $id_categoria, $desc_parcelada, $valor_parcela, 
+                        $novaData, $tipo_transacao, $forma_pagamento, null, $id_fatura
+                    );
+                    $faturaModel->atualizarValorTotal($id_fatura);
+                }
+
+            } else {
+                $transacaoModel->cadastrar(
+                    $id_usuario, $id_conta, $id_categoria, $descricao, $valor, 
+                    $_POST['data_transacao'], $tipo_transacao, $forma_pagamento, $id_conta_destino, null
+                );
             }
 
             header("Location: /financas/transacoes");
@@ -114,11 +129,9 @@ class TransacoesController extends Controller
             $id_conta_destino = !empty($_POST['id_conta_destino']) ? $_POST['id_conta_destino'] : null;
             $id_categoria = ($_POST['tipo_transacao'] == 'Transferencia') ? null : $_POST['id_categoria'];
             $tipo_transacao = $_POST['tipo_transacao'];
-            $id_conta = $_POST['id_conta'];
-
-            if ($tipo_transacao == 'Transferencia' && $id_conta == $id_conta_destino) {
-                throw new Exception("Não é possível transferir fundos para a mesma conta de origem.");
-            }
+            $id_conta = $_POST['id_conta'] ?? null;
+            
+            $forma_pagamento = $_POST['forma_pagamento'] ?? 'Outros';
 
             $valor = $_POST['valor'];
             $valor = str_replace('.', '', $valor);
@@ -127,8 +140,10 @@ class TransacoesController extends Controller
 
             $descricao = strip_tags(trim($_POST['descricao']));
 
-            $transacaoModel->atualizar($id, $id_usuario, $id_conta, $id_categoria, $descricao, $valor, $_POST['data_transacao'], $tipo_transacao, $id_conta_destino);
-
+            $transacaoModel->atualizar(
+                $id, $id_usuario, $id_conta, $id_categoria, $descricao, $valor, 
+                $_POST['data_transacao'], $tipo_transacao, $forma_pagamento, $id_conta_destino
+            );
             header("Location: /financas/transacoes");
         }
     }

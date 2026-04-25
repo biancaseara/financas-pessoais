@@ -14,9 +14,12 @@
     </div>
 
     <div class="d-flex" id="linha_metodo" style="margin-top: 15px; gap: 10px;">
-        <select name="metodo_pagamento" id="metodo_pagamento" style="flex-grow: 1; padding: 10px;">
-            <option value="conta">💰 Pagar com Saldo (Débito)</option>
-            <option value="cartao">💳 Pagar com Cartão (Crédito)</option>
+        <select name="forma_pagamento" id="forma_pagamento" style="flex-grow: 1; padding: 10px;">
+            <option value="Débito">Débito</option>
+            <option value="Pix">Pix</option>
+            <option value="Boleto">Boleto</option>
+            <option value="Dinheiro">Dinheiro Vivo</option>
+            <option value="Crédito">💳 Cartão de Crédito</option>
         </select>
 
         <select name="id_cartao" id="box_cartao" style="flex-grow: 1; padding: 10px; display: none;">
@@ -30,6 +33,12 @@
             <?php else: ?>
                 <option value="" disabled>Nenhum cartão cadastrado</option>
             <?php endif; ?>
+        </select>
+
+        <select name="parcelas" id="box_parcelas" style="width: 100px; padding: 10px; display: none;">
+            <?php for($i=1; $i<=24; $i++): ?>
+                <option value="<?= $i ?>"><?= $i ?>x</option>
+            <?php endfor; ?>
         </select>
     </div>
 
@@ -95,6 +104,7 @@
     <tr style="background-color: #f8f9fa; border-bottom: 2px solid #dee2e6;">
         <th style="padding: 12px 8px;">Data</th>
         <th style="padding: 12px 8px;">Origem</th>
+        <th style="padding: 12px 8px;">Forma</th>
         <th style="padding: 12px 8px;">Categoria</th>
         <th style="padding: 12px 8px;">Descrição</th>
         <th style="padding: 12px 8px;">Valor</th>
@@ -113,12 +123,16 @@
                     $corValor = 'blue';
                 }
 
-                // Exibe nome do banco ou avisa que é cartão (se o nome_banco for nulo e for fatura)
                 $origem = $item['nome_banco'] ?? '💳 Fatura de Cartão';
+                $formaPagamento = $item['forma_pagamento'] ?? 'Outros';
             ?>
             <tr style="border-bottom: 1px solid #dee2e6;">
                 <td style="padding: 12px 8px;"><?= $dataBr ?></td>
                 <td style="padding: 12px 8px;"><?= htmlspecialchars($origem, ENT_QUOTES, 'UTF-8') ?></td>
+                
+                <td style="padding: 12px 8px; font-weight: bold; color: #555;">
+                    <?= htmlspecialchars($formaPagamento, ENT_QUOTES, 'UTF-8') ?>
+                </td>
                 
                 <td style="padding: 12px 8px;"><?= htmlspecialchars($item['nome_categoria'] ?? '🔄 Transferência', ENT_QUOTES, 'UTF-8') ?></td>
                 
@@ -126,37 +140,42 @@
                 <td style="padding: 12px 8px; color: <?= $corValor ?>; font-weight:bold;">
                     R$ <?= number_format($item['valor'], 2, ',', '.') ?>
                 </td>
-                <td style="padding: 12px 8px; display: flex; gap: 5px;">
-                    <a href="/financas/transacoes/edit/<?= $item['id_transacao'] ?>" style="padding: 5px 10px; background: #007BFF; color: white; text-decoration: none; border-radius: 4px; font-size: 12px;">Editar</a>
-                    
-                    <form action="/financas/transacoes/delete/<?= $item['id_transacao'] ?>" method="POST" style="margin: 0;">
-                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8') ?>">
-                        <button type="submit" style="background: #DC3545; color: white; padding: 5px 10px; font-size: 12px; border: none; cursor: pointer; border-radius: 4px;" onclick="return confirm('Apagar transação e reverter saldos?');">Excluir</button>
-                    </form>
+                <td style="padding: 12px 8px;">
+                    <div style="display: flex; gap: 5px; align-items: center;">
+                        <a href="/financas/transacoes/edit/<?= $item['id_transacao'] ?>" style="padding: 5px 10px; background: #007BFF; color: white; text-decoration: none; border-radius: 4px; font-size: 12px;">Editar</a>
+                        
+                        <form action="/financas/transacoes/delete/<?= $item['id_transacao'] ?>" method="POST" style="margin: 0;">
+                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8') ?>">
+                            <button type="submit" style="background: #DC3545; color: white; padding: 5px 10px; font-size: 12px; border: none; cursor: pointer; border-radius: 4px;" onclick="return confirm('Apagar transação e reverter saldos?');">Excluir</button>
+                        </form>
+                    </div>
                 </td>
             </tr>
         <?php endforeach; ?>
     <?php else: ?>
-        <tr><td colspan="6" style="text-align: center; padding: 20px;">Nenhuma transação registrada.</td></tr>
+        <tr><td colspan="7" style="text-align: center; padding: 20px;">Nenhuma transação registrada.</td></tr>
     <?php endif; ?>
 </table>
 
 <script>
 $(document).ready(function() {
-    // Lógica de Tipo de Transação
+    // Lógica para Tipo de Transação
     $('#tipo_transacao').change(function() {
         let tipo = $(this).val();
         
         if (tipo == 'Transferencia') {
             $('#box_destino').show().prop('required', true);
             $('#box_categoria').hide().prop('required', false).val('');
-            $('#linha_metodo').hide(); // Esconde cartão em transferência
-            $('#metodo_pagamento').val('conta').trigger('change');
+            $('#linha_metodo').hide(); 
+            $('#forma_pagamento').val('Outros').trigger('change');
         } else if (tipo == 'Entrada') {
             $('#box_destino').hide().prop('required', false).val('');
             $('#box_categoria').show().prop('required', true);
-            $('#linha_metodo').hide(); // Esconde cartão em entrada
-            $('#metodo_pagamento').val('conta').trigger('change');
+            $('#linha_metodo').show();
+            
+            if($('#forma_pagamento').val() == 'Crédito') {
+                $('#forma_pagamento').val('Pix').trigger('change');
+            }
         } else {
             // Se for Saída
             $('#box_destino').hide().prop('required', false).val('');
@@ -165,13 +184,15 @@ $(document).ready(function() {
         }
     });
 
-    // Lógica de Método de Pagamento (Débito vs Crédito)
-    $('#metodo_pagamento').change(function() {
-        if ($(this).val() == 'cartao') {
+    // Lógica para Forma de Pagamento (Débito, Pix vs Crédito)
+    $('#forma_pagamento').change(function() {
+        if ($(this).val() == 'Crédito') {
             $('#box_cartao').show().prop('required', true);
+            $('#box_parcelas').show();
             $('#box_conta').hide().prop('required', false).val('');
         } else {
             $('#box_cartao').hide().prop('required', false).val('');
+            $('#box_parcelas').hide().val('1');
             $('#box_conta').show().prop('required', true);
         }
     });
