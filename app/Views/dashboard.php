@@ -120,7 +120,7 @@ $primeiroNome = explode(' ', $_SESSION['nome'])[0];
             $porcentagem = ($gasto / $limite) * 100;
             $larguraBarra = ($porcentagem > 100) ? 100 : $porcentagem;
 
-            // Lógica de cores inteligente
+            // Lógica de cores para a barra de progresso
             if ($porcentagem < 60) {
                 $corBarra = '#28a745'; // Verde (Tranquilo)
             } elseif ($porcentagem < 85) {
@@ -143,7 +143,7 @@ $primeiroNome = explode(' ', $_SESSION['nome'])[0];
     </div>
 <?php endif; ?>
 
-<h2>Últimas Movimentações</h2>
+<h2 style="margin-top: 30px;">Últimas Movimentações</h2>
 <table>
     <tr>
         <th>Data</th>
@@ -155,7 +155,6 @@ $primeiroNome = explode(' ', $_SESSION['nome'])[0];
     <?php if (count($recentes) > 0): ?>
         <?php foreach ($recentes as $r): ?>
             <?php
-            // Sem acento na Saida
             if ($r['tipo_transacao'] == 'Entrada') {
                 $cor = 'green';
             } elseif ($r['tipo_transacao'] == 'Saida') {

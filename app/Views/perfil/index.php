@@ -8,6 +8,7 @@
 
 <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); max-width: 600px;">
     <form action="/financas/perfil/update" method="POST" class="d-flex flex-column">
+        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token ?? '', ENT_QUOTES, 'UTF-8') ?>">
         
         <label style="font-weight: bold; margin-bottom: 5px;">Nome Completo</label>
         <input type="text" name="nome" value="<?= htmlspecialchars($usuario['nome']) ?>" required style="margin-bottom: 15px;">
