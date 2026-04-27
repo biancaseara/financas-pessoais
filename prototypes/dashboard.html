@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Template Base | PREDITIV.IA</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+
+<body>
+
+    <aside class="sidebar">
+        <div class="logo-container">
+            <div class="favicon-ia">
+                <span class="dot"></span>IA
+            </div>
+            <h1 class="logo-text">PREDITIV<span class="highlight">.IA</span></h1>
+        </div>
+
+        <nav class="menu">
+            <a href="dashboard.html" class="menu-item active"><i class="ph ph-squares-four"></i> Dashboard</a>
+            <a href="transacoes.html" class="menu-item"><i class="ph ph-arrows-left-right"></i> Transações</a>
+            <a href="despesas.html" class="menu-item"><i class="ph ph-calendar-check"></i> Despesas Fixas</a>
+            <a href="contas.html" class="menu-item"><i class="ph ph-bank"></i> Contas</a>
+            <a href="cartoes.html" class="menu-item"><i class="ph ph-credit-card"></i> Cartões</a>
+            <a href="categorias.html" class="menu-item"><i class="ph ph-list-dashes"></i> Categorias</a>
+            <a href="metas.html" class="menu-item"><i class="ph ph-target"></i> Metas</a>
+            <a href="investimentos.html" class="menu-item"><i class="ph ph-trend-up"></i> Investimentos</a>
+            <a href="admin.html" class="menu-item"><i class="ph ph-users"></i> Painel de Admin</a>
+        </nav>
+
+        <div class="user-footer">
+            <div class="user-info">
+                <div class="avatar">B</div>
+                <div class="user-details">
+                    <span class="user-name">Bianca Seara</span>
+                    <a href="perfil.html" class="profile-link">Meu Perfil</a>
+                </div>
+            </div>
+            <a href="login.html" class="logout-btn" title="Sair"><i class="ph ph-sign-out"></i></a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+
+        <header class="topbar">
+            <div class="greeting">
+                <h2>Olá, Bianca! 👋</h2>
+                <p class="text-secondary">Aqui está o resumo das suas finanças hoje.</p>
+            </div>
+            <div class="topbar-actions">
+                <button id="theme-toggle" class="icon-btn" title="Alternar Tema"><i class="ph ph-moon"></i></button>
+
+                <button class="btn-outline header-btn"><i class="ph ph-calendar-plus"></i> Despesa Fixa</button>
+
+                <button class="btn-primary"><i class="ph ph-plus"></i> Novo Lançamento</button>
+            </div>
+        </header>
+        <div class="conteudo-da-pagina">
+
+            <section class="ai-insights-panel">
+                <div class="ai-header">
+                    <i class="ph-fill ph-sparkle"></i>
+                    <h3>Preditiv.ia Insights</h3>
+                </div>
+                <p class="ai-message">
+                    "Sua <strong>Reserva de Emergência</strong> está em R$ 5,01. Que tal destinar uma pequena parte do
+                    próximo salário para acelerar essa meta e ficar mais tranquila?"
+                </p>
+            </section>
+
+            <div class="dashboard-grid">
+
+                <div class="card hero-card mb-4" style="background: linear-gradient(135deg, var(--bg-surface) 0%, rgba(139, 92, 246, 0.05) 100%); border-left: 4px solid var(--color-ia-purple);">
+                    <span class="card-label">Patrimônio Total Acumulado</span>
+                    <h2 class="card-value negative" style="font-size: 36px;">R$ -401,18</h2>
+                    <span class="card-trend"><i class="ph ph-info"></i> Dinheiro somado de todas as suas contas bancárias.</span>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 16px; margin-bottom: 20px;">
+                        <h4>Balanço do Mês (04/2026)</h4>
+                    </div>
+                    
+                    <div class="balance-panel-grid">
+                        <div class="balance-item">
+                            <span class="card-label">Entradas</span>
+                            <h3 class="card-value positive mt-2">R$ 0,00</h3>
+                        </div>
+                        
+                        <div class="balance-item">
+                            <span class="card-label">Saídas (Débito + Crédito)</span>
+                            <h3 class="card-value negative mt-2">R$ 750,40</h3>
+                        </div>
+
+                        <div class="balance-item thermometer-item">
+                            <span class="card-label">Termômetro (Receitas - Saídas)</span>
+                            <h3 class="card-value negative mt-2">R$ -750,40</h3>
+                            <span class="badge badge-danger mt-2" style="display: inline-block;">Gastou mais do que ganhou</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-row">
+                    <div class="card chart-container">
+                        <div class="card-header">
+                            <h4>Despesas por Categoria</h4>
+                            <a href="#" class="view-all">Ver Detalhes</a>
+                        </div>
+                        <div class="chart-placeholder">
+                            <div class="donut-chart-mock"></div>
+                            <ul class="chart-legend">
+                                <li><span class="dot" style="background-color: var(--color-danger)"></span> Vestuário &
+                                    Cuidados</li>
+                                <li><span class="dot" style="background-color: var(--color-emerald)"></span> Alimentação
+                                </li>
+                                <li><span class="dot" style="background-color: var(--color-ia-purple)"></span> Outros
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="card limits-container">
+                        <div class="card-header">
+                            <h4>Limites de Gastos (Neste Mês)</h4>
+                        </div>
+
+                        <div class="limit-item">
+                            <div class="limit-info">
+                                <span>Vestuário & Cuidados</span>
+                                <span>147.2%</span>
+                            </div>
+                            <div class="progress-bar danger">
+                                <div style="width: 100%"></div>
+                            </div>
+                            <small class="limit-values">R$ 294,43 / R$ 200,00</small>
+                        </div>
+
+                        <div class="limit-item mt-3">
+                            <div class="limit-info">
+                                <span>Alimentação</span>
+                                <span>43.8%</span>
+                            </div>
+                            <div class="progress-bar success">
+                                <div style="width: 43.8%"></div>
+                            </div>
+                            <small class="limit-values">R$ 87,58 / R$ 200,00</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card table-container">
+                    <div class="card-header">
+                        <h4>Últimas Movimentações</h4>
+                        <button class="btn-outline">Ver Extrato Completo</button>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Descrição</th>
+                                    <th>Categoria</th>
+                                    <th>Banco</th>
+                                    <th>Valor</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>13/05/2026</td>
+                                    <td>Fone de Ouvido</td>
+                                    <td><span class="badge">Eletrônicos</span></td>
+                                    <td>PicPay Card</td>
+                                    <td class="negative font-medium">R$ 39,50</td>
+                                </tr>
+                                <tr>
+                                    <td>13/05/2026</td>
+                                    <td>Remédio</td>
+                                    <td><span class="badge">Imprevistos</span></td>
+                                    <td>PicPay Card</td>
+                                    <td class="negative font-medium">R$ 63,34</td>
+                                </tr>
+                                <tr>
+                                    <td>01/05/2026</td>
+                                    <td>Internet</td>
+                                    <td><span class="badge">Moradia</span></td>
+                                    <td>PicPay Card</td>
+                                    <td class="negative font-medium">R$ 100,00</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        const themeToggle = document.getElementById('theme-toggle');
+        const htmlElement = document.documentElement;
+        const icon = themeToggle.querySelector('i');
+
+        themeToggle.addEventListener('click', () => {
+            if (htmlElement.getAttribute('data-theme') === 'dark') {
+                htmlElement.setAttribute('data-theme', 'light');
+                icon.classList.replace('ph-moon', 'ph-sun');
+            } else {
+                htmlElement.setAttribute('data-theme', 'dark');
+                icon.classList.replace('ph-sun', 'ph-moon');
+            }
+        });
+    </script>
+</body>
+
+</html>
