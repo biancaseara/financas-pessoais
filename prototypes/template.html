@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Template Base | PREDITIV.IA</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+
+<body>
+
+    <div id="sidebar-overlay" class="overlay"></div>
+
+    <aside class="sidebar">
+        <div class="logo-container">
+            <div class="favicon-ia">
+                <span class="dot"></span>IA
+            </div>
+            <h1 class="logo-text">PREDITIV<span class="highlight">.IA</span></h1>
+        </div>
+
+        <nav class="menu">
+            <a href="dashboard.html" class="menu-item active"><i class="ph ph-squares-four"></i> Dashboard</a>
+            <a href="transacoes.html" class="menu-item"><i class="ph ph-arrows-left-right"></i> Transações</a>
+            <a href="despesas.html" class="menu-item"><i class="ph ph-calendar-check"></i> Despesas Fixas</a>
+            <a href="contas.html" class="menu-item"><i class="ph ph-bank"></i> Contas</a>
+            <a href="cartoes.html" class="menu-item"><i class="ph ph-credit-card"></i> Cartões</a>
+            <a href="categorias.html" class="menu-item"><i class="ph ph-list-dashes"></i> Categorias</a>
+            <a href="metas.html" class="menu-item"><i class="ph ph-target"></i> Metas</a>
+            <a href="investimentos.html" class="menu-item"><i class="ph ph-trend-up"></i> Investimentos</a>
+            <a href="admin.html" class="menu-item"><i class="ph ph-users"></i> Painel de Admin</a>
+        </nav>
+
+        <div class="user-footer">
+            <div class="user-info">
+                <div class="avatar">B</div>
+                <div class="user-details">
+                    <span class="user-name">Bianca Seara</span>
+                    <a href="perfil.html" class="profile-link">Meu Perfil</a>
+                </div>
+            </div>
+            <a href="login.html" class="logout-btn" title="Sair"><i class="ph ph-sign-out"></i></a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+
+        <header class="topbar">
+            <div class="topbar-left">
+                <button id="mobile-menu-btn" class="icon-btn mobile-only"><i class="ph ph-list"></i></button>
+                <div class="greeting">
+                    <h2>Olá, Bianca! 👋</h2>
+                    <p class="text-secondary">Aqui está o resumo das suas finanças hoje.</p>
+                </div>
+            </div>
+
+            <div class="topbar-actions">
+                <button id="theme-toggle" class="icon-btn" title="Alternar Tema"><i class="ph ph-moon"></i></button>
+                <button class="btn-outline header-btn"><i class="ph ph-calendar-plus"></i> Despesa Fixa</button>
+                <button class="btn-primary"><i class="ph ph-plus"></i> Novo Lançamento</button>
+            </div>
+        </header>
+
+        <div class="conteudo-da-pagina">
+
+            <p style="color: var(--text-secondary);">O conteúdo da página será carregado aqui...</p>
+
+        </div>
+    </main>
+
+    <script>
+        const themeToggle = document.getElementById('theme-toggle');
+        const htmlElement = document.documentElement;
+        const icon = themeToggle.querySelector('i');
+
+        themeToggle.addEventListener('click', () => {
+            if (htmlElement.getAttribute('data-theme') === 'dark') {
+                htmlElement.setAttribute('data-theme', 'light');
+                icon.classList.replace('ph-moon', 'ph-sun');
+            } else {
+                htmlElement.setAttribute('data-theme', 'dark');
+                icon.classList.replace('ph-sun', 'ph-moon');
+            }
+        });
+
+        // Script do Menu Mobile
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const sidebar = document.querySelector('.sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+
+        // Função para abrir e fechar
+        function toggleMenu() {
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+        }
+
+        // Clicar no hambúrguer abre o menu
+        if (mobileMenuBtn) {
+            mobileMenuBtn.addEventListener('click', toggleMenu);
+        }
+
+        // Clicar na parte escura fecha o menu
+        if (overlay) {
+            overlay.addEventListener('click', toggleMenu);
+        }
+    </script>
+</body>
+
+</html>

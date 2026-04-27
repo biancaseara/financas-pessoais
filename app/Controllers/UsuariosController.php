@@ -66,7 +66,12 @@ class UsuariosController extends Controller {
             
             $senhaHash = !empty($_POST['senha']) ? password_hash($_POST['senha'], PASSWORD_DEFAULT) : '';
             
-            $usuarioModel->atualizar($id, $_POST['nome'], $_POST['email'], $senhaHash, $_POST['perfil']);
+            $perfil = $_POST['perfil'];
+            if ($id == $_SESSION['id_usuario']) {
+                $perfil = 'admin'; 
+            }
+            
+            $usuarioModel->atualizar($id, $_POST['nome'], $_POST['email'], $senhaHash, $perfil);
             header("Location: /financas/usuarios");
         }
     }
