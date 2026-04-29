@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Template Base | PREDITIV.IA</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="logo-container">
+            <div class="favicon-ia">
+                <span class="dot"></span>IA
+            </div>
+            <h1 class="logo-text">PREDITIV<span class="highlight">.IA</span></h1>
+        </div>
+
+        <nav class="menu">
+            <a href="dashboard.html" class="menu-item active"><i class="ph ph-squares-four"></i> Dashboard</a>
+            <a href="transacoes.html" class="menu-item"><i class="ph ph-arrows-left-right"></i> Transações</a>
+            <a href="despesas.html" class="menu-item"><i class="ph ph-calendar-check"></i> Despesas Fixas</a>
+            <a href="contas.html" class="menu-item"><i class="ph ph-bank"></i> Contas</a>
+            <a href="cartoes.html" class="menu-item"><i class="ph ph-credit-card"></i> Cartões</a>
+            <a href="categorias.html" class="menu-item"><i class="ph ph-list-dashes"></i> Categorias</a>
+            <a href="metas.html" class="menu-item"><i class="ph ph-target"></i> Metas</a>
+            <a href="investimentos.html" class="menu-item"><i class="ph ph-trend-up"></i> Investimentos</a>
+            <a href="admin.html" class="menu-item"><i class="ph ph-users"></i> Painel de Admin</a>
+        </nav>
+
+        <div class="user-footer">
+            <div class="user-info">
+                <div class="avatar">B</div>
+                <div class="user-details">
+                    <span class="user-name">Bianca Seara</span>
+                    <a href="perfil.html" class="profile-link">Meu Perfil</a>
+                </div>
+            </div>
+            <a href="login.html" class="logout-btn" title="Sair"><i class="ph ph-sign-out"></i></a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        
+        <header class="topbar">
+    <div class="greeting">
+        <h2>Transações</h2>
+        <p class="text-secondary">Gerencie suas receitas e despesas.</p>
+    </div>
+    <div class="topbar-actions">
+        <button id="theme-toggle" class="icon-btn" title="Alternar Tema"><i class="ph ph-moon"></i></button>
+    </div>
+</header>
+
+<div class="transactions-container">
+    
+    <div class="card form-container">
+        <div class="card-header">
+            <h4>Nova Transação</h4>
+        </div>
+        
+        <form class="transaction-form">
+            <div class="form-group type-toggle">
+                <label class="radio-card expense">
+                    <input type="radio" name="tipo_transacao" value="saida" checked>
+                    <div class="radio-content">
+                        <i class="ph ph-arrow-circle-down"></i>
+                        <span>Saída</span>
+                    </div>
+                </label>
+                <label class="radio-card income">
+                    <input type="radio" name="tipo_transacao" value="entrada">
+                    <div class="radio-content">
+                        <i class="ph ph-arrow-circle-up"></i>
+                        <span>Entrada</span>
+                    </div>
+                </label>
+                <label class="radio-card transfer">
+                    <input type="radio" name="tipo_transacao" value="transferencia">
+                    <div class="radio-content">
+                        <i class="ph ph-arrows-left-right"></i>
+                        <span>Transferência</span>
+                    </div>
+                </label>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Data</label>
+                    <div class="input-with-icon">
+                        <i class="ph ph-calendar-blank"></i>
+                        <input type="date" class="form-control" value="2026-04-26">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Forma de Pagamento</label>
+                    <div class="input-with-icon">
+                        <i class="ph ph-wallet"></i>
+                        <select class="form-control">
+                            <option>Débito</option>
+                            <option>Cartão de Crédito</option>
+                            <option>Pix</option>
+                            <option>Boleto</option>
+                            <option>Dinheiro</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Conta Origem</label>
+                    <div class="input-with-icon">
+                        <i class="ph ph-bank"></i>
+                        <select class="form-control">
+                            <option>Nubank</option>
+                            <option>PicPay Card</option>
+                            <option>Bradesco</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Categoria</label>
+                    <div class="input-with-icon">
+                        <i class="ph ph-tag"></i>
+                        <select class="form-control">
+                            <option>Moradia</option>
+                            <option>Supermercado</option>
+                            <option>Eletrônicos</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group value-group">
+                    <label>Valor (R$)</label>
+                    <div class="input-with-icon">
+                        <i class="ph ph-currency-dollar"></i>
+                        <input type="number" step="0.01" class="form-control value-input" placeholder="0,00">
+                    </div>
+                </div>
+
+                <div class="form-group full-width">
+                    <label>Descrição</label>
+                    <div class="input-with-icon">
+                        <i class="ph ph-text-aa"></i>
+                        <input type="text" class="form-control" placeholder="Ex: Nova geladeira (4/4)">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-primary w-full"><i class="ph ph-check-circle"></i> Registrar Transação</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="card table-container">
+        <div class="card-header">
+            <h4>Extrato de Transações</h4>
+            <div class="search-box">
+                <i class="ph ph-magnifying-glass"></i>
+                <input type="text" placeholder="Buscar transação...">
+            </div>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Origem</th>
+                        <th>Forma</th>
+                        <th>Categoria</th>
+                        <th>Descrição</th>
+                        <th>Valor</th>
+                        <th class="text-right">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="text-secondary">25/07/2026</td>
+                        <td><span class="account-tag"><i class="ph ph-credit-card"></i> Fatura de Cartão</span></td>
+                        <td class="font-medium">Crédito</td>
+                        <td><span class="badge">Moradia</span></td>
+                        <td class="font-medium">Nova geladeira (4/4)</td>
+                        <td class="negative font-medium">- R$ 300,00</td>
+                        <td class="text-right">
+                            <button class="icon-btn-sm" title="Editar"><i class="ph ph-pencil-simple"></i></button>
+                            <button class="icon-btn-sm danger" title="Excluir"><i class="ph ph-trash"></i></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="text-secondary">30/04/2026</td>
+                        <td><span class="account-tag"><i class="ph ph-bank"></i> Nubank</span></td>
+                        <td class="font-medium">Débito</td>
+                        <td><span class="badge">Supermercado</span></td>
+                        <td class="font-medium">Alimentação</td>
+                        <td class="negative font-medium">- R$ 120,00</td>
+                        <td class="text-right">
+                            <button class="icon-btn-sm" title="Editar"><i class="ph ph-pencil-simple"></i></button>
+                            <button class="icon-btn-sm danger" title="Excluir"><i class="ph ph-trash"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+        </main>
+
+    <script>
+        const themeToggle = document.getElementById('theme-toggle');
+        const htmlElement = document.documentElement;
+        const icon = themeToggle.querySelector('i');
+
+        themeToggle.addEventListener('click', () => {
+            if (htmlElement.getAttribute('data-theme') === 'dark') {
+                htmlElement.setAttribute('data-theme', 'light');
+                icon.classList.replace('ph-moon', 'ph-sun');
+            } else {
+                htmlElement.setAttribute('data-theme', 'dark');
+                icon.classList.replace('ph-sun', 'ph-moon');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -398,6 +398,205 @@ body {
 }
 
 /* ==========================================
+   ESTILOS DE FORMULÁRIOS E TRANSAÇÕES
+   ========================================== */
+
+.transactions-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* Formulário Base */
+.form-container {
+    padding: 32px;
+}
+
+.transaction-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+/* Inputs Modernos com Ícone */
+.input-with-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-with-icon i {
+    position: absolute;
+    left: 14px;
+    color: var(--text-secondary);
+    font-size: 18px;
+    pointer-events: none;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px 14px 12px 40px;
+    background-color: var(--bg-main);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 14px;
+    transition: all 0.2s;
+    outline: none;
+    -webkit-appearance: none;
+}
+
+.form-control:focus {
+    border-color: var(--color-ia-purple);
+    box-shadow: 0 0 0 3px var(--color-ia-glow);
+}
+
+/* Destacando o Input de Valor */
+.value-input {
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--color-emerald);
+}
+
+/* Radio Buttons Estilizados (Saída / Entrada) */
+.type-toggle {
+    display: flex;
+    gap: 16px;
+    flex-direction: row;
+}
+
+.radio-card {
+    flex: 1;
+    position: relative;
+    cursor: pointer;
+}
+
+.radio-card input {
+    position: absolute;
+    opacity: 0;
+}
+
+.radio-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    transition: all 0.2s;
+}
+
+/* Estados de Seleção do Radio */
+.radio-card.expense input:checked ~ .radio-content {
+    background-color: rgba(239, 68, 68, 0.1);
+    border-color: var(--color-danger);
+    color: var(--color-danger);
+}
+
+.radio-card.income input:checked ~ .radio-content {
+    background-color: rgba(16, 185, 129, 0.1);
+    border-color: var(--color-emerald);
+    color: var(--color-emerald);
+}
+
+/* Estado de Seleção para Transferência */
+.radio-card.transfer input:checked ~ .radio-content {
+    background-color: rgba(139, 92, 246, 0.1);
+    border-color: var(--color-ia-purple);
+    color: var(--color-ia-purple);
+}
+
+/* Botões de Ação na Tabela */
+.text-right {
+    text-align: right !important;
+}
+
+.icon-btn-sm {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 18px;
+    padding: 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.icon-btn-sm:hover {
+    background: var(--sidebar-hover);
+    color: var(--color-ia-purple);
+}
+
+.icon-btn-sm.danger:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--color-danger);
+}
+
+/* Tags de Contas na Tabela */
+.account-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+/* Barra de Busca no Header do Card */
+.search-box {
+    display: flex;
+    align-items: center;
+    background: var(--bg-main);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 6px 12px;
+}
+
+.search-box input {
+    border: none;
+    background: transparent;
+    color: var(--text-primary);
+    padding-left: 8px;
+    outline: none;
+    font-size: 14px;
+}
+
+.search-box i {
+    color: var(--text-secondary);
+}
+
+.w-full {
+    width: 100%;
+    justify-content: center;
+    padding: 14px;
+    font-size: 15px;
+}
+
+/* ==========================================
    RESPONSIVIDADE E MENU MOBILE
    ========================================== */
 
