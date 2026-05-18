@@ -77,8 +77,17 @@
 
                 <div class="topbar-actions">
                     <button id="theme-toggle" class="icon-btn" title="Alternar Tema"><i class="ph ph-moon"></i></button>
-                    <button class="btn-outline header-btn"><i class="ph ph-calendar-plus"></i> Despesa Fixa</button>
-                    <button class="btn-primary"><i class="ph ph-plus"></i> Novo Lançamento</button>
+
+                    <form action="/financas/recorrentes/lancarMes" method="POST">
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+                        <button type="submit" class="btn-outline header-btn" onclick="return confirm('Deseja lançar todas as despesas fixas ativas deste mês?');">
+                            <i class="ph ph-calendar-plus"></i> Despesa Fixa
+                        </button>
+                    </form>
+
+                    <a href="/financas/transacoes" class="btn-primary">
+                        <i class="ph ph-plus"></i> Novo Lançamento
+                    </a>
                 </div>
             </header>
         <?php endif; ?>
@@ -94,17 +103,35 @@
             // Tema Light/Dark
             const themeToggle = document.getElementById('theme-toggle');
             const htmlElement = document.documentElement;
-            const icon = themeToggle.querySelector('i');
+            let icon = null;
+
+            if (themeToggle) {
+                icon = themeToggle.querySelector('i');
+            }
+
+            function applyTheme(theme) {
+                htmlElement.setAttribute('data-theme', theme);
+                localStorage.setItem('preditiv_theme', theme);
+
+                if (icon) {
+                    if (theme === 'light') {
+                        icon.classList.remove('ph-moon');
+                        icon.classList.add('ph-sun');
+                    } else {
+                        icon.classList.remove('ph-sun');
+                        icon.classList.add('ph-moon');
+                    }
+                }
+            }
+
+            const savedTheme = localStorage.getItem('preditiv_theme') || 'dark';
+            applyTheme(savedTheme);
 
             if (themeToggle) {
                 themeToggle.addEventListener('click', () => {
-                    if (htmlElement.getAttribute('data-theme') === 'dark') {
-                        htmlElement.setAttribute('data-theme', 'light');
-                        icon.classList.replace('ph-moon', 'ph-sun');
-                    } else {
-                        htmlElement.setAttribute('data-theme', 'dark');
-                        icon.classList.replace('ph-sun', 'ph-moon');
-                    }
+                    const currentTheme = htmlElement.getAttribute('data-theme');
+                    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                    applyTheme(newTheme);
                 });
             }
 
