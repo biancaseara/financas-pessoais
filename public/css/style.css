@@ -707,3 +707,33 @@ a.btn-outline {
   color: var(--btn-hover);
   text-decoration: underline;
 }
+
+/* ALERTA DE SUCESSO (VERDE) */
+.alert-success {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: var(--color-emerald);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+/* CHECKBOX DE TERMOS */
+.checkbox-group {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.checkbox-group input[type="checkbox"] {
+  margin-top: 4px;
+  accent-color: var(--color-ia-purple);
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+}
+
+.checkbox-group label {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.5;
+  cursor: pointer;
+}
