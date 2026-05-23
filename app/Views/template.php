@@ -24,24 +24,54 @@
 
         <aside class="sidebar">
             <div class="logo-container">
-                <div class="favicon-ia">
-                    <span class="dot"></span>IA
-                </div>
-                <h1 class="logo-text">PREDITIV<span class="highlight">.IA</span></h1>
+                <a href="/financas" class="logo-link">
+                    <img src="/financas/public/images/logo.png" alt="Ícone PREDITIV.IA" class="logo-img">
+                    <h1 class="logo-text">PREDITIV<span class="highlight">.IA</span></h1>
+                </a>
             </div>
 
+            <?php
+            // VERIFICA URL PARA SABER EM QUE PÁGINA ESTÁ E APLICAR A CLASSE ACTIVE NO MENU
+            $urlAtual = $_SERVER['REQUEST_URI'];
+            ?>
+
             <nav class="menu">
-                <a href="/financas" class="menu-item"><i class="ph ph-squares-four"></i> Dashboard</a>
-                <a href="/financas/transacoes" class="menu-item"><i class="ph ph-arrows-left-right"></i> Transações</a>
-                <a href="/financas/recorrentes" class="menu-item"><i class="ph ph-calendar-check"></i> Despesas Fixas</a>
-                <a href="/financas/contas" class="menu-item"><i class="ph ph-bank"></i> Contas</a>
-                <a href="/financas/cartoes" class="menu-item"><i class="ph ph-credit-card"></i> Cartões</a>
-                <a href="/financas/categorias" class="menu-item"><i class="ph ph-list-dashes"></i> Categorias</a>
-                <a href="/financas/metas" class="menu-item"><i class="ph ph-target"></i> Metas</a>
-                <a href="/financas/investimentos" class="menu-item"><i class="ph ph-trend-up"></i> Investimentos</a>
+                <a href="/financas" class="menu-item <?= ($urlAtual == '/financas' || $urlAtual == '/financas/') ? 'active' : '' ?>">
+                    <i class="ph ph-squares-four"></i> Dashboard
+                </a>
+
+                <a href="/financas/transacoes" class="menu-item <?= (strpos($urlAtual, '/financas/transacoes') !== false) ? 'active' : '' ?>">
+                    <i class="ph ph-arrows-left-right"></i> Transações
+                </a>
+
+                <a href="/financas/recorrentes" class="menu-item <?= (strpos($urlAtual, '/financas/recorrentes') !== false) ? 'active' : '' ?>">
+                    <i class="ph ph-calendar-check"></i> Despesas Fixas
+                </a>
+
+                <a href="/financas/contas" class="menu-item <?= (strpos($urlAtual, '/financas/contas') !== false) ? 'active' : '' ?>">
+                    <i class="ph ph-bank"></i> Contas
+                </a>
+
+                <a href="/financas/cartoes" class="menu-item <?= (strpos($urlAtual, '/financas/cartoes') !== false) ? 'active' : '' ?>">
+                    <i class="ph ph-credit-card"></i> Cartões
+                </a>
+
+                <a href="/financas/categorias" class="menu-item <?= (strpos($urlAtual, '/financas/categorias') !== false) ? 'active' : '' ?>">
+                    <i class="ph ph-list-dashes"></i> Categorias
+                </a>
+
+                <a href="/financas/metas" class="menu-item <?= (strpos($urlAtual, '/financas/metas') !== false) ? 'active' : '' ?>">
+                    <i class="ph ph-target"></i> Metas
+                </a>
+
+                <a href="/financas/investimentos" class="menu-item <?= (strpos($urlAtual, '/financas/investimentos') !== false) ? 'active' : '' ?>">
+                    <i class="ph ph-trend-up"></i> Investimentos
+                </a>
 
                 <?php if (isset($_SESSION['perfil']) && $_SESSION['perfil'] == 'admin'): ?>
-                    <a href="/financas/usuarios" class="menu-item"><i class="ph ph-users"></i> Painel de Admin</a>
+                    <a href="/financas/usuarios" class="menu-item <?= (strpos($urlAtual, '/financas/usuarios') !== false) ? 'active' : '' ?>">
+                        <i class="ph ph-users"></i> Painel de Admin
+                    </a>
                 <?php endif; ?>
             </nav>
 
@@ -76,7 +106,7 @@
                 </div>
 
                 <div class="topbar-actions">
-                    <button id="theme-toggle" class="icon-btn" title="Alternar Tema"><i class="ph ph-moon"></i></button>
+                    <button id="theme-toggle" class="icon-btn" title="Alternar Tema"><i class="ph ph-sun"></i></button>
 
                     <form action="/financas/recorrentes/lancarMes" method="POST">
                         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
@@ -115,11 +145,11 @@
 
                 if (icon) {
                     if (theme === 'light') {
-                        icon.classList.remove('ph-moon');
-                        icon.classList.add('ph-sun');
-                    } else {
                         icon.classList.remove('ph-sun');
                         icon.classList.add('ph-moon');
+                    } else {
+                        icon.classList.remove('ph-moon');
+                        icon.classList.add('ph-sun');
                     }
                 }
             }

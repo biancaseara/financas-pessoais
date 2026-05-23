@@ -1,28 +1,26 @@
 <div class="auth-wrapper">
     <div class="auth-card card">
-        
+
         <div class="auth-header">
-            <div class="logo-container" style="justify-content: center; border: none; padding: 0;">
-                <div class="favicon-ia">
-                    <span class="dot"></span>IA
-                </div>
+            <div class="auth-logo-container">
+                <img src="/financas/public/images/logo.png" alt="Ícone PREDITIV.IA" class="logo-img">
                 <h1 class="logo-text">PREDITIV<span class="highlight">.IA</span></h1>
             </div>
-            
+
             <h2 class="auth-title"><?= htmlspecialchars($titulo, ENT_QUOTES, 'UTF-8') ?></h2>
             <p class="text-secondary">Acesse sua conta para continuar.</p>
         </div>
-        
+
         <?php if (!empty($erro)): ?>
             <div class="alert alert-danger">
-                <i class="ph ph-warning-circle" style="font-size: 18px;"></i> 
+                <i class="ph ph-warning-circle" style="font-size: 18px;"></i>
                 <?= htmlspecialchars($erro, ENT_QUOTES, 'UTF-8') ?>
             </div>
         <?php endif; ?>
 
         <form action="/financas/auth/login" method="POST" class="auth-form">
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8') ?>">
-            
+
             <div class="form-group">
                 <div class="input-with-icon">
                     <i class="ph ph-envelope-simple"></i>
@@ -36,15 +34,15 @@
                     <input type="password" name="senha" class="form-control" placeholder="••••••••" required autocomplete="current-password">
                 </div>
             </div>
-            
+
             <button type="submit" class="btn-primary w-full" style="margin-top: 12px; height: 48px; font-size: 16px;">Entrar <i class="ph ph-sign-in"></i>
             </button>
         </form>
 
         <div class="auth-footer">
-            <span class="text-secondary">Não tem uma conta?</span> 
+            <span class="text-secondary">Não tem uma conta?</span>
             <a href="/financas/auth/registro" class="auth-link">Crie aqui</a>
         </div>
-        
+
     </div>
 </div>

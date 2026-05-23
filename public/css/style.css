@@ -61,38 +61,41 @@ body {
   transition: all 0.3s;
 }
 
+/* ESTILIZAÇÃO DO LOGOTIPO */
 .logo-container {
   padding: 24px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
   border-bottom: 1px solid var(--border-color);
 }
 
-.favicon-ia {
-  background-color: #000;
-  color: #fff;
-  padding: 6px 8px;
-  border-radius: 8px;
-  font-weight: 700;
-  font-size: 14px;
+.logo-link {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 12px;
+  text-decoration: none;
+  color: var(--text-primary);
 }
 
-.favicon-ia .dot {
-  width: 6px;
-  height: 6px;
-  background-color: var(--color-ia-purple);
-  border-radius: 50%;
-  box-shadow: 0 0 8px var(--color-ia-purple);
+.auth-logo-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.logo-img {
+  height: 36px;
+  width: auto;
+  display: block;
+  object-fit: contain;
 }
 
 .logo-text {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 600;
   letter-spacing: 1px;
+  color: var(--text-primary);
+  margin: 0;
 }
 
 .logo-text .highlight {
@@ -100,6 +103,11 @@ body {
   font-weight: 400;
 }
 
+.favicon-ia {
+  display: none !important;
+}
+
+/* ESTILIZAÇÃO DO MENU LATERAL */
 .menu {
   flex: 1;
   padding: 24px 16px;
@@ -129,6 +137,22 @@ body {
 .menu-item.active {
   background-color: var(--color-ia-glow);
   color: var(--color-ia-purple);
+  font-weight: 600;
+}
+
+.menu-item.active {
+  position: relative;
+}
+
+.menu-item.active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 12px;
+  bottom: 12px;
+  width: 4px;
+  background-color: var(--color-ia-purple);
+  border-radius: 0 4px 4px 0;
 }
 
 /* RODAPÉ DO USUÁRIO */
