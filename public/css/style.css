@@ -231,7 +231,7 @@ a.btn-outline {
   text-decoration: none;
 }
 
-/* Botões Globais */
+/* BOTÕES GLOBAIS */
 .icon-btn {
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
@@ -613,4 +613,97 @@ a.btn-outline {
     border-bottom: 1px solid var(--border-color);
     padding-bottom: 16px;
   }
+}
+
+/* ESTILIZAÇÃO DO LOGIN E REGISTRO */
+/* CARD PRINCIPAL */
+.auth-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 100px);
+  width: 100%;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  padding: 40px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.auth-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-top: 24px;
+  margin-bottom: 8px;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.input-with-icon {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.input-with-icon .ph {
+  font-size: 20px;
+}
+
+.form-control {
+  flex-grow: 1;
+  padding: 12px 16px;
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+/* ESTILIZAÇÃO DE MENSAGENS DE ALERTAS E ERROS */
+.alert {
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.alert-danger {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--color-danger);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* LINKS DO RODAPÉ */
+.auth-footer {
+  margin-top: 32px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.auth-link {
+  color: var(--color-ia-purple);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s;
+  margin-left: 4px;
+}
+
+.auth-link:hover {
+  color: var(--btn-hover);
+  text-decoration: underline;
 }

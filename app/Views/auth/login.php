@@ -1,20 +1,50 @@
-<div style="max-width: 400px; margin: 50px auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center;">
-    <h2 style="margin-bottom: 20px;"><?= htmlspecialchars($titulo, ENT_QUOTES, 'UTF-8') ?></h2>
-    
-    <?php if (!empty($erro)): ?>
-        <p style="color: red; font-size: 0.9em; margin-bottom: 15px;"><?= htmlspecialchars($erro, ENT_QUOTES, 'UTF-8') ?></p>
-    <?php endif; ?>
-
-    <form action="/financas/auth/login" method="POST" class="d-flex flex-column">
-        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8') ?>">
+<div class="auth-wrapper">
+    <div class="auth-card card">
         
-        <input type="email" name="email" placeholder="Seu E-mail" required autocomplete="email" style="margin-bottom: 15px; padding: 10px;">
-        <input type="password" name="senha" placeholder="Sua Senha" required autocomplete="current-password" style="margin-bottom: 20px; padding: 10px;">
+        <div class="auth-header">
+            <div class="logo-container" style="justify-content: center; border: none; padding: 0;">
+                <div class="favicon-ia">
+                    <span class="dot"></span>IA
+                </div>
+                <h1 class="logo-text">PREDITIV<span class="highlight">.IA</span></h1>
+            </div>
+            
+            <h2 class="auth-title"><?= htmlspecialchars($titulo, ENT_QUOTES, 'UTF-8') ?></h2>
+            <p class="text-secondary">Acesse sua conta para continuar.</p>
+        </div>
         
-        <button type="submit" style="padding: 12px; font-size: 16px;">Entrar</button>
-    </form>
+        <?php if (!empty($erro)): ?>
+            <div class="alert alert-danger">
+                <i class="ph ph-warning-circle" style="font-size: 18px;"></i> 
+                <?= htmlspecialchars($erro, ENT_QUOTES, 'UTF-8') ?>
+            </div>
+        <?php endif; ?>
 
-    <div style="margin-top: 20px; font-size: 0.9em;">
-        Não tem uma conta? <a href="/financas/auth/registro" style="color: #007BFF; text-decoration: none; font-weight: bold;">Crie aqui</a>
+        <form action="/financas/auth/login" method="POST" class="auth-form">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8') ?>">
+            
+            <div class="form-group">
+                <div class="input-with-icon">
+                    <i class="ph ph-envelope-simple"></i>
+                    <input type="email" name="email" class="form-control" placeholder="exemplo@email.com" required autocomplete="email">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="input-with-icon">
+                    <i class="ph ph-lock-key"></i>
+                    <input type="password" name="senha" class="form-control" placeholder="••••••••" required autocomplete="current-password">
+                </div>
+            </div>
+            
+            <button type="submit" class="btn-primary w-full" style="margin-top: 12px; height: 48px; font-size: 16px;">Entrar <i class="ph ph-sign-in"></i>
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            <span class="text-secondary">Não tem uma conta?</span> 
+            <a href="/financas/auth/registro" class="auth-link">Crie aqui</a>
+        </div>
+        
     </div>
 </div>
