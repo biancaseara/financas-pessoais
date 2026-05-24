@@ -615,6 +615,18 @@ a.btn-outline {
   border: 1px solid rgba(239, 68, 68, 0.2);
 }
 
+.badge-success {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: var(--color-emerald);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
 /* RESPONSIVIDADE */
 @media (max-width: 1024px) {
   .content-row {
@@ -694,6 +706,18 @@ a.btn-outline {
   font-size: 14px;
 }
 
+/* DROPDOWN */
+select.form-control option {
+    background-color: var(--bg-surface);
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+select.form-control {
+    color: var(--text-primary);
+    background-color: var(--bg-main);
+}
+
 /* ESTILIZAÇÃO DE MENSAGENS DE ALERTAS E ERROS */
 .alert {
   padding: 12px 16px;
@@ -762,7 +786,7 @@ a.btn-outline {
   cursor: pointer;
 }
 
-/* ESTILOS DE CARTÕES DE CRÉDITO */
+/* ESTILIZAÇÃO DE CARTÕES DE CRÉDITO */
 /* GRID DOS CARTÕES */
 label {
     font-size: 14px;
