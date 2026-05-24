@@ -761,3 +761,160 @@ a.btn-outline {
   line-height: 1.5;
   cursor: pointer;
 }
+
+/* ESTILOS DE CARTÕES DE CRÉDITO */
+/* GRID DOS CARTÕES */
+label {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    display: block;
+    margin: 10px 0 6px;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+.credit-card-item {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.credit-card-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.cc-header .cc-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cc-header h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.cc-header i {
+  font-size: 24px;
+}
+
+.cc-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cc-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.cc-limit {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+
+.cc-dates {
+  display: flex;
+  justify-content: space-between;
+  background-color: var(--bg-main);
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.date-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 13px;
+}
+
+.date-info span {
+  color: var(--text-secondary);
+}
+
+.date-info strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.cc-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: auto;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+.m-0 {
+  margin: 0;
+}
+
+.d-flex {
+  display: flex;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.btn-danger {
+  background-color: var(--color-danger);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background-color 0.2s;
+}
+
+.btn-danger:hover {
+  background-color: #b91c1c;
+}
+
+.color-picker {
+  padding: 4px 8px 4px 40px !important;
+  cursor: pointer;
+  height: 46px;
+}
+
+.empty-state {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  background-color: var(--bg-surface);
+  border: 1px dashed var(--border-color);
+  border-radius: 12px;
+  color: var(--text-secondary);
+  text-align: center;
+  gap: 12px;
+}
+
+.empty-state i {
+  font-size: 48px;
+  opacity: 0.5;
+}
