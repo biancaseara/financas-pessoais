@@ -980,3 +980,71 @@ label {
   vertical-align: middle;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+
+/* ESTILIZAÇÃO DE INVESTIMENTOS */
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.investment-card {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.investment-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.inv-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.inv-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.inv-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex-grow: 1;
+}
+
+.inv-info {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.inv-info strong {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.inv-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-emerald);
+  margin-top: 4px;
+}
+
+.inv-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: auto;
+}
