@@ -275,6 +275,33 @@ a.btn-outline {
   background: var(--sidebar-hover);
 }
 
+.icon-btn-sm {
+    background: transparent !important;
+    border: none !important;
+    color: var(--text-secondary);
+    font-size: 18px;
+    padding: 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: none !important;
+    outline: none;
+}
+
+.icon-btn-sm:hover {
+    background: var(--sidebar-hover) !important;
+    color: var(--color-ia-purple);
+}
+
+.icon-btn-sm.danger:hover {
+    background: rgba(239, 68, 68, 0.1) !important;
+    color: var(--color-danger);
+}
+
 .btn-primary {
   background-color: var(--color-ia-purple);
   color: white;
@@ -941,4 +968,15 @@ label {
 .empty-state i {
   font-size: 48px;
   opacity: 0.5;
+}
+
+/* INDICADOR DE COR DAS TABELAS */
+.color-indicator {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  display: inline-block;
+  vertical-align: middle;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
 }

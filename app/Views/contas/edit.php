@@ -1,16 +1,46 @@
-<h2><?= htmlspecialchars($titulo, ENT_QUOTES, 'UTF-8') ?></h2>
+<div class="transactions-container">
+    <div class="card form-container">
+        <div class="card-header">
+            <h4><i class="ph ph-pencil-simple" style="margin-right: 8px;"></i> <?= htmlspecialchars($titulo, ENT_QUOTES, 'UTF-8') ?></h4>
+        </div>
 
-<form action="/financas/contas/update/<?= $conta['id_conta'] ?>" method="POST" class="d-flex flex-column">
-    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8') ?>">
+        <form action="/financas/contas/update/<?= $conta['id_conta'] ?>" method="POST" class="transaction-form">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8') ?>">
 
-    <div class="d-flex" style="align-items: center; gap: 10px;">
-        <input name="nome_banco" value="<?= htmlspecialchars($conta['nome_banco'], ENT_QUOTES, 'UTF-8') ?>" required style="flex-grow: 1;">
-        <input type="text" name="saldo_inicial" value="<?= number_format($conta['saldo_inicial'], 2, ',', '.') ?>" required>
-        <input type="color" name="cor_identificacao" value="<?= htmlspecialchars($conta['cor_identificacao'], ENT_QUOTES, 'UTF-8') ?>" style="height: 35px; cursor: pointer;">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Nome do Banco</label>
+                    <div class="input-with-icon">
+                        <i class="ph ph-bank"></i>
+                        <input type="text" name="nome_banco" class="form-control" value="<?= htmlspecialchars($conta['nome_banco'], ENT_QUOTES, 'UTF-8') ?>" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Saldo Inicial (R$)</label>
+                    <div class="input-with-icon">
+                        <i class="ph ph-currency-dollar"></i>
+                        <input type="text" name="saldo_inicial" class="form-control" value="<?= number_format($conta['saldo_inicial'], 2, ',', '.') ?>" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Cor de Identificação</label>
+                    <div class="input-with-icon">
+                        <i class="ph ph-palette"></i>
+                        <input type="color" name="cor_identificacao" class="form-control color-picker" value="<?= htmlspecialchars($conta['cor_identificacao'], ENT_QUOTES, 'UTF-8') ?>">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-actions" style="margin-top: 24px; display: flex; gap: 16px;">
+                <a href="/financas/contas" class="btn-outline flex-1 text-center" style="display: inline-flex; justify-content: center;">
+                    <i class="ph ph-x-circle"></i> Cancelar
+                </a>
+                <button type="submit" class="btn-primary flex-1 text-center" style="display: inline-flex; justify-content: center;">
+                    <i class="ph ph-check-circle"></i> Salvar Alterações
+                </button>
+            </div>
+        </form>
     </div>
-    
-    <div class="d-flex" style="margin-top: 15px; gap: 10px;">
-        <button type="submit" style="padding: 10px 15px; cursor: pointer;">Salvar Alterações</button>
-        <a href="/financas/contas" style="padding: 10px 15px; background: #ccc; color: #333; text-decoration: none; border-radius: 5px; font-weight: bold; text-align: center;">Cancelar</a>
-    </div>
-</form>
+</div>
