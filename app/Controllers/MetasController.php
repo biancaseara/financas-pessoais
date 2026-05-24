@@ -36,36 +36,42 @@ class MetasController extends Controller {
             $metaModel = $this->model('Meta');
             $id_usuario = $_SESSION['id_usuario']; 
             
+            $valor_objetivo = str_replace('.', '', $_POST['valor_objetivo']);
+            $valor_objetivo = (float) str_replace(',', '.', $valor_objetivo);
+
+            $valor_atual = str_replace('.', '', $_POST['valor_atual']);
+            $valor_atual = (float) str_replace(',', '.', $valor_atual);
+
             $metaModel->cadastrar(
                 $id_usuario, 
                 strip_tags(trim($_POST['titulo_meta'])), 
-                $_POST['valor_objetivo'], 
-                $_POST['valor_atual'], 
+                $valor_objetivo, 
+                $valor_atual, 
                 $_POST['data_limite']
             );
             header("Location: /financas/metas");
         }
     }
-
-    public function edit($id) {
-        $metaModel = $this->model('Meta');
-        $id_usuario = $_SESSION['id_usuario'];
-        $meta = $metaModel->buscarPorId($id, $id_usuario);
-
-        if ($meta) {
-            if (empty($_SESSION['csrf_token'])) {
-                $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    
+        public function edit($id) {
+            $metaModel = $this->model('Meta');
+            $id_usuario = $_SESSION['id_usuario'];
+            $meta = $metaModel->buscarPorId($id, $id_usuario);
+    
+            if ($meta) {
+                if (empty($_SESSION['csrf_token'])) {
+                    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+                }
+    
+                $this->view('metas/edit', [
+                    'titulo' => 'Atualizar Meta',
+                    'meta' => $meta,
+                    'csrf_token' => $_SESSION['csrf_token']
+                ]);
+            } else {
+                header("Location: /financas/metas");
             }
-
-            $this->view('metas/edit', [
-                'titulo' => 'Atualizar Meta',
-                'meta' => $meta,
-                'csrf_token' => $_SESSION['csrf_token']
-            ]);
-        } else {
-            header("Location: /financas/metas");
         }
-    }
 
     public function update($id) {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -76,17 +82,24 @@ class MetasController extends Controller {
             $metaModel = $this->model('Meta');
             $id_usuario = $_SESSION['id_usuario'];
 
+            $valor_objetivo = str_replace('.', '', $_POST['valor_objetivo']);
+            $valor_objetivo = (float) str_replace(',', '.', $valor_objetivo);
+
+            $valor_atual = str_replace('.', '', $_POST['valor_atual']);
+            $valor_atual = (float) str_replace(',', '.', $valor_atual);
+
             $metaModel->atualizar(
                 $id, 
                 $id_usuario,
                 strip_tags(trim($_POST['titulo_meta'])), 
-                $_POST['valor_objetivo'], 
-                $_POST['valor_atual'], 
+                $valor_objetivo, 
+                $valor_atual, 
                 $_POST['data_limite']
             );
             header("Location: /financas/metas");
         }
     }
+
 
     public function delete($id) {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
