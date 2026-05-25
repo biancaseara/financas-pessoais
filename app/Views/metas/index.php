@@ -1,57 +1,114 @@
-<h2><?= htmlspecialchars($titulo, ENT_QUOTES, 'UTF-8') ?></h2>
+<div class="transactions-container">
 
-<form action="/financas/metas/store" method="POST" class="d-flex flex-column" style="margin-bottom: 20px;">
-    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8') ?>">
-    <div class="d-flex">
-        <input type="text" name="titulo_meta" placeholder="Objetivo (Ex: Comprar Carro)" required style="flex-grow:1;">
-        <input type="date" name="data_limite" required title="Data Limite">
-    </div>
-    <div class="d-flex" style="margin-top:10px;">
-        <input type="number" step="0.01" name="valor_objetivo" placeholder="Quanto precisa juntar? (R$)" required style="flex-grow:1;">
-        <input type="number" step="0.01" name="valor_atual" placeholder="Quanto já tem guardado? (R$)" required style="flex-grow:1;">
-    </div>
-    <div class="d-flex" style="margin-top:10px;">
-        <button type="submit">Criar Meta</button>
-    </div>
-</form>
+    <div class="card form-container mb-4">
+        <div class="card-header">
+            <h4><i class="ph ph-target" style="margin-right: 8px;"></i> <?= htmlspecialchars($titulo, ENT_QUOTES, 'UTF-8') ?></h4>
+        </div>
 
-<hr style="margin-bottom: 20px; border: 0; border-top: 1px solid #ccc;">
+        <form action="/financas/metas/store" method="POST" class="transaction-form">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8') ?>">
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Objetivo (Título da Meta)</label>
+                    <div class="input-with-icon">
+                        <i class="ph ph-flag-checkered"></i>
+                        <input type="text" name="titulo_meta" class="form-control" placeholder="Ex: Comprar Carro" required>
+                    </div>
+                </div>
 
-<?php if (count($metas) > 0): ?>
-    <?php foreach ($metas as $item): ?>
-        <?php
-            $objetivo = $item['valor_objetivo'];
-            $atual = $item['valor_atual'];
-            $porcentagem = ($objetivo > 0) ? ($atual / $objetivo) * 100 : 0;
-            $larguraBarra = ($porcentagem > 100) ? 100 : $porcentagem;
-            $dataBr = date('d/m/Y', strtotime($item['data_limite']));
-        ?>
-        <div style="background: white; border: 1px solid #ccc; margin-bottom: 15px; padding: 15px; border-radius: 5px;">
-            <div style="display:flex; justify-content:space-between; margin-bottom: 10px;">
-                <b style="font-size: 1.1em;">🎯 <?= htmlspecialchars($item['titulo_meta']) ?></b>
-                <span style="color: #666; font-size: 0.9em;">Data Limite: <?= $dataBr ?></span>
-            </div>
+                <div class="form-group">
+                    <label>Data Limite</label>
+                    <div class="input-with-icon">
+                        <i class="ph ph-calendar-blank"></i>
+                        <input type="date" name="data_limite" class="form-control" required title="Data Limite">
+                    </div>
+                </div>
 
-            <p style="margin-bottom: 10px; font-weight: bold; color: #333;">
-                R$ <?= number_format($atual, 2, ',', '.') ?> de R$ <?= number_format($objetivo, 2, ',', '.') ?>
-            </p>
+                <div class="form-group">
+                    <label>Quanto precisa juntar? (R$)</label>
+                    <div class="input-with-icon">
+                        <i class="ph ph-currency-dollar"></i>
+                        <input type="number" step="0.01" name="valor_objetivo" class="form-control" placeholder="Ex: 50000,00" required>
+                    </div>
+                </div>
 
-            <div style="background-color: #eee; width: 100%; height: 20px; border-radius: 10px; overflow: hidden; margin-bottom: 15px;">
-                <div style="background-color: <?= $porcentagem >= 100 ? '#28a745' : '#007BFF' ?>; width: <?= $larguraBarra ?>%; height: 100%; text-align: center; color: white; font-size: 12px; line-height: 20px; font-weight: bold;">
-                    <?= number_format($porcentagem, 1) ?>%
+                <div class="form-group">
+                    <label>Quanto já tem guardado? (R$)</label>
+                    <div class="input-with-icon">
+                        <i class="ph ph-piggy-bank"></i>
+                        <input type="number" step="0.01" name="valor_atual" class="form-control" placeholder="Ex: 5000,00" required>
+                    </div>
                 </div>
             </div>
 
-            <div class="d-flex">
-                <a href="/financas/metas/edit/<?= $item['id_meta'] ?>" style="padding: 8px 12px; background: #007BFF; color: white; text-decoration: none; border-radius: 4px; font-size: 14px;">Editar</a>
-                
-                <form action="/financas/metas/delete/<?= $item['id_meta'] ?>" method="POST" style="margin: 0;">
-                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8') ?>">
-                    <button type="submit" style="background: #DC3545; padding: 8px 12px; font-size: 14px; border: none; cursor: pointer;" onclick="return confirm('Tem certeza que deseja desistir desta meta?');">Desistir</button>
-                </form>
+            <div class="form-actions" style="margin-top: 24px;">
+                <button type="submit" class="btn-primary w-full">
+                    <i class="ph ph-plus-circle"></i> Criar Meta
+                </button>
             </div>
-        </div>
-    <?php endforeach; ?>
-<?php else: ?>
-    <p>Nenhuma meta definida ainda.</p>
-<?php endif; ?>
+        </form>
+    </div>
+
+    <div class="card-header mt-3" style="margin-bottom: 16px;">
+        <h4 style="font-size: 18px;">Minhas Metas</h4>
+    </div>
+
+    <div class="cards-grid">
+        <?php if (count($metas) > 0): ?>
+            <?php foreach ($metas as $item): ?>
+                <?php
+                    $objetivo = $item['valor_objetivo'];
+                    $atual = $item['valor_atual'];
+                    $porcentagem = ($objetivo > 0) ? ($atual / $objetivo) * 100 : 0;
+                    $larguraBarra = ($porcentagem > 100) ? 100 : $porcentagem;
+                    $dataBr = date('d/m/Y', strtotime($item['data_limite']));
+                    
+                    $classeBarra = ($porcentagem >= 100) ? 'success' : 'primary';
+                ?>
+                <div class="card goal-card">
+                    <div class="goal-header">
+                        <h4 class="goal-title">
+                            <i class="ph-fill ph-target" style="color: var(--color-ia-purple);"></i> 
+                            <?= htmlspecialchars($item['titulo_meta']) ?>
+                        </h4>
+                        <span class="badge" style="background-color: var(--bg-main);"><i class="ph ph-calendar"></i> <?= $dataBr ?></span>
+                    </div>
+
+                    <div class="goal-body">
+                        <div class="goal-amounts">
+                            <span class="current-amount">R$ <?= number_format($atual, 2, ',', '.') ?></span>
+                            <span class="target-amount">de R$ <?= number_format($objetivo, 2, ',', '.') ?></span>
+                        </div>
+                        
+                        <div class="goal-progress-container">
+                            <div class="progress-bar <?= $classeBarra ?>">
+                                <div style="width: <?= $larguraBarra ?>%;"></div>
+                            </div>
+                            <span class="progress-text"><?= number_format($porcentagem, 1) ?>%</span>
+                        </div>
+                    </div>
+
+                    <div class="goal-actions" style="display: flex; gap: 12px; margin-top: auto; padding-top: 16px;">
+                        <a href="/financas/metas/edit/<?= $item['id_meta'] ?>" class="btn-outline flex-1 text-center" style="justify-content: center;">
+                            <i class="ph ph-pencil-simple"></i> Atualizar
+                        </a>
+                        
+                        <form action="/financas/metas/delete/<?= $item['id_meta'] ?>" method="POST" class="m-0 d-flex" style="flex: 0 0 auto;">
+                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8') ?>">
+                            <button type="submit" class="icon-btn-sm danger" style="height: 100%; border-radius: 8px;" onclick="return confirm('Tem certeza que deseja desistir desta meta?');" title="Desistir da Meta">
+                                <i class="ph ph-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <div class="empty-state">
+                <i class="ph ph-flag-checkered"></i>
+                <p>Nenhuma meta definida ainda.</p>
+            </div>
+        <?php endif; ?>
+    </div>
+
+</div>

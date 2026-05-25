@@ -1,8 +1,8 @@
-/* --- 1. CONFIGURAÇÕES GERAIS E VARIÁVEIS --- */
+/* CONFIGURAÇÕES GERAIS E VARIÁVEIS */
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
 
 :root {
-  /* Tema Claro Base */
+  /* TEMA CLARO BASE */
   --bg-main: #f4f5f7;
   --bg-surface: #ffffff;
   --bg-sidebar: #ffffff;
@@ -10,7 +10,7 @@
   --text-secondary: #6b7280;
   --border-color: #e5e7eb;
 
-  /* Cores da Identidade Visual */
+  /* CORES DA IDENTIDADE VISUAL */
   --color-emerald: #10b981;
   --color-danger: #ef4444;
   --color-ia-purple: #8b5cf6;
@@ -21,7 +21,7 @@
 }
 
 [data-theme="dark"] {
-  /* Tema Escuro */
+  /* TEMA ESCURO */
   --bg-main: #0b0d12;
   --bg-surface: #141720;
   --bg-sidebar: #10121a;
@@ -49,9 +49,7 @@ body {
   transition: background-color 0.3s, color 0.3s;
 }
 
-
 /* ESTILIZAÇÃO DO TEMPLATE */
-/* SIDEBAR */
 .sidebar {
   width: 260px;
   background-color: var(--bg-sidebar);
@@ -497,9 +495,11 @@ a.btn-outline {
 .positive {
   color: var(--color-emerald) !important;
 }
+
 .negative {
   color: var(--color-danger) !important;
 }
+
 .font-medium {
   font-weight: 500;
 }
@@ -654,6 +654,18 @@ a.btn-outline {
   gap: 6px;
 }
 
+.badge-admin {
+    background-color: rgba(139, 92, 246, 0.1);
+    color: var(--color-ia-purple);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+.badge-common {
+    background-color: var(--bg-surface);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+}
+
 /* RESPONSIVIDADE */
 @media (max-width: 1024px) {
   .content-row {
@@ -783,7 +795,6 @@ select.form-control {
   text-decoration: underline;
 }
 
-/* ALERTA DE SUCESSO (VERDE) */
 .alert-success {
   background-color: rgba(16, 185, 129, 0.1);
   color: var(--color-emerald);
@@ -1047,4 +1058,198 @@ label {
   display: flex;
   gap: 12px;
   margin-top: auto;
+}
+
+/* ESTILIZAÇÃO DE METAS */
+.goal-card {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border-top: 4px solid var(--color-ia-purple);
+}
+
+.goal-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.goal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.goal-title {
+  font-size: 16px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.goal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.goal-amounts {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.goal-amounts .current-amount {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.goal-amounts .target-amount {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.goal-progress-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.progress-bar.primary div {
+  background-color: var(--color-ia-purple);
+}
+
+.progress-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  min-width: 45px;
+  text-align: right;
+}
+
+/* ESTILIZAÇÃO DO MEU PERFIL */
+.profile-card {
+    max-width: 600px;
+    width: 100%;
+}
+
+.profile-alert {
+    max-width: 600px;
+    width: 100%;
+    margin-bottom: 24px;
+}
+
+.form-divider {
+    border: 0;
+    border-top: 1px solid var(--border-color);
+    margin: 24px 0;
+}
+
+.helper-text {
+    font-size: 13px;
+    margin-top: -4px;
+    margin-bottom: 8px;
+}
+
+/* ESTILIZAÇÃO NECESSÁRIA PARA DESPESAS FIXAS */
+.inactive-row {
+    opacity: 0.5;
+    transition: opacity 0.2s;
+}
+
+.inactive-row:hover {
+    opacity: 0.8; 
+}
+
+/* ESTILIZAÇÃO PARA TRANSAÇÕES */
+.form-actions {
+    margin-top: 24px;
+    width: 100%;
+}
+
+.input-with-icon .form-control {
+    height: 48px !important;
+    padding-left: 42px !important;
+}
+
+select.form-control {
+    appearance: auto;
+    cursor: pointer;
+}
+
+.type-toggle {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.radio-card {
+    flex: 1;
+    position: relative;
+    cursor: pointer;
+    margin: 0;
+}
+
+.radio-card input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.radio-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: var(--bg-surface);
+    color: var(--text-secondary);
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.radio-content i {
+    font-size: 20px;
+}
+
+.radio-card:hover .radio-content {
+    background-color: var(--bg-main);
+}
+
+.radio-card.expense input:checked + .radio-content {
+    border-color: var(--color-danger);
+    background-color: rgba(239, 68, 68, 0.1);
+    color: var(--color-danger);
+}
+
+.radio-card.income input:checked + .radio-content {
+    border-color: var(--color-emerald);
+    background-color: rgba(16, 185, 129, 0.1);
+    color: var(--color-emerald);
+}
+
+.radio-card.transfer input:checked + .radio-content {
+    border-color: var(--color-ia-purple);
+    background-color: var(--color-ia-glow);
+    color: var(--color-ia-purple);
+}
+
+.disabled-input {
+    background-color: var(--sidebar-hover) !important;
+    opacity: 0.7;
+    cursor: not-allowed;
+    color: var(--text-secondary);
+}
+
+.account-tag i {
+    font-size: 16px;
+    color: var(--text-secondary);
 }
