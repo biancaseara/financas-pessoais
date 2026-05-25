@@ -1,54 +1,114 @@
-<h2><?= htmlspecialchars($titulo, ENT_QUOTES, 'UTF-8') ?></h2>
+<div class="transactions-container">
 
-<form action="/financas/usuarios/store" method="POST" class="d-flex flex-column" style="margin-bottom: 20px;">
-    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token ?? '', ENT_QUOTES, 'UTF-8') ?>">
+    <div class="card form-container mb-4">
+        <div class="card-header">
+            <h4><i class="ph ph-user-plus" style="margin-right: 8px;"></i> <?= htmlspecialchars($titulo, ENT_QUOTES, 'UTF-8') ?></h4>
+        </div>
 
-    <div class="d-flex" style="gap: 10px;">
-        <input type="text" name="nome" placeholder="Nome Completo" required style="flex-grow:1; padding: 10px;">
-        <input type="email" name="email" placeholder="E-mail" required style="flex-grow:1; padding: 10px;">
+        <form action="/financas/usuarios/store" method="POST" class="transaction-form">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token ?? '', ENT_QUOTES, 'UTF-8') ?>">
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Nome Completo</label>
+                    <div class="input-with-icon">
+                        <i class="ph ph-user"></i>
+                        <input type="text" name="nome" class="form-control" placeholder="Nome do usuário" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>E-mail</label>
+                    <div class="input-with-icon">
+                        <i class="ph ph-envelope-simple"></i>
+                        <input type="email" name="email" class="form-control" placeholder="exemplo@email.com" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Senha de Acesso</label>
+                    <div class="input-with-icon">
+                        <i class="ph ph-lock-key"></i>
+                        <input type="password" name="senha" class="form-control" placeholder="Defina uma senha" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Perfil de Acesso</label>
+                    <div class="input-with-icon">
+                        <i class="ph ph-shield-check"></i>
+                        <select name="perfil" class="form-control" required>
+                            <option value="comum">Usuário Comum</option>
+                            <option value="admin">Administrador</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions" style="margin-top: 24px;">
+                <button type="submit" class="btn-primary w-full">
+                    <i class="ph ph-floppy-disk"></i> Cadastrar Usuário
+                </button>
+            </div>
+        </form>
     </div>
-    <div class="d-flex" style="margin-top:10px; gap: 10px;">
-        <input type="password" name="senha" placeholder="Senha" required style="flex-grow:1; padding: 10px;">
-        <select name="perfil" required style="padding: 10px; flex-grow: 1;">
-            <option value="comum">Usuário Comum</option>
-            <option value="admin">Administrador</option>
-        </select>
-    </div>
-    <div class="d-flex" style="margin-top:15px;">
-        <button type="submit" style="padding: 10px 15px; cursor: pointer;">Cadastrar Usuário</button>
-    </div>
-</form>
 
-<hr style="margin-bottom: 20px; border: 0; border-top: 1px solid #ccc;">
+    <div class="card table-container">
+        <div class="card-header">
+            <h4>Usuários do Sistema</h4>
+        </div>
 
-<table style="width: 100%; border-collapse: collapse; text-align: left;">
-    <tr style="background-color: #f8f9fa; border-bottom: 2px solid #dee2e6;">
-        <th style="padding: 12px 8px;">ID</th>
-        <th style="padding: 12px 8px;">Nome</th>
-        <th style="padding: 12px 8px;">E-mail</th>
-        <th style="padding: 12px 8px;">Perfil</th>
-        <th style="padding: 12px 8px;">Ações</th>
-    </tr>
-    <?php foreach ($usuarios as $item): ?>
-        <tr style="border-bottom: 1px solid #dee2e6;">
-            <td style="padding: 12px 8px;"><?= $item['id_usuario'] ?></td>
-            <td style="padding: 12px 8px;"><?= htmlspecialchars($item['nome'], ENT_QUOTES, 'UTF-8') ?></td>
-            <td style="padding: 12px 8px;"><?= htmlspecialchars($item['email'], ENT_QUOTES, 'UTF-8') ?></td>
-            <td style="padding: 12px 8px;">
-                <?php if ($item['perfil'] == 'admin'): ?>
-                    <span style="background: #333; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.8em;">Admin</span>
-                <?php else: ?>
-                    <span style="background: #ccc; padding: 3px 8px; border-radius: 4px; font-size: 0.8em;">Comum</span>
-                <?php endif; ?>
-            </td>
-            <td style="padding: 12px 8px; display: flex; gap: 5px;">
-                <a href="/financas/usuarios/edit/<?= $item['id_usuario'] ?>" style="padding: 5px 10px; background: #007BFF; color: white; text-decoration: none; border-radius: 4px; font-size: 12px;">Editar</a>
-                
-                <form action="/financas/usuarios/delete/<?= $item['id_usuario'] ?>" method="POST" style="margin: 0;">
-                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token ?? '', ENT_QUOTES, 'UTF-8') ?>">
-                    <button type="submit" style="background: #DC3545; color: white; padding: 5px 10px; font-size: 12px; border: none; cursor: pointer; border-radius: 4px;" onclick="return confirm('Apagar este usuário? O processo é irreversível.');">Excluir</button>
-                </form>
-            </td>
-        </tr>
-    <?php endforeach; ?>
-</table>
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>E-mail</th>
+                        <th>Perfil</th>
+                        <th class="text-right">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (count($usuarios) > 0): ?>
+                        <?php foreach ($usuarios as $item): ?>
+                            <tr>
+                                <td class="text-secondary font-medium">#<?= $item['id_usuario'] ?></td>
+                                <td class="font-medium"><?= htmlspecialchars($item['nome'], ENT_QUOTES, 'UTF-8') ?></td>
+                                <td class="text-secondary"><?= htmlspecialchars($item['email'], ENT_QUOTES, 'UTF-8') ?></td>
+                                <td>
+                                    <?php if ($item['perfil'] == 'admin'): ?>
+                                        <span class="badge badge-admin"><i class="ph-fill ph-shield-star"></i> Admin</span>
+                                    <?php else: ?>
+                                        <span class="badge badge-common"><i class="ph ph-user"></i> Comum</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td class="text-right">
+                                    <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                                        <a href="/financas/usuarios/edit/<?= $item['id_usuario'] ?>" class="icon-btn-sm" title="Editar">
+                                            <i class="ph ph-pencil-simple"></i>
+                                        </a>
+                                        
+                                        <form action="/financas/usuarios/delete/<?= $item['id_usuario'] ?>" method="POST" style="margin: 0;">
+                                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token ?? '', ENT_QUOTES, 'UTF-8') ?>">
+                                            <button type="submit" class="icon-btn-sm danger" title="Excluir" onclick="return confirm('Apagar este usuário? O processo é irreversível.');">
+                                                <i class="ph ph-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 32px; color: var(--text-secondary);">
+                                <i class="ph ph-users" style="font-size: 32px; opacity: 0.5; margin-bottom: 8px; display: block;"></i>
+                                Nenhum usuário encontrado.
+                            </td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
