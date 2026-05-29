@@ -1,3 +1,50 @@
+## Apresentação - Etapa 3: Implementação e Base de Dados
+*Status atual do desenvolvimento, arquitetura e garantia de qualidade.*
+
+### 1. Arquitetura e Modelagem (MVC e Fluxo)
+O sistema foi inteiramente projetado com base no padrão arquitetural MVC. Abaixo, o **Diagrama de Classes** ilustra a herança de controladores, onde os módulos específicos (Auth, Cartões, Metas) herdam a base lógica da classe `Controller` principal, reduzindo duplicidade de código. 
+
+![Diagrama de Classes](./docs/assets/diagrama-classes.png)
+
+Já o **Diagrama de Sequência** abaixo mapeia a segurança da Autenticação, mostrando o fluxo da requisição HTTP desde a View, passando pela validação no banco de dados, até a criação segura da Sessão do usuário.
+
+![Diagrama de Sequência](./docs/assets/sequencia_login.md)
+
+---
+
+### 2. A Base de Dados (DER)
+A modelagem foi estruturada em um banco de dados (BD) relacional MySQL. Foi utilizada a engenharia reversa para extrair o modelo diretamente do BD em implementação, para que fosse garantida total fidelidade com o código. A arquitetura é centrada na tabela `usuarios`, amarrando tabelas transacionais e de longo prazo para permitir a rastreabilidade que a Inteligência Artificial irá precisar.
+
+![Diagrama Entidade Relacionamento](./docs/assets/der-preditivia-atualizado.png)
+
+---
+
+### 3. Prototipagem e Front-end Isolado
+Para garantir a integridade da arquitetura MVC, o desenvolvimento visual seguiu um fluxo de prototipagem de alta fidelidade. As telas foram construídas primeiramente em HTML e CSS puro em um ambiente estático. Isso permitiu validar a identidade visual e a responsividade antes da integração com o PHP.
+
+![Arquivos Front-end](./docs/assets/frontend-dir.png)
+
+---
+
+### 4. Versionamento e Refatoração de UI
+A transição para a nova interface com CSS puro foi feita utilizando as Branches no Git. A criação da branch `refatoracao-ui` permitiu reconstruir toda a camada visual de forma segura, mantendo o código principal (CRUD) intacto e estável durante o processo.
+
+[📂 Clique aqui para acessar a pasta com os comparativos de Antes e Depois da Interface](./docs/assets/frontend-antes-depois/)
+
+---
+
+### 5. Garantia de Qualidade (Testes Unitários)
+Antes da conexão com a Inteligência Artificial, a base do sistema financeiro está passando pelos testes, implementados com PHPUnit, que atuam diretamente nos Controllers para garantir a sanitização de dados (XSS), validação de tokens de formulários (CSRF) e a exatidão das conversões matemáticas monetárias.
+
+![Testes PHPUnit](./docs/assets/testes-phpunit.png)
+
+### 6. Próximos Passos
+* **Implementação do Onboarding Comportamental:** A modelagem no banco de dados já está pronta. O foco agora é renderizar as telas para captar e salvar o perfil financeiro do usuário.
+* **Integração com a IA:** Com os dados do Onboarding garantidos, serão iniciadas a integração com a API do Gemini e a automação via Telegram.
+* **Saúde do Sistema:** Evoluir o Painel Administrativo para monitoramento de métricas e implementar a inativação lógica de usuários (preservação de histórico).
+
+<br>
+
 # 💰 PREDITIV.IA - Sistema de Gestão Financeira Pessoal
 
 Um sistema web completo para controle de finanças pessoais, construído em PHP com arquitetura MVC (Model-View-Controller) pura, sem o uso de frameworks. O objetivo do projeto é oferecer um controle rigoroso de receitas, despesas fixas, limites de gastos e acompanhamento de carteira, com foco em segurança e usabilidade.

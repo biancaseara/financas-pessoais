@@ -128,44 +128,51 @@
 
     </main>
 
-    <?php if (isset($_SESSION['id_usuario'])): ?>
-        <script>
-            // Tema Light/Dark
-            const themeToggle = document.getElementById('theme-toggle');
-            const htmlElement = document.documentElement;
-            let icon = null;
+    <script>
+        const themeToggle = document.getElementById('theme-toggle');
+        const htmlElement = document.documentElement;
+        let icon = null;
 
-            if (themeToggle) {
-                icon = themeToggle.querySelector('i');
-            }
+        if (themeToggle) {
+            icon = themeToggle.querySelector('i');
+        }
 
-            function applyTheme(theme) {
-                htmlElement.setAttribute('data-theme', theme);
-                localStorage.setItem('preditiv_theme', theme);
+        function applyTheme(theme) {
+            htmlElement.setAttribute('data-theme', theme);
+            localStorage.setItem('preditiv_theme', theme);
 
-                if (icon) {
-                    if (theme === 'light') {
-                        icon.classList.remove('ph-sun');
-                        icon.classList.add('ph-moon');
-                    } else {
-                        icon.classList.remove('ph-moon');
-                        icon.classList.add('ph-sun');
-                    }
+            if (icon) {
+                if (theme === 'light') {
+                    icon.classList.remove('ph-sun');
+                    icon.classList.add('ph-moon');
+                } else {
+                    icon.classList.remove('ph-moon');
+                    icon.classList.add('ph-sun');
                 }
             }
+        }
 
-            const savedTheme = localStorage.getItem('preditiv_theme') || 'dark';
-            applyTheme(savedTheme);
+        // 2. Descobre a preferência do sistema operacional do usuário
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const defaultTheme = systemPrefersDark ? 'dark' : 'light';
 
-            if (themeToggle) {
-                themeToggle.addEventListener('click', () => {
-                    const currentTheme = htmlElement.getAttribute('data-theme');
-                    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-                    applyTheme(newTheme);
-                });
-            }
+        // 3. Aplica o tema salvo OU o tema do sistema
+        const savedTheme = localStorage.getItem('preditiv_theme') || defaultTheme;
+        applyTheme(savedTheme);
 
-            // Script do Menu Mobile
+        // 4. Evento do botão de trocar tema (só funciona onde o botão existir)
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = htmlElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                applyTheme(newTheme);
+            });
+        }
+    </script>
+
+    <?php if (isset($_SESSION['id_usuario'])): ?>
+        <script>
+            // HAMBURGER MENU
             const mobileMenuBtn = document.getElementById('mobile-menu-btn');
             const sidebar = document.querySelector('.sidebar');
             const overlay = document.getElementById('sidebar-overlay');
