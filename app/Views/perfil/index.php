@@ -49,4 +49,28 @@
             </div>
         </form>
     </div>
+    
+    
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove o 'active' de todos os botões e conteúdos
+                tabBtns.forEach(b => b.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+
+                // Adiciona o 'active' no botão clicado
+                btn.classList.add('active');
+
+                // Pega o id do alvo pelo 'data-target' e ativa o conteúdo
+                const targetId = btn.getAttribute('data-target');
+                document.getElementById(targetId).classList.add('active');
+            });
+        });
+    });
+    </script>
 </div>

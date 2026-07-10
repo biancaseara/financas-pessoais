@@ -3,8 +3,7 @@
 class Controller {
     
     public function model($model) {
-        $model = preg_replace('/[^a-zA-Z0-9_]/', '', $model); // Sanitiza o nome do model, permitindo apenas caracteres alfanuméricos e underscores
-
+        $model = preg_replace('/[^a-zA-Z0-9_]/', '', $model); 
         $arquivo = BASE_PATH . '/app/Models/' . $model . '.php';
 
         if (file_exists($arquivo)) {
@@ -15,24 +14,46 @@ class Controller {
         }
     }
 
-    public function view($viewName, $dados = []) {
-        $viewName = preg_replace('/[^a-zA-Z0-9_\-\/]/', '', $viewName); // Sanitiza o nome da view, permitindo apenas caracteres alfanuméricos, underscores, hífens e barras
-
+    public function view($viewName, $dados = [], $usarTemplate = true) {
+        $viewName = preg_replace('/[^a-zA-Z0-9_\-\/]/', '', $viewName); 
         $viewName = str_replace(['..', '../'], '', $viewName);
 
-        // O EXTR_SKIP evita que variáveis já existentes sejam sobrescritas pelos dados da view
         extract($dados, EXTR_SKIP);
         
         $arquivoView = BASE_PATH . '/app/Views/' . $viewName . '.php';
-        $arquivoTemplate = BASE_PATH . '/app/Views/template.php';
         
-        if (file_exists($arquivoView) && file_exists($arquivoTemplate)) {
-            // O template.php vai ser carregado e, dentro dele, chamaremos a $arquivoView
-            require_once $arquivoTemplate;
+        if (file_exists($arquivoView)) {
+            if ($usarTemplate) {
+                $arquivoTemplate = BASE_PATH . '/app/Views/template.php';
+                if (file_exists($arquivoTemplate)) {
+                    require_once $arquivoTemplate;
+                } else {
+                    throw new Exception("Erro: O template.php não foi encontrado.");
+                }
+            } else {
+                // Se não for para usar o template, carrega a view diretamente
+                require_once $arquivoView;
+            }
         } else {
             throw new Exception("Erro de View: A tela '{$viewName}' solicitada não existe.");
         }
     }
-}
 
+    protected function exigirOnboarding() {
+        if (isset($_SESSION['id_usuario'])) {
+            $usuarioModel = $this->model('Usuario');
+            $usuario = $usuarioModel->buscarPorId($_SESSION['id_usuario']);
+
+            if ($usuario && (!isset($usuario['fez_onboarding']) || $usuario['fez_onboarding'] == 0)) {
+                $urlAtual = $_SERVER['REQUEST_URI'];
+                
+                // Evita um loop infinito de redirecionamento checando se ele já está na rota do onboarding ou tentando sair
+                if (strpos($urlAtual, '/onboarding') === false && strpos($urlAtual, '/auth/logout') === false) {
+                    header("Location: /financas/onboarding");
+                    exit;
+                }
+            }
+        }
+    }
+}
 ?>

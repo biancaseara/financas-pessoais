@@ -11,6 +11,8 @@ class DashboardController extends Controller
             exit;
         }
 
+        $this->exigirOnboarding();
+
         $id_usuario = $_SESSION['id_usuario'];
 
         $dashboardModel = $this->model('Dashboard');

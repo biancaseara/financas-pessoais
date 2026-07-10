@@ -8,6 +8,8 @@ class RecorrentesController extends Controller {
             header("Location: /financas/auth/login");
             exit;
         }
+
+        $this->exigirOnboarding();
     }
 
     public function index() {

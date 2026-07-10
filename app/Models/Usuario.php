@@ -33,7 +33,7 @@ class Usuario {
     }
 
     public function buscarPorId($id) {
-        $stmt = $this->pdo->prepare("SELECT id_usuario, nome, email, perfil FROM usuarios WHERE id_usuario = ?");
+        $stmt = $this->pdo->prepare("SELECT id_usuario, nome, email, perfil, fez_onboarding FROM usuarios WHERE id_usuario = ?");
         $stmt->execute([$id]);
         return $stmt->fetch();
     }
@@ -60,5 +60,10 @@ class Usuario {
         } catch (PDOException $e) {
             return false; // Retorna falso se houver dados vinculados a este usuário
         }
+    }
+
+    public function marcarOnboardingConcluido($id) {
+        $stmt = $this->pdo->prepare("UPDATE usuarios SET fez_onboarding = 1 WHERE id_usuario = ?");
+        return $stmt->execute([$id]);
     }
 }

@@ -7,6 +7,8 @@ class UsuariosController extends Controller {
         if (!isset($_SESSION['perfil']) || $_SESSION['perfil'] != 'admin') {
             die("<div style='text-align:center; margin-top:50px;'><h2 style='color:red;'>🛑 Acesso Negado</h2><p>Apenas administradores podem gerenciar usuários.</p><a href='/financas'>Voltar ao Dashboard</a></div>");
         }
+
+        $this->exigirOnboarding();
     }
 
     public function index() {
