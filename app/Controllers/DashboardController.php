@@ -21,16 +21,19 @@ class DashboardController extends Controller
         $resumo = $dashboardModel->getResumo($id_usuario);
         $recentes = $dashboardModel->getRecentes($id_usuario);
         $orcamentos = $dashboardModel->getOrcamentos($id_usuario); 
-        
-        // Busca os gastos para o gráfico
         $gastosPorCategoria = $dashboardModel->getGastosPorCategoria($id_usuario);
+
+        // Busca o último conselho gerado pela IA no banco de dados
+        $conselhoModel = $this->model('ConselhoIa');
+        $ultimoConselho = $conselhoModel->buscarUltimoConselho($id_usuario);
 
         $dados = [
             'titulo' => 'Resumo Financeiro',
             'resumo' => $resumo,
             'recentes' => $recentes,
             'orcamentos' => $orcamentos,
-            'gastosPorCategoria' => $gastosPorCategoria
+            'gastosPorCategoria' => $gastosPorCategoria,
+            'conselho_ia' => $ultimoConselho
         ];
 
         $this->view('dashboard', $dados);

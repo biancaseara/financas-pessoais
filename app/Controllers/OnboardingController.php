@@ -35,10 +35,8 @@ class OnboardingController extends Controller {
                 throw new Exception("Falha de segurança CSRF detectada.");
             }
 
-            // 1. Instancia o novo Model
             $perfilModel = $this->model('PerfilFinanceiro');
             
-            // 2. Salva as 6 respostas no banco de dados
             $perfilModel->salvarOnboardingInicial(
                 $_SESSION['id_usuario'],
                 $_POST['sentimento_dinheiro'] ?? null,
@@ -49,11 +47,9 @@ class OnboardingController extends Controller {
                 $_POST['objetivo_principal'] ?? null
             );
 
-            // 3. Atualiza o status do usuário para liberar o acesso ao sistema
             $usuarioModel = $this->model('Usuario');
             $usuarioModel->marcarOnboardingConcluido($_SESSION['id_usuario']);
 
-            // 4. Redireciona para o painel
             header("Location: /financas/dashboard");
             exit;
         }

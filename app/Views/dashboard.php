@@ -2,14 +2,28 @@
 $primeiroNome = explode(' ', $_SESSION['nome'])[0];
 ?>
 
-<section class="ai-insights-panel">
-    <div class="ai-header">
-        <i class="ph-fill ph-sparkle"></i>
-        <h3>Preditiv.ia Insights</h3>
+<section class="ai-insights-panel" style="position: relative;">
+    <div class="ai-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <i class="ph-fill ph-sparkle" style="color: var(--color-ia-purple); font-size: 24px;"></i>
+            <h3 style="margin: 0;">Preditiv.ia Insights</h3>
+        </div>
+        
+        <a href="/financas/ia/analisar" class="btn-outline" style="padding: 6px 14px; font-size: 13px; text-decoration: none; display: flex; align-items: center; gap: 6px;">
+            <i class="ph ph-arrows-clockwise"></i> Analisar Mês
+        </a>
     </div>
-    <p class="ai-message">
-        "Sua <strong>Reserva de Emergência</strong> está em R$ 5,01. Que tal destinar uma pequena parte do
-        próximo salário para acelerar essa meta e ficar mais tranquila?"
+    
+    <p class="ai-message" style="margin: 0; line-height: 1.5;">
+        <?php if (!empty($conselho_ia) && !empty($conselho_ia['mensagem'])): ?>
+            "<?= $conselho_ia['mensagem'] ?>"
+            <br>
+            <small style="color: var(--text-secondary); font-size: 12px; display: block; margin-top: 8px;">
+                Analisado em: <?= date('d/m/Y \à\s H:i', strtotime($conselho_ia['data_criacao'])) ?>
+            </small>
+        <?php else: ?>
+            "Olá, <?= htmlspecialchars($primeiroNome) ?>! Eu sou a Inteligência Artificial do seu sistema. Clique no botão <strong>'Analisar Mês'</strong> acima para eu processar o seu perfil e suas transações recentes, e gerar seu primeiro conselho personalizado."
+        <?php endif; ?>
     </p>
 </section>
 

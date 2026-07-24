@@ -3,162 +3,205 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $titulo ?? 'Personalize sua Experiência' ?> | PREDITIV.IA</title>
-    <link rel="stylesheet" href="/financas/public/css/style.css">
+    <title><?= $titulo ?> - Preditiv.ia</title>
+    <!-- O caminho do CSS foi restaurado exatamente para o que funciona no seu projeto -->
+    <link rel="stylesheet" href="/financas/public/css/style.css"> 
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        .form-label {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: block;
+            color: var(--text-primary);
+        }
+        .grid-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+        .grid-options.full {
+            grid-template-columns: 1fr;
+        }
+        .radio-card input:checked + .radio-content {
+            border-color: var(--color-ia-purple);
+            background-color: var(--color-ia-glow);
+            color: var(--color-ia-purple);
+        }
+        /* Estilos do Wizard (Passo a Passo) */
+        .step-container {
+            display: none;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        .step-container.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .wizard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .step-indicator {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--color-ia-purple);
+            background: var(--color-ia-glow);
+            padding: 4px 12px;
+            border-radius: 12px;
+        }
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+    </style>
 </head>
 <body>
-<div class="auth-wrapper">
-  <div class="auth-card" style="max-width: 500px; width: 100%;">
-    <div class="auth-header">
-      <h2 class="auth-title">Vamos personalizar sua experiência</h2>
-      <div class="progress-bar mt-3">
-        <div id="onboarding-progress" style="width: 16.6%; background-color: var(--color-ia-purple);"></div>
-      </div>
+    <div class="auth-wrapper" style="padding: 40px 20px;">
+        <div class="auth-card" style="max-width: 650px; width: 100%;">
+            <div class="auth-header" style="margin-bottom: 16px;">
+                <div class="auth-logo-container">
+                    <i class="ph-fill ph-sparkle" style="color: var(--color-ia-purple); font-size: 32px;"></i>
+                    <h1 class="logo-text">Preditiv<span class="highlight">.ia</span></h1>
+                </div>
+            </div>
+
+            <div class="wizard-header">
+                <div>
+                    <h2 class="auth-title" style="margin: 0; font-size: 20px;">Personalize sua Experiência</h2>
+                    <p style="color: var(--text-secondary); font-size: 13px; margin-top: 4px;">Para a IA moldar o sistema para você.</p>
+                </div>
+                <div class="step-indicator" id="step-counter">Passo 1 de 2</div>
+            </div>
+
+            <form action="/financas/onboarding/store" method="POST" id="onboardingForm">
+                <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
+
+                <!-- ================= PASSO 1 (3 Perguntas) ================= -->
+                <div class="step-container active" id="step1">
+                    
+                    <label class="form-label">1. Como você se sente em relação ao seu dinheiro hoje?</label>
+                    <div class="grid-options">
+                        <label class="radio-card"><input type="radio" name="sentimento_dinheiro" value="Sempre falta dinheiro no fim do mês"><div class="radio-content">Sempre falta</div></label>
+                        <label class="radio-card"><input type="radio" name="sentimento_dinheiro" value="Consigo pagar as contas, mas não sobra nada"><div class="radio-content">Não sobra nada</div></label>
+                        <label class="radio-card"><input type="radio" name="sentimento_dinheiro" value="Sobra um pouco, mas não sei investir"><div class="radio-content">Sobra, mas não invisto</div></label>
+                        <label class="radio-card"><input type="radio" name="sentimento_dinheiro" value="Tenho controle e invisto todo mês"><div class="radio-content">Tenho controle e invisto</div></label>
+                    </div>
+
+                    <label class="form-label">2. Qual o seu nível de conhecimento financeiro?</label>
+                    <div class="grid-options">
+                        <label class="radio-card"><input type="radio" name="conhecimento_financeiro" value="Iniciante"><div class="radio-content">Iniciante</div></label>
+                        <label class="radio-card"><input type="radio" name="conhecimento_financeiro" value="Básico"><div class="radio-content">Básico</div></label>
+                        <label class="radio-card"><input type="radio" name="conhecimento_financeiro" value="Intermediário"><div class="radio-content">Intermediário</div></label>
+                        <label class="radio-card"><input type="radio" name="conhecimento_financeiro" value="Avançado"><div class="radio-content">Avançado</div></label>
+                    </div>
+
+                    <label class="form-label">3. Você possui dívidas atualmente?</label>
+                    <div class="grid-options">
+                        <label class="radio-card"><input type="radio" name="tem_dividas" value="Não"><div class="radio-content"><i class="ph ph-check-circle"></i> Não possuo</div></label>
+                        <label class="radio-card"><input type="radio" name="tem_dividas" value="Sim"><div class="radio-content"><i class="ph ph-warning"></i> Sim, possuo</div></label>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="button" class="btn-primary" style="width: 100%; justify-content: center;" onclick="nextStep()">
+                            Próximo Passo <i class="ph ph-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ================= PASSO 2 (3 Perguntas) ================= -->
+                <div class="step-container" id="step2">
+                    
+                    <label class="form-label">4. Qual a sua renda mensal aproximada?</label>
+                    <div class="grid-options">
+                        <label class="radio-card"><input type="radio" name="renda_mensal" value="Até 2000"><div class="radio-content">Até R$ 2.000</div></label>
+                        <label class="radio-card"><input type="radio" name="renda_mensal" value="2001 a 5000"><div class="radio-content">Até R$ 5.000</div></label>
+                        <label class="radio-card"><input type="radio" name="renda_mensal" value="5001 a 10000"><div class="radio-content">Até R$ 10.000</div></label>
+                        <label class="radio-card"><input type="radio" name="renda_mensal" value="Acima de 10000"><div class="radio-content">Acima de R$ 10.000</div></label>
+                    </div>
+
+                    <label class="form-label">5. Qual é o tipo da sua renda principal?</label>
+                    <div class="grid-options">
+                        <label class="radio-card"><input type="radio" name="tipo_renda" value="CLT"><div class="radio-content">CLT</div></label>
+                        <label class="radio-card"><input type="radio" name="tipo_renda" value="Autônomo"><div class="radio-content">Autônomo / PJ</div></label>
+                        <label class="radio-card"><input type="radio" name="tipo_renda" value="Servidor"><div class="radio-content">Servidor Público</div></label>
+                        <label class="radio-card"><input type="radio" name="tipo_renda" value="Empresário"><div class="radio-content">Outros</div></label>
+                    </div>
+
+                    <label class="form-label">6. Qual o seu principal objetivo com o Preditiv.ia?</label>
+                    <div class="grid-options">
+                        <label class="radio-card"><input type="radio" name="objetivo_principal" value="Sair das dívidas"><div class="radio-content">Sair das dívidas</div></label>
+                        <label class="radio-card"><input type="radio" name="objetivo_principal" value="Controlar gastos"><div class="radio-content">Controlar gastos</div></label>
+                        <label class="radio-card"><input type="radio" name="objetivo_principal" value="Reserva de emergencia"><div class="radio-content">Criar reserva</div></label>
+                        <label class="radio-card"><input type="radio" name="objetivo_principal" value="Investir"><div class="radio-content">Aprender a investir</div></label>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="button" class="btn-outline" style="flex: 1; justify-content: center;" onclick="prevStep()">
+                            <i class="ph ph-arrow-left"></i> Voltar
+                        </button>
+                        <button type="submit" class="btn-primary" style="flex: 2; justify-content: center;">
+                            Finalizar e Acessar <i class="ph ph-rocket-launch"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
     </div>
 
-    <form id="onboardingForm" action="/financas/onboarding/store" method="POST" class="auth-form">
-      <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
+    <!-- SCRIPT DO WIZARD -->
+    <script>
+        function nextStep() {
+            // Validação simples
+            const groups = ['sentimento_dinheiro', 'conhecimento_financeiro', 'tem_dividas'];
+            let isValid = true;
 
-      <div class="onboarding-step active" data-step="1">
-        <label for="sentimento_dinheiro">1. Como você se sente em relação ao seu dinheiro hoje?</label>
-        <select name="sentimento_dinheiro" id="sentimento_dinheiro" class="form-control" required>
-          <option value="" disabled selected>Selecione uma opção...</option>
-          <option value="Ansioso">Ansioso e preocupado</option>
-          <option value="Tranquilo">Tranquilo, mas quero melhorar</option>
-          <option value="No controle">Totalmente no controle</option>
-        </select>
-        <div class="form-actions" style="display: flex; justify-content: flex-end; margin-top: 24px;">
-          <button type="button" class="btn-primary btn-next">Próxima <i class="ph ph-arrow-right"></i></button>
-        </div>
-      </div>
+            groups.forEach(group => {
+                const checked = document.querySelector(`input[name="${group}"]:checked`);
+                if (!checked) isValid = false;
+            });
 
-      <div class="onboarding-step" data-step="2" style="display: none;">
-        <label for="conhecimento_financeiro">2. Qual seu nível de conhecimento financeiro?</label>
-        <select name="conhecimento_financeiro" id="conhecimento_financeiro" class="form-control" required>
-          <option value="" disabled selected>Selecione uma opção...</option>
-          <option value="Iniciante">Iniciante (sei muito pouco)</option>
-          <option value="Intermediario">Intermediário (sei o básico)</option>
-          <option value="Avancado">Avançado (invisto e controlo bem)</option>
-        </select>
-        <div class="form-actions" style="display: flex; justify-content: space-between; margin-top: 24px;">
-          <button type="button" class="btn-outline btn-prev"><i class="ph ph-arrow-left"></i> Voltar</button>
-          <button type="button" class="btn-primary btn-next">Próxima <i class="ph ph-arrow-right"></i></button>
-        </div>
-      </div>
-
-      <div class="onboarding-step" data-step="3" style="display: none;">
-        <label for="renda_mensal">3. Qual é a sua faixa de renda mensal atual?</label>
-        <select name="renda_mensal" id="renda_mensal" class="form-control" required>
-          <option value="" disabled selected>Selecione uma opção...</option>
-          <option value="Ate 2000">Até R$ 2.000</option>
-          <option value="2001 a 5000">De R$ 2.001 a R$ 5.000</option>
-          <option value="5001 a 10000">De R$ 5.001 a R$ 10.000</option>
-          <option value="Acima de 10000">Acima de R$ 10.000</option>
-        </select>
-        <div class="form-actions" style="display: flex; justify-content: space-between; margin-top: 24px;">
-          <button type="button" class="btn-outline btn-prev"><i class="ph ph-arrow-left"></i> Voltar</button>
-          <button type="button" class="btn-primary btn-next">Próxima <i class="ph ph-arrow-right"></i></button>
-        </div>
-      </div>
-
-      <div class="onboarding-step" data-step="4" style="display: none;">
-        <label for="tipo_renda">4. Qual é a sua principal fonte de renda?</label>
-        <select name="tipo_renda" id="tipo_renda" class="form-control" required>
-          <option value="" disabled selected>Selecione uma opção...</option>
-          <option value="CLT">CLT (Carteira Assinada)</option>
-          <option value="Autonomo/PJ">Autônomo ou PJ</option>
-          <option value="Servidor Publico">Servidor Público</option>
-          <option value="Desempregado/Estudante">Desempregado / Estudante</option>
-        </select>
-        <div class="form-actions" style="display: flex; justify-content: space-between; margin-top: 24px;">
-          <button type="button" class="btn-outline btn-prev"><i class="ph ph-arrow-left"></i> Voltar</button>
-          <button type="button" class="btn-primary btn-next">Próxima <i class="ph ph-arrow-right"></i></button>
-        </div>
-      </div>
-
-      <div class="onboarding-step" data-step="5" style="display: none;">
-        <label for="tem_dividas">5. Atualmente, você possui dívidas em atraso ou empréstimos ativos?</label>
-        <select name="tem_dividas" id="tem_dividas" class="form-control" required>
-          <option value="" disabled selected>Selecione uma opção...</option>
-          <option value="Sim">Sim, possuo</option>
-          <option value="Não">Não, estou livre de dívidas</option>
-        </select>
-        <div class="form-actions" style="display: flex; justify-content: space-between; margin-top: 24px;">
-          <button type="button" class="btn-outline btn-prev"><i class="ph ph-arrow-left"></i> Voltar</button>
-          <button type="button" class="btn-primary btn-next">Próxima <i class="ph ph-arrow-right"></i></button>
-        </div>
-      </div>
-
-      <div class="onboarding-step" data-step="6" style="display: none;">
-        <label for="objetivo_principal">6. Qual é o seu principal objetivo financeiro hoje?</label>
-        <select name="objetivo_principal" id="objetivo_principal" class="form-control" required>
-          <option value="" disabled selected>Selecione uma opção...</option>
-          <option value="Sair das dividas">Quitar minhas dívidas</option>
-          <option value="Reserva de emergencia">Criar uma reserva de emergência</option>
-          <option value="Comecar a investir">Aprender a investir</option>
-          <option value="Aumentar patrimonio">Aumentar meu patrimônio</option>
-        </select>
-        <div class="form-actions" style="display: flex; justify-content: space-between; margin-top: 24px;">
-          <button type="button" class="btn-outline btn-prev"><i class="ph ph-arrow-left"></i> Voltar</button>
-          <button type="submit" class="btn-primary">Finalizar <i class="ph ph-check"></i></button>
-        </div>
-      </div>
-    </form>
-  </div>
-</div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const steps = document.querySelectorAll('.onboarding-step');
-    const btnNext = document.querySelectorAll('.btn-next');
-    const btnPrev = document.querySelectorAll('.btn-prev');
-    const progressBar = document.getElementById('onboarding-progress');
-    
-    let currentStep = 0;
-
-    function updateView() {
-        steps.forEach((step, index) => {
-            if (index === currentStep) {
-                step.style.display = 'block';
-                setTimeout(() => step.style.opacity = '1', 50);
-            } else {
-                step.style.display = 'none';
-                step.style.opacity = '0';
-            }
-        });
-
-        const progressPercentage = ((currentStep + 1) / steps.length) * 100;
-        progressBar.style.width = progressPercentage + '%';
-    }
-
-    btnNext.forEach(button => {
-        button.addEventListener('click', () => {
-            const currentInput = steps[currentStep].querySelector('select, input');
-            if(currentInput && !currentInput.value) {
-                alert('Por favor, responda a pergunta antes de continuar.');
+            if (!isValid) {
+                alert("Por favor, selecione uma opção para cada pergunta antes de avançar.");
                 return;
             }
 
-            if (currentStep < steps.length - 1) {
-                currentStep++;
-                updateView();
+            // Alterna a tela
+            document.getElementById('step1').classList.remove('active');
+            document.getElementById('step2').classList.add('active');
+            document.getElementById('step-counter').innerText = 'Passo 2 de 2';
+        }
+
+        function prevStep() {
+            document.getElementById('step2').classList.remove('active');
+            document.getElementById('step1').classList.add('active');
+            document.getElementById('step-counter').innerText = 'Passo 1 de 2';
+        }
+
+        // Validação extra no submit final
+        document.getElementById('onboardingForm').addEventListener('submit', function(e) {
+            const groups = ['renda_mensal', 'tipo_renda', 'objetivo_principal'];
+            let isValid = true;
+
+            groups.forEach(group => {
+                const checked = document.querySelector(`input[name="${group}"]:checked`);
+                if (!checked) isValid = false;
+            });
+
+            if (!isValid) {
+                e.preventDefault();
+                alert("Por favor, responda todas as perguntas para finalizar.");
             }
         });
-    });
-
-    btnPrev.forEach(button => {
-        button.addEventListener('click', () => {
-            if (currentStep > 0) {
-                currentStep--;
-                updateView();
-            }
-        });
-    });
-
-    steps.forEach(step => step.style.transition = 'opacity 0.3s ease');
-    updateView();
-});
-</script>
+    </script>
 </body>
 </html>

@@ -16,6 +16,9 @@ class PerfilController extends Controller {
         $usuarioModel = $this->model('Usuario');
         $meusDados = $usuarioModel->buscarPorId($_SESSION['id_usuario']);
 
+        $perfilModel = $this->model('PerfilFinanceiro');
+        $perfilIA = $perfilModel->buscarPorIdUsuario($_SESSION['id_usuario']);
+
         if (empty($_SESSION['csrf_token'])) {
             $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
         }
@@ -23,6 +26,7 @@ class PerfilController extends Controller {
         $this->view('perfil/index', [
             'titulo' => 'Meu Perfil',
             'usuario' => $meusDados,
+            'perfil' => $perfilIA,
             'csrf_token' => $_SESSION['csrf_token']
         ]);
     }
@@ -80,7 +84,7 @@ class PerfilController extends Controller {
                 $_POST['dependentes'] ?? null,
                 $_POST['tempo_melhoria'] ?? null,
                 
-                // AS 6 PERGUNTAS DO ONBOARDING
+                // AS 6 PERGUNTAS DO ONBOARDING INICIAL
                 $_POST['sentimento_dinheiro'] ?? null,
                 $_POST['conhecimento_financeiro'] ?? null,
                 $_POST['renda_mensal'] ?? null,

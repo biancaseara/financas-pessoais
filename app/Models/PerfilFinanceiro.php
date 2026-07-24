@@ -58,4 +58,10 @@ class PerfilFinanceiro {
         }
         return false;
     }
+
+    public function buscarPorIdUsuario($id_usuario) {
+        $stmt = $this->pdo->prepare("SELECT * FROM perfil_financeiro WHERE id_usuario = ?");
+        $stmt->execute([$id_usuario]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
 }
