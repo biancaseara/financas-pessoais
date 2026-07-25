@@ -338,6 +338,85 @@ a.btn-outline {
   color: var(--text-primary);
 }
 
+.btn-ia-magic {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    white-space: nowrap;
+    color: white;
+}
+
+.btn-ia-magic.purple {
+    background: linear-gradient(135deg, var(--color-ia-purple) 0%, #6366f1 100%);
+    box-shadow: 0 4px 12px var(--color-ia-glow);
+}
+
+.btn-ia-magic.purple:hover {
+    background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
+    transform: translateY(-1px);
+}
+
+.btn-ia-magic.purple i {
+    color: #fde047;
+}
+
+.btn-ia-magic.emerald {
+    background: linear-gradient(135deg, var(--color-emerald) 0%, #059669 100%);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+
+.btn-ia-magic.emerald:hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    transform: translateY(-1px);
+}
+
+.btn-ia-magic.emerald i {
+    color: #fde047;
+}
+
+.btn-ia-outline-emerald {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    border-radius: 8px;
+    border: 1px solid var(--color-emerald);
+    color: var(--color-emerald);
+    background: rgba(16, 185, 129, 0.05);
+    transition: all 0.2s ease;
+    height: auto;
+}
+
+.btn-ia-outline-emerald:hover {
+    background: rgba(16, 185, 129, 0.15);
+}
+
+.btn-sm-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
 .btn-outline.header-btn {
   padding: 10px 20px;
   color: var(--text-primary);

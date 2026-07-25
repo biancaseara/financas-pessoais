@@ -22,6 +22,18 @@ $primeiroNome = explode(' ', $_SESSION['nome'])[0];
     </div>
 <?php endif; ?>
 
+<?php
+$temConselho = false;
+$conselho = null;
+
+if (!empty($conselho_ia) && !empty($conselho_ia['mensagem'])) {
+    $conselho = json_decode($conselho_ia['mensagem'], true);
+    if (json_last_error() === JSON_ERROR_NONE && isset($conselho['titulo'])) {
+        $temConselho = true;
+    }
+}
+?>
+
 <section class="ai-insights-panel" style="position: relative;">
     <div class="ai-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
         <div style="display: flex; align-items: center; gap: 8px;">
@@ -29,26 +41,141 @@ $primeiroNome = explode(' ', $_SESSION['nome'])[0];
             <h3 style="margin: 0;">Preditiv.ia Insights</h3>
         </div>
         
-        <!-- BOTÕES -->
         <div style="display: flex; gap: 8px;">
-            <a href="/financas/ia/analisar" id="btn-analisar-ia" class="btn-outline" style="padding: 6px 14px; font-size: 13px; text-decoration: none; display: flex; align-items: center; gap: 6px;">
-                <i class="ph ph-arrows-clockwise"></i> Analisar Mês
+            <a href="/financas/ia/analisarRendaExtra" onclick="this.innerHTML='<i class=\'ph ph-spinner ph-spin\'></i> Pensando...'; this.style.pointerEvents='none';" class="btn-ia-outline-emerald">
+                <i class="ph-fill ph-lightbulb"></i> Ideia de Renda Extra
+            </a>
+
+            <a href="/financas/ia/analisar" id="btn-analisar-ia" class="btn-outline" style="padding: 6px 14px; font-size: 13px; text-decoration: none; display: flex; align-items: center; gap: 6px; height: auto;">
+                <i class="ph ph-arrows-clockwise"></i> Atualizar Predição
             </a>
         </div>
     </div>
     
-    <p class="ai-message" style="margin: 0; line-height: 1.5;">
-        <?php if (!empty($conselho_ia) && !empty($conselho_ia['mensagem'])): ?>
-            "<?= $conselho_ia['mensagem'] ?>"
-            <br>
-            <small style="color: var(--text-secondary); font-size: 12px; display: block; margin-top: 8px;">
+    <?php if ($temConselho): ?>
+        <div class="ai-message" style="margin-bottom: 16px;">
+            <h4 style="font-size: 18px; font-weight: 700; margin-bottom: 8px; color: var(--text-primary);">
+                <?= htmlspecialchars($conselho['titulo'], ENT_QUOTES, 'UTF-8') ?>
+            </h4>
+            <p style="margin: 0; line-height: 1.5; color: var(--text-primary); font-size: 15px;">
+                <i class="ph-fill ph-lightning" style="color: var(--color-emerald);"></i> 
+                <strong>Ação Imediata:</strong> <?= htmlspecialchars($conselho['acao_imediata'], ENT_QUOTES, 'UTF-8') ?>
+            </p>
+            <small style="color: var(--text-secondary); font-size: 12px; display: block; margin-top: 12px;">
                 Analisado em: <?= date('d/m/Y \à\s H:i', strtotime($conselho_ia['data_criacao'])) ?>
             </small>
-        <?php else: ?>
-            "Olá, <?= htmlspecialchars($primeiroNome) ?>! Eu sou a Inteligência Artificial do seu sistema. Clique no botão <strong>'Analisar Mês'</strong> acima para eu processar o seu perfil e suas transações recentes, e gerar seu primeiro conselho personalizado."
-        <?php endif; ?>
-    </p>
+        </div>
+        <button onclick="abrirModalPredicao()" class="btn-primary" style="padding: 6px 16px; font-size: 13px; height: auto; width: fit-content;">
+            <i class="ph ph-chart-line-up"></i> Ver Análise e Projeção
+        </button>
+    <?php else: ?>
+        <p class="ai-message" style="margin: 0; line-height: 1.5;">
+            "Olá! Eu sou o PREDITIV.IA. Clique no botão <strong>'Atualizar Predição'</strong> acima para eu processar seus hábitos, calcular sua taxa de queima e projetar seu saldo no fim do mês."
+        </p>
+    <?php endif; ?>
 </section>
+
+<?php if ($temConselho): ?>
+<div id="modalPredicao" class="overlay" style="display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px;">
+    <div class="card" style="width: 100%; max-width: 700px; max-height: 90vh; overflow-y: auto; padding: 0;">
+        
+        <div class="card-header" style="padding: 24px; border-bottom: 1px solid var(--border-color); margin: 0; position: sticky; top: 0; background: var(--bg-surface); z-index: 10;">
+            <h4 style="margin: 0; display: flex; align-items: center; gap: 8px; color: var(--text-primary);">
+                <i class="ph-fill ph-chart-pie-slice" style="color: var(--color-ia-purple);"></i> Matemática Preditiva
+            </h4>
+            <button onclick="fecharModalPredicao()" class="icon-btn-sm" style="margin: 0;"><i class="ph ph-x"></i></button>
+        </div>
+
+        <div style="padding: 24px;">
+            <div style="background: var(--bg-main); padding: 16px; border-radius: 8px; border-left: 4px solid var(--color-ia-purple); margin-bottom: 24px; color: var(--text-primary); line-height: 1.6;">
+                <strong style="color: var(--color-ia-purple); display: block; margin-bottom: 8px;">O Veredito da IA:</strong>
+                <?= nl2br(htmlspecialchars($conselho['analise'], ENT_QUOTES, 'UTF-8')) ?>
+            </div>
+            
+            <?php if (!empty($conselho['aprendizado'])): ?>
+            <div style="background: rgba(16, 185, 129, 0.1); padding: 16px; border-radius: 8px; border-left: 4px solid var(--color-emerald); margin-bottom: 24px; color: var(--text-primary); line-height: 1.6;">
+                <strong style="color: var(--color-emerald); display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                    <i class="ph-fill ph-graduation-cap" style="font-size: 20px;"></i> Preditiv.ia Ensina:
+                </strong>
+                <?= nl2br(htmlspecialchars($conselho['aprendizado'], ENT_QUOTES, 'UTF-8')) ?>
+            </div>
+            <?php endif; ?>
+
+            <h4 style="margin-bottom: 16px; color: var(--text-primary); font-size: 15px;">Projeção do Mês (Burn Rate)</h4>
+            
+            <div style="position: relative; height: 300px; width: 100%;">
+                <canvas id="graficoProjecao"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function abrirModalPredicao() {
+    const modal = document.getElementById('modalPredicao');
+    modal.style.display = 'flex';
+    setTimeout(renderizarGraficoPredicao, 100); 
+}
+
+function fecharModalPredicao() {
+    document.getElementById('modalPredicao').style.display = 'none';
+}
+
+let graficoPredicaoInstancia = null;
+
+function renderizarGraficoPredicao() {
+    const ctx = document.getElementById('graficoProjecao').getContext('2d');
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const textColor = isDark ? '#9ca3af' : '#6b7280';
+    
+    const gastoAtual = <?= $conselho['dados_grafico']['gasto_atual'] ?>;
+    const projecao = <?= $conselho['dados_grafico']['projecao_fim_mes'] ?>;
+    const limiteSeguro = <?= $conselho['dados_grafico']['limite_seguro'] ?>;
+
+    if (graficoPredicaoInstancia) {
+        graficoPredicaoInstancia.destroy(); 
+    }
+
+    graficoPredicaoInstancia = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Já Gasto (Até Hoje)', 'Projeção (Fim do Mês)', 'Limite Seguro (80%)'],
+            datasets: [{
+                label: 'Valor em R$',
+                data: [gastoAtual, projecao, limiteSeguro],
+                backgroundColor: [
+                    '#3b82f6', 
+                    projecao > limiteSeguro ? '#ef4444' : '#f59e0b', 
+                    '#10b981'  
+                ],
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        color: textColor,
+                        callback: function(value) { return 'R$ ' + value; }
+                    },
+                    grid: { color: isDark ? '#1f2937' : '#e5e7eb' }
+                },
+                x: {
+                    ticks: { color: textColor },
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+}
+</script>
+<?php endif; ?>
 
 <div class="dashboard-grid">
 

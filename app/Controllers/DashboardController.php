@@ -33,6 +33,13 @@ class DashboardController extends Controller
         $despesasFixas = $despesaRecorrenteModel->listarTodos($id_usuario);
         $semDespesasFixas = empty($despesasFixas);
 
+        $motor = $this->model('MotorPreditivo');        
+        $motor->processarReservaAutomatica($id_usuario);
+        
+        $projecao = $motor->calcularProjecaoMensal($id_usuario);
+        $raloDinheiro = $motor->encontrarRaloDinheiro($id_usuario);
+        $contasEsquecidas = $motor->analisarContasEsquecidas($id_usuario);
+
         $dados = [
             'titulo' => 'Resumo Financeiro',
             'resumo' => $resumo,
@@ -41,7 +48,10 @@ class DashboardController extends Controller
             'gastosPorCategoria' => $gastosPorCategoria,
             'conselho_ia' => $ultimoConselho,
             'perfilIncompleto' => $perfilIncompleto,
-            'semDespesasFixas' => $semDespesasFixas
+            'semDespesasFixas' => $semDespesasFixas,
+            'projecao' => $projecao,
+            'raloDinheiro' => $raloDinheiro,
+            'contasEsquecidas' => $contasEsquecidas
         ];
 
         $this->view('dashboard', $dados);

@@ -20,4 +20,16 @@ class ConselhoIa {
         $stmt->execute([$id_usuario]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
+    public function buscarUltimosConselhos($id_usuario, $limite = 3) {
+        $sql = "SELECT * FROM conselhos_ia WHERE id_usuario = ? ORDER BY data_criacao DESC LIMIT ?";
+        $stmt = $this->pdo->prepare($sql);
+        
+        $stmt->bindValue(1, $id_usuario, PDO::PARAM_INT);
+        $stmt->bindValue(2, (int)$limite, PDO::PARAM_INT);
+        
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }
+?>

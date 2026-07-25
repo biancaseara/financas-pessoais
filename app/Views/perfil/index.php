@@ -351,6 +351,12 @@ $p = $perfil ?? [];
                             <option value="Acesso limitado" <?= isSel('acesso_tecnologia', 'Acesso limitado', $p) ?>>Acesso limitado a internet e equipamentos</option>
                         </select>
                     </div>
+                    
+                    <div style="margin-top: 16px; display: flex; justify-content: flex-start;">
+                        <a href="/financas/ia/analisarRendaExtra" onclick="this.innerHTML='<i class=\'ph ph-spinner ph-spin\'></i> Gerando Ideias...'; this.style.pointerEvents='none';" class="btn-ia-magic emerald">
+                            <i class="ph-fill ph-lightbulb"></i> Gerar Ideias com IA
+                        </a>
+                    </div>
                 </div>
 
                 <!-- ABA 5: ESTRUTURA E PRAZOS (3 perguntas) -->
@@ -398,6 +404,52 @@ $p = $perfil ?? [];
             </form>
         </div>
     </div>
+
+    <?php if (isset($_SESSION['insight_temporario'])): ?>
+        <?php
+            $insightRenda = json_decode($_SESSION['insight_temporario'], true);
+            unset($_SESSION['insight_temporario']);
+            $temInsightRenda = (json_last_error() === JSON_ERROR_NONE && isset($insightRenda['titulo']));
+        ?>
+
+        <?php if ($temInsightRenda): ?>
+            <div id="modalRendaIa" class="overlay" style="display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px;">
+                <div class="card" style="width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; padding: 0;">
+                    
+                    <div class="card-header" style="padding: 24px; border-bottom: 1px solid var(--border-color); margin: 0; position: sticky; top: 0; background: var(--bg-surface); z-index: 10;">
+                        <h4 style="margin: 0; display: flex; align-items: center; gap: 8px; color: var(--color-emerald);">
+                            <i class="ph-fill ph-lightbulb" style="color: #fde047;"></i> Ideia de Renda Extra
+                        </h4>
+                        <button onclick="document.getElementById('modalRendaIa').style.display='none'" class="icon-btn-sm" style="margin: 0;"><i class="ph ph-x"></i></button>
+                    </div>
+
+                    <div style="padding: 24px;">
+                        <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 16px; color: var(--text-primary);">
+                            <?= htmlspecialchars($insightRenda['titulo'], ENT_QUOTES, 'UTF-8') ?>
+                        </h3>
+                        
+                        <div style="background: var(--bg-main); padding: 16px; border-radius: 8px; border-left: 4px solid var(--color-emerald); margin-bottom: 24px; color: var(--text-primary); line-height: 1.6;">
+                            <?= nl2br(htmlspecialchars($insightRenda['analise'], ENT_QUOTES, 'UTF-8')) ?>
+                        </div>
+
+                        <p style="margin: 0 0 24px 0; line-height: 1.5; color: var(--text-primary); font-size: 15px;">
+                            <i class="ph-fill ph-lightning" style="color: var(--color-emerald);"></i> 
+                            <strong>Ação Imediata:</strong> <?= htmlspecialchars($insightRenda['acao_imediata'], ENT_QUOTES, 'UTF-8') ?>
+                        </p>
+
+                        <?php if (!empty($insightRenda['aprendizado'])): ?>
+                        <div style="background: rgba(16, 185, 129, 0.1); padding: 16px; border-radius: 8px; border-left: 4px solid var(--color-emerald); color: var(--text-primary); line-height: 1.6;">
+                            <strong style="color: var(--color-emerald); display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                                <i class="ph-fill ph-graduation-cap" style="font-size: 20px;"></i> Dica de Ouro:
+                            </strong>
+                            <?= nl2br(htmlspecialchars($insightRenda['aprendizado'], ENT_QUOTES, 'UTF-8')) ?>
+                        </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+    <?php endif; ?>
     
     <script>
     document.addEventListener('DOMContentLoaded', function() {
