@@ -87,7 +87,7 @@ class PerfilController extends Controller {
                 // AS 6 PERGUNTAS DO ONBOARDING INICIAL
                 $_POST['sentimento_dinheiro'] ?? null,
                 $_POST['conhecimento_financeiro'] ?? null,
-                $_POST['renda_mensal'] ?? null,
+                $_POST['renda_exata'] ?? null,
                 $_POST['tipo_renda'] ?? null,
                 $_POST['tem_dividas'] ?? null,
                 $_POST['objetivo_principal'] ?? null

@@ -119,13 +119,12 @@
 
                 <!-- ================= PASSO 2 (3 Perguntas) ================= -->
                 <div class="step-container" id="step2">
-                    
-                    <label class="form-label">4. Qual a sua renda mensal aproximada?</label>
-                    <div class="grid-options">
-                        <label class="radio-card"><input type="radio" name="renda_mensal" value="Até 2000"><div class="radio-content">Até R$ 2.000</div></label>
-                        <label class="radio-card"><input type="radio" name="renda_mensal" value="2001 a 5000"><div class="radio-content">Até R$ 5.000</div></label>
-                        <label class="radio-card"><input type="radio" name="renda_mensal" value="5001 a 10000"><div class="radio-content">Até R$ 10.000</div></label>
-                        <label class="radio-card"><input type="radio" name="renda_mensal" value="Acima de 10000"><div class="radio-content">Acima de R$ 10.000</div></label>
+                    <label class="form-label">4. Qual a sua renda mensal líquida exata?</label>
+                    <div class="form-group" style="margin-bottom: 32px;">
+                        <div class="input-with-icon" style="position: relative;">
+                            <span style="position: absolute; left: 16px; top: 14px; color: var(--text-secondary); font-weight: 500;">R$</span>
+                            <input type="number" step="0.01" name="renda_exata" class="form-control" placeholder="0,00" style="padding-left: 45px;" required>
+                        </div>
                     </div>
 
                     <label class="form-label">5. Qual é o tipo da sua renda principal?</label>
@@ -142,6 +141,7 @@
                         <label class="radio-card"><input type="radio" name="objetivo_principal" value="Controlar gastos"><div class="radio-content">Controlar gastos</div></label>
                         <label class="radio-card"><input type="radio" name="objetivo_principal" value="Reserva de emergencia"><div class="radio-content">Criar reserva</div></label>
                         <label class="radio-card"><input type="radio" name="objetivo_principal" value="Investir"><div class="radio-content">Aprender a investir</div></label>
+                        <label class="radio-card"><input type="radio" name="objetivo_principal" value="Aumentar patrimonio"><div class="radio-content">Aumentar patrimônio</div></label>
                     </div>
 
                     <div class="btn-group">
@@ -189,7 +189,7 @@
 
         // Validação extra no submit final
         document.getElementById('onboardingForm').addEventListener('submit', function(e) {
-            const groups = ['renda_mensal', 'tipo_renda', 'objetivo_principal'];
+            const groups = ['tipo_renda', 'objetivo_principal'];
             let isValid = true;
 
             groups.forEach(group => {
@@ -197,9 +197,12 @@
                 if (!checked) isValid = false;
             });
 
+            const renda = document.querySelector('input[name="renda_exata"]').value;
+            if (!renda || parseFloat(renda) <= 0) isValid = false;
+
             if (!isValid) {
                 e.preventDefault();
-                alert("Por favor, responda todas as perguntas para finalizar.");
+                alert("Por favor, preencha o valor da sua renda e selecione todas as opções.");
             }
         });
     </script>

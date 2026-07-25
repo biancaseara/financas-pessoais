@@ -1172,12 +1172,12 @@ label {
 
 /* ESTILIZAÇÃO DO MEU PERFIL */
 .profile-card {
-    max-width: 600px;
+    max-width: 100%;
     width: 100%;
 }
 
 .profile-alert {
-    max-width: 600px;
+    max-width: 100%;
     width: 100%;
     margin-bottom: 24px;
 }

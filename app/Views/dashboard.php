@@ -2,6 +2,16 @@
 $primeiroNome = explode(' ', $_SESSION['nome'])[0];
 ?>
 
+<?php if (isset($perfilIncompleto) && $perfilIncompleto): ?>
+    <div class="alert alert-danger" style="margin-bottom: 24px; border: 1px solid var(--color-danger); background-color: rgba(239, 68, 68, 0.1); color: var(--color-danger); padding: 16px; border-radius: 8px; display: flex; align-items: center; gap: 12px;">
+        <i class="ph ph-warning-circle" style="font-size: 24px;"></i>
+        <div>
+            <strong style="display: block; margin-bottom: 4px;">Desbloqueie o poder total da IA!</strong>
+            <span style="font-size: 14px;">O seu perfil comportamental está incompleto. Finalize as configurações no <a href="/financas/perfil" style="color: var(--color-danger); text-decoration: underline; font-weight: bold;">Meu Perfil</a> para receber predições financeiras precisas e eliminar este aviso.</span>
+        </div>
+    </div>
+<?php endif; ?>
+
 <section class="ai-insights-panel" style="position: relative;">
     <div class="ai-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
         <div style="display: flex; align-items: center; gap: 8px;">
@@ -9,9 +19,12 @@ $primeiroNome = explode(' ', $_SESSION['nome'])[0];
             <h3 style="margin: 0;">Preditiv.ia Insights</h3>
         </div>
         
-        <a href="/financas/ia/analisar" class="btn-outline" style="padding: 6px 14px; font-size: 13px; text-decoration: none; display: flex; align-items: center; gap: 6px;">
-            <i class="ph ph-arrows-clockwise"></i> Analisar Mês
-        </a>
+        <!-- BOTÕES -->
+        <div style="display: flex; gap: 8px;">
+            <a href="/financas/ia/analisar" id="btn-analisar-ia" class="btn-outline" style="padding: 6px 14px; font-size: 13px; text-decoration: none; display: flex; align-items: center; gap: 6px;">
+                <i class="ph ph-arrows-clockwise"></i> Analisar Mês
+            </a>
+        </div>
     </div>
     
     <p class="ai-message" style="margin: 0; line-height: 1.5;">
@@ -220,5 +233,17 @@ $primeiroNome = explode(' ', $_SESSION['nome'])[0];
             </table>
         </div>
     </div>
-
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const btnAnalisar = document.getElementById('btn-analisar-ia');
+        if (btnAnalisar) {
+            btnAnalisar.addEventListener('click', function() {
+                this.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Analisando...';
+                this.style.pointerEvents = 'none';
+                this.style.opacity = '0.7';
+            });
+        }
+    });
+</script>

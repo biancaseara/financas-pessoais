@@ -17,6 +17,9 @@ class IaController extends Controller {
         $dashboardModel = $this->model('Dashboard');
         $resumo = $dashboardModel->getResumo($id_usuario);
 
+        $conselhoModel = $this->model('ConselhoIa');
+        $historicoConselhos = $conselhoModel->buscarUltimosConselhos($id_usuario, 3);
+
         $prompt = "Aja como um instrutor financeiro educado, empático e direto. ";
         $prompt .= "O usuário preencheu um raio-x completo da sua vida financeira:\n\n";
 
@@ -46,7 +49,19 @@ class IaController extends Controller {
 
         $prompt .= "Neste mês atual, o balanço real dele no sistema está assim: Entrou R$ " . $resumo['entrada'] . " e Saiu R$ " . $resumo['saida'] . ".\n\n";
         
-        $prompt .= "Instrução: Baseado no cenário acima, escreva um conselho curto (máximo de 3 parágrafos) focando na realidade dele. Se ele estiver afogado em dívidas, ignore os investimentos e foque em como estancar o sangramento. Se ele já tiver reserva, sugira como rentabilizar melhor. Identifique o principal erro comportamental nos gatilhos dele e sugira uma única ação prática imediata. Use português brasileiro. Não use formatação markdown complexa, apenas texto limpo e use a tag HTML <strong> para destacar as palavras-chave mais importantes.";
+        $prompt .= "Neste mês atual, o balanço real dele no sistema está assim: Entrou R$ " . $resumo['entrada'] . " e Saiu R$ " . $resumo['saida'] . ".\n\n";
+
+        // Memória de conselhos anteriores
+        if (!empty($historicoConselhos)) {
+            $prompt .= "--- HISTÓRICO DE CONSELHOS ANTERIORES ---\n";
+            $prompt .= "Aqui estão os últimos conselhos que você (a IA) deu para este usuário recentemente. Leia para ter contexto e evitar repetir exatamente as mesmas dicas, buscando criar um senso de evolução:\n";
+            foreach ($historicoConselhos as $index => $conselhoAntigo) {
+                $prompt .= ($index + 1) . ". \"" . $conselhoAntigo['mensagem'] . "\"\n";
+            }
+            $prompt .= "-----------------------------------------\n\n";
+        }
+
+        $prompt .= "Instrução: Baseado no cenário acima e no seu histórico de dicas, escreva um conselho curto (máximo de 3 parágrafos) focando na realidade dele. Identifique o principal erro comportamental e sugira uma ação prática imediata. Não use formatação markdown complexa, use a tag HTML <strong> para destaques.";
 
         $chaveApi = getenv('GEMINI_API_KEY') ?: $_ENV['GEMINI_API_KEY'];
         $chaveApi = trim($chaveApi, " '\"\t\n\r\0\x0B"); 

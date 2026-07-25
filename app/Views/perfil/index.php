@@ -284,14 +284,11 @@ $p = $perfil ?? [];
                 <div id="tab-renda" class="tab-content">
                     <div class="content-row">
                         <div class="form-group">
-                            <label for="renda_mensal">Qual é a sua faixa de renda mensal atual?</label>
-                            <select name="renda_mensal" id="renda_mensal" class="form-control">
-                                <option value="">Selecione...</option>
-                                <option value="Ate 2000" <?= isSel('renda_mensal', 'Ate 2000', $p) ?>>Até R$ 2.000</option>
-                                <option value="2001 a 5000" <?= isSel('renda_mensal', '2001 a 5000', $p) ?>>De R$ 2.001 a R$ 5.000</option>
-                                <option value="5001 a 10000" <?= isSel('renda_mensal', '5001 a 10000', $p) ?>>De R$ 5.001 a R$ 10.000</option>
-                                <option value="Acima de 10000" <?= isSel('renda_mensal', 'Acima de 10000', $p) ?>>Acima de R$ 10.000</option>
-                            </select>
+                            <label for="renda_exata">Qual a sua renda mensal líquida exata?</label>
+                            <div class="input-with-icon" style="position: relative;">
+                                <span style="position: absolute; left: 16px; top: 14px; color: var(--text-secondary); font-weight: 500;">R$</span>
+                                <input type="number" step="0.01" name="renda_exata" id="renda_exata" class="form-control" placeholder="0,00" style="padding-left: 45px;" value="<?= htmlspecialchars($p['renda_exata'] ?? '') ?>" required>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label for="tipo_renda">Qual é a sua principal fonte de renda?</label>
