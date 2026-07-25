@@ -65,7 +65,7 @@ class PerfilController extends Controller {
                 $_POST['situacao_fim_mes'] ?? null,
                 $_POST['tipos_divida'] ?? null,
                 $_POST['status_divida'] ?? null,
-                $_POST['valor_divida'] ?? null,
+                $_POST['valor_divida_exata'] ?? null,
                 $_POST['controle_gastos'] ?? null,
                 $_POST['gatilho_gastos'] ?? null,
                 $_POST['tentou_organizar'] ?? null,

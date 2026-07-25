@@ -135,15 +135,11 @@ $p = $perfil ?? [];
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="valor_divida">Qual é o valor aproximado total das suas dívidas?</label>
-                            <select name="valor_divida" id="valor_divida" class="form-control">
-                                <option value="">Selecione...</option>
-                                <option value="Nao possuo" <?= isSel('valor_divida', 'Nao possuo', $p) ?>>Não possuo</option>
-                                <option value="Ate 1000" <?= isSel('valor_divida', 'Ate 1000', $p) ?>>Até R$ 1.000</option>
-                                <option value="1001 a 5000" <?= isSel('valor_divida', '1001 a 5000', $p) ?>>De R$ 1.001 a R$ 5.000</option>
-                                <option value="5001 a 15000" <?= isSel('valor_divida', '5001 a 15000', $p) ?>>De R$ 5.001 a R$ 15.000</option>
-                                <option value="Acima de 15000" <?= isSel('valor_divida', 'Acima de 15000', $p) ?>>Acima de R$ 15.000</option>
-                            </select>
+                            <label for="valor_divida_exata">Qual é o valor aproximado total das suas dívidas?</label>
+                            <div class="input-with-icon" style="position: relative;">
+                                <span style="position: absolute; left: 16px; top: 14px; color: var(--text-secondary); font-weight: 500;">R$</span>
+                                <input type="number" step="0.01" name="valor_divida_exata" id="valor_divida_exata" class="form-control" placeholder="0,00" style="padding-left: 45px;" value="<?= htmlspecialchars($p['valor_divida_exata'] ?? '') ?>">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -155,9 +151,10 @@ $p = $perfil ?? [];
                             <label for="sentimento_dinheiro">Como você se sente em relação ao seu dinheiro hoje?</label>
                             <select name="sentimento_dinheiro" id="sentimento_dinheiro" class="form-control">
                                 <option value="">Selecione...</option>
-                                <option value="Ansioso" <?= isSel('sentimento_dinheiro', 'Ansioso', $p) ?>>Ansioso e preocupado</option>
-                                <option value="Tranquilo" <?= isSel('sentimento_dinheiro', 'Tranquilo', $p) ?>>Tranquilo, mas quero melhorar</option>
-                                <option value="No controle" <?= isSel('sentimento_dinheiro', 'No controle', $p) ?>>Totalmente no controle</option>
+                                <option value="Sempre falta dinheiro no fim do mês" <?= isSel('sentimento_dinheiro', 'Sempre falta dinheiro no fim do mês', $p) ?>>Sempre falta dinheiro no fim do mês</option>
+                                <option value="Consigo pagar as contas, mas não sobra nada" <?= isSel('sentimento_dinheiro', 'Consigo pagar as contas, mas não sobra nada', $p) ?>>Consigo pagar as contas, mas não sobra nada</option>
+                                <option value="Sobra um pouco, mas não sei investir" <?= isSel('sentimento_dinheiro', 'Sobra um pouco, mas não sei investir', $p) ?>>Sobra um pouco, mas não sei investir</option>
+                                <option value="Tenho controle e invisto todo mês" <?= isSel('sentimento_dinheiro', 'Tenho controle e invisto todo mês', $p) ?>>Tenho controle e invisto todo mês</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -212,8 +209,9 @@ $p = $perfil ?? [];
                             <select name="conhecimento_financeiro" id="conhecimento_financeiro" class="form-control">
                                 <option value="">Selecione...</option>
                                 <option value="Iniciante" <?= isSel('conhecimento_financeiro', 'Iniciante', $p) ?>>Iniciante (sei muito pouco)</option>
-                                <option value="Intermediario" <?= isSel('conhecimento_financeiro', 'Intermediario', $p) ?>>Intermediário (sei o básico)</option>
-                                <option value="Avancado" <?= isSel('conhecimento_financeiro', 'Avancado', $p) ?>>Avançado (invisto e controlo bem)</option>
+                                <option value="Básico" <?= isSel('conhecimento_financeiro', 'Básico', $p) ?>>Básico (sei o essencial)</option>
+                                <option value="Intermediário" <?= isSel('conhecimento_financeiro', 'Intermediário', $p) ?>>Intermediário (sei organizar)</option>
+                                <option value="Avançado" <?= isSel('conhecimento_financeiro', 'Avançado', $p) ?>>Avançado (invisto e controlo bem)</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -295,7 +293,7 @@ $p = $perfil ?? [];
                             <select name="tipo_renda" id="tipo_renda" class="form-control">
                                 <option value="">Selecione...</option>
                                 <option value="CLT" <?= isSel('tipo_renda', 'CLT', $p) ?>>CLT (Carteira Assinada)</option>
-                                <option value="Autonomo/PJ" <?= isSel('tipo_renda', 'Autonomo/PJ', $p) ?>>Autônomo ou PJ</option>
+                                <option value="Autonomo/Empresario" <?= isSel('tipo_renda', 'Autonomo/Empresario', $p) ?>>Autônomo / PJ / Empresário</option>
                                 <option value="Servidor Publico" <?= isSel('tipo_renda', 'Servidor Publico', $p) ?>>Servidor Público</option>
                                 <option value="Desempregado/Estudante" <?= isSel('tipo_renda', 'Desempregado/Estudante', $p) ?>>Desempregado / Estudante</option>
                             </select>
@@ -358,13 +356,16 @@ $p = $perfil ?? [];
                 <!-- ABA 5: ESTRUTURA E PRAZOS (3 perguntas) -->
                 <div id="tab-familia" class="tab-content">
                     <div class="content-row">
+
+                        <!-- No grupo objetivo_principal -->
                         <div class="form-group">
                             <label for="objetivo_principal">Qual é o seu principal objetivo financeiro hoje?</label>
                             <select name="objetivo_principal" id="objetivo_principal" class="form-control">
                                 <option value="">Selecione...</option>
-                                <option value="Sair das dividas" <?= isSel('objetivo_principal', 'Sair das dividas', $p) ?>>Quitar minhas dívidas</option>
+                                <option value="Sair das dívidas" <?= isSel('objetivo_principal', 'Sair das dívidas', $p) ?>>Quitar minhas dívidas</option>
+                                <option value="Controlar gastos" <?= isSel('objetivo_principal', 'Controlar gastos', $p) ?>>Controlar meus gastos</option>
                                 <option value="Reserva de emergencia" <?= isSel('objetivo_principal', 'Reserva de emergencia', $p) ?>>Criar uma reserva de emergência</option>
-                                <option value="Comecar a investir" <?= isSel('objetivo_principal', 'Comecar a investir', $p) ?>>Aprender a investir</option>
+                                <option value="Investir" <?= isSel('objetivo_principal', 'Investir', $p) ?>>Aprender a investir</option>
                                 <option value="Aumentar patrimonio" <?= isSel('objetivo_principal', 'Aumentar patrimonio', $p) ?>>Aumentar meu patrimônio</option>
                             </select>
                         </div>

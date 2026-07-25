@@ -130,9 +130,9 @@
                     <label class="form-label">5. Qual é o tipo da sua renda principal?</label>
                     <div class="grid-options">
                         <label class="radio-card"><input type="radio" name="tipo_renda" value="CLT"><div class="radio-content">CLT</div></label>
-                        <label class="radio-card"><input type="radio" name="tipo_renda" value="Autônomo"><div class="radio-content">Autônomo / PJ</div></label>
-                        <label class="radio-card"><input type="radio" name="tipo_renda" value="Servidor"><div class="radio-content">Servidor Público</div></label>
-                        <label class="radio-card"><input type="radio" name="tipo_renda" value="Empresário"><div class="radio-content">Outros</div></label>
+                        <label class="radio-card"><input type="radio" name="tipo_renda" value="Autonomo/Empresario"><div class="radio-content">Autônomo / PJ / Empresário</div></label>
+                        <label class="radio-card"><input type="radio" name="tipo_renda" value="Servidor Publico"><div class="radio-content">Servidor Público</div></label>
+                        <label class="radio-card"><input type="radio" name="tipo_renda" value="Desempregado/Estudante"><div class="radio-content">Estudante / Desempregado</div></label>
                     </div>
 
                     <label class="form-label">6. Qual o seu principal objetivo com o Preditiv.ia?</label>

@@ -28,7 +28,7 @@ class PerfilFinanceiro {
         }
     }
 
-    public function atualizarPerfilCompleto($id_usuario, $maior_problema, $situacao_fim_mes, $tipos_divida, $status_divida, $valor_divida, $controle_gastos, $gatilho_gastos, $tentou_organizar, $tentou_nao_funcionou, $reserva_emergencia, $meses_reserva, $local_reserva, $conhece_conceitos, $ja_investiu, $tipos_investimento, $quer_renda_extra, $pode_aumentar_renda, $habilidades, $horas_disponiveis, $acesso_tecnologia, $dependentes, $tempo_melhoria, $sentimento_dinheiro, $conhecimento_financeiro, $renda_exata, $tipo_renda, $tem_dividas, $objetivo_principal) {
+    public function atualizarPerfilCompleto($id_usuario, $maior_problema, $situacao_fim_mes, $tipos_divida, $status_divida, $valor_divida_exata, $controle_gastos, $gatilho_gastos, $tentou_organizar, $tentou_nao_funcionou, $reserva_emergencia, $meses_reserva, $local_reserva, $conhece_conceitos, $ja_investiu, $tipos_investimento, $quer_renda_extra, $pode_aumentar_renda, $habilidades, $horas_disponiveis, $acesso_tecnologia, $dependentes, $tempo_melhoria, $sentimento_dinheiro, $conhecimento_financeiro, $renda_exata, $tipo_renda, $tem_dividas, $objetivo_principal) {
         
         $stmt = $this->pdo->prepare("SELECT id_perfil FROM perfil_financeiro WHERE id_usuario = ?");
         $stmt->execute([$id_usuario]);
@@ -36,7 +36,7 @@ class PerfilFinanceiro {
 
         if ($existe) {
             $sql = "UPDATE perfil_financeiro SET 
-                    maior_problema = ?, situacao_fim_mes = ?, tipos_divida = ?, status_divida = ?, valor_divida = ?, 
+                    maior_problema = ?, situacao_fim_mes = ?, tipos_divida = ?, status_divida = ?, valor_divida_exata = ?, 
                     controle_gastos = ?, gatilho_gastos = ?, tentou_organizar = ?, tentou_nao_funcionou = ?, 
                     reserva_emergencia = ?, meses_reserva = ?, local_reserva = ?, conhece_conceitos = ?, 
                     ja_investiu = ?, tipos_investimento = ?, quer_renda_extra = ?, pode_aumentar_renda = ?, 
@@ -47,7 +47,7 @@ class PerfilFinanceiro {
             $stmt = $this->pdo->prepare($sql);
             
             return $stmt->execute([
-                $maior_problema, $situacao_fim_mes, $tipos_divida, $status_divida, $valor_divida, 
+                $maior_problema, $situacao_fim_mes, $tipos_divida, $status_divida, $valor_divida_exata, 
                 $controle_gastos, $gatilho_gastos, $tentou_organizar, $tentou_nao_funcionou, 
                 $reserva_emergencia, $meses_reserva, $local_reserva, $conhece_conceitos, 
                 $ja_investiu, $tipos_investimento, $quer_renda_extra, $pode_aumentar_renda, 

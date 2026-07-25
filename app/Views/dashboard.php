@@ -12,6 +12,16 @@ $primeiroNome = explode(' ', $_SESSION['nome'])[0];
     </div>
 <?php endif; ?>
 
+<?php if (isset($semDespesasFixas) && $semDespesasFixas && !$perfilIncompleto): ?>
+    <div class="alert alert-warning" style="margin-bottom: 24px; border: 1px solid #f59e0b; background-color: rgba(245, 158, 11, 0.1); color: #b45309; padding: 16px; border-radius: 8px; display: flex; align-items: center; gap: 12px;">
+        <i class="ph ph-calendar-blank" style="font-size: 24px;"></i>
+        <div>
+            <strong style="display: block; margin-bottom: 4px;">A IA precisa prever seu futuro!</strong>
+            <span style="font-size: 14px;">Você ainda não cadastrou nenhuma conta recorrente. Vá em <a href="/financas/recorrentes" style="color: #b45309; text-decoration: underline; font-weight: bold;">Despesas Fixas</a> e adicione itens como Aluguel, Internet e Luz para que o motor preditivo calcule seu mês.</span>
+        </div>
+    </div>
+<?php endif; ?>
+
 <section class="ai-insights-panel" style="position: relative;">
     <div class="ai-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
         <div style="display: flex; align-items: center; gap: 8px;">

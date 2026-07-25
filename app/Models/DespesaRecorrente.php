@@ -43,7 +43,7 @@ class DespesaRecorrente {
         return $stmt->execute([$id, $id_usuario]);
     }
 
-    // A trava para evitar lançamentos duplicadas
+    // Trava que evita lançamentos duplicadas
     public function verificarLancamentoExistente($id_usuario, $descricao_formatada) {
         $sql = "SELECT id_transacao FROM transacoes t 
                 LEFT JOIN contas c ON t.id_conta = c.id_conta

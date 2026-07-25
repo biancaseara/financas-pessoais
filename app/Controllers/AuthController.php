@@ -6,7 +6,6 @@ class AuthController extends Controller
 
     private function initCsrfToken()
     {
-        // Gera um token criptograficamente seguro para proteger contra ataques CSRF
         if (empty($_SESSION['csrf_token'])) {
             $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
         }
@@ -15,7 +14,6 @@ class AuthController extends Controller
 
     private function validateCsrfToken()
     {
-        // Verifica se o token CSRF enviado no formulário corresponde ao token armazenado na sessão
         if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
             return false;
         }
@@ -25,8 +23,8 @@ class AuthController extends Controller
     public function login()
     {
         $erro = "";
-        $csrf_token = $this->initCsrfToken(); // Inicializa o token para mandar para a View
-
+        $csrf_token = $this->initCsrfToken(); 
+        
         if (isset($_SESSION['id_usuario'])) {
             header("Location: /financas");
             exit;
@@ -46,7 +44,7 @@ class AuthController extends Controller
 
                     if ($usuario && password_verify($_POST['senha'], $usuario['senha'])) {
                         
-                        session_regenerate_id(true); // Regenera o ID da sessão para evitar fixação de sessão
+                        session_regenerate_id(true);
 
                         $_SESSION['id_usuario'] = $usuario['id_usuario'];
                         $_SESSION['perfil'] = $usuario['perfil'];
@@ -63,7 +61,7 @@ class AuthController extends Controller
         $this->view('auth/login', [
             'titulo' => 'Acessar Sistema',
             'erro' => $erro,
-            'csrf_token' => $csrf_token // Passa o token para a View
+            'csrf_token' => $csrf_token
         ]);
     }
 
@@ -71,14 +69,13 @@ class AuthController extends Controller
     {
         $erro = "";
         $sucesso = "";
-        $csrf_token = $this->initCsrfToken(); // Inicializa o token para mandar para a View
+        $csrf_token = $this->initCsrfToken();
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if (!$this->validateCsrfToken()) {
                 $erro = "Token de segurança inválido.";
             } else {
                 $nome = trim($_POST['nome']);
-
                 $email = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
                 $senha = trim($_POST['senha']);
     
@@ -91,13 +88,37 @@ class AuthController extends Controller
                     $usuarioModel = $this->model('Usuario');
                     $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
     
-                    // O perfil padrão sempre será 'comum' no cadastro público
                     if ($usuarioModel->cadastrar($nome, $email, $senhaHash, $aceitou_termos, $data_aceite_termos, 'comum')) {
                         $novo_usuario = $usuarioModel->buscarPorEmail($email);
+                        $id_novo_usuario = $novo_usuario['id_usuario'];
 
-                        session_regenerate_id(true); // Regenera o ID da sessão para evitar fixação de sessão
+                        $db = new Database();
+                        $pdo = $db->getConnection();
+
+                        $sqlConta = "INSERT INTO contas (id_usuario, nome_conta, saldo, tipo_conta) VALUES (?, 'Carteira Principal', 0, 'Conta Corrente')";
+                        $pdo->prepare($sqlConta)->execute([$id_novo_usuario]);
+
+                        $categoriasPadrao = [
+                            ['Alimentação', 'Saida', '#ef4444'],
+                            ['Moradia', 'Saida', '#f59e0b'],
+                            ['Transporte', 'Saida', '#3b82f6'],
+                            ['Saúde', 'Saida', '#ec4899'],
+                            ['Renda Principal', 'Entrada', '#10b981'],
+                            ['Reserva e Investimentos', 'Saida', '#8b5cf6'],
+                            ['Assinaturas e Streaming', 'Saida', '#6366f1'],
+                            ['Internet e Telefonia', 'Saida', '#14b8a6'],
+                        ];
+
+                        $sqlCategoria = "INSERT INTO categorias (id_usuario, nome_categoria, tipo_categoria, cor) VALUES (?, ?, ?, ?)";
+                        $stmtCat = $pdo->prepare($sqlCategoria);
+
+                        foreach ($categoriasPadrao as $cat) {
+                            $stmtCat->execute([$id_novo_usuario, $cat[0], $cat[1], $cat[2]]);
+                        }
+
+                        session_regenerate_id(true);
     
-                        $_SESSION['id_usuario'] = $novo_usuario['id_usuario'];
+                        $_SESSION['id_usuario'] = $id_novo_usuario;
                         $_SESSION['perfil'] = $novo_usuario['perfil'];
                         $_SESSION['nome'] = $novo_usuario['nome'];
     
@@ -109,16 +130,14 @@ class AuthController extends Controller
                 } else {
                     $erro = "Preencha todos os campos.";
                 }
-
             }
-
         }
 
         $this->view('auth/registro', [
             'titulo' => 'Criar Conta',
             'erro' => $erro,
             'sucesso' => $sucesso,
-            'csrf_token' => $csrf_token // Passa o token para a View
+            'csrf_token' => $csrf_token
         ]);
     }
 
