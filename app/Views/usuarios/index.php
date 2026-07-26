@@ -26,14 +26,6 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Senha de Acesso</label>
-                    <div class="input-with-icon">
-                        <i class="ph ph-lock-key"></i>
-                        <input type="password" name="senha" class="form-control" placeholder="Defina uma senha" required>
-                    </div>
-                </div>
-
-                <div class="form-group">
                     <label>Perfil de Acesso</label>
                     <div class="input-with-icon">
                         <i class="ph ph-shield-check"></i>

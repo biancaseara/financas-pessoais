@@ -25,15 +25,6 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Nova Senha</label>
-                    <p class="text-secondary helper-text">Deixe em branco para manter a senha atual.</p>
-                    <div class="input-with-icon">
-                        <i class="ph ph-lock-key"></i>
-                        <input type="password" name="senha" class="form-control" placeholder="Nova Senha (Opcional)">
-                    </div>
-                </div>
-
-                <div class="form-group">
                     <label>Perfil de Acesso</label>
                     <div class="input-with-icon">
                         <i class="ph ph-shield-check"></i>
