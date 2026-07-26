@@ -68,7 +68,7 @@
                     <i class="ph ph-trend-up"></i> Investimentos
                 </a>
 
-                <?php if (isset($_SESSION['perfil']) && $_SESSION['perfil'] == 'admin'): ?>
+                <?php if (isset($_SESSION['perfil']) && in_array($_SESSION['perfil'], ['admin', 'super_admin'])): ?>
                     <a href="/financas/usuarios" class="menu-item <?= (strpos($urlAtual, '/financas/usuarios') !== false) ? 'active' : '' ?>">
                         <i class="ph ph-users"></i> Painel de Admin
                     </a>

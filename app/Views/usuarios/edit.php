@@ -31,6 +31,9 @@
                         <select name="perfil" class="form-control" required>
                             <option value="comum" <?= $usuario['perfil'] == 'comum' ? 'selected' : '' ?>>Usuário Comum</option>
                             <option value="admin" <?= $usuario['perfil'] == 'admin' ? 'selected' : '' ?>>Administrador</option>
+                            <?php if ($_SESSION['perfil'] === 'super_admin'): ?>
+                                <option value="super_admin" <?= $usuario['perfil'] == 'super_admin' ? 'selected' : '' ?>>Super Admin</option>
+                            <?php endif; ?>
                         </select>
                     </div>
                 </div>

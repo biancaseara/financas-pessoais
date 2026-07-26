@@ -15,6 +15,7 @@ class IaController extends Controller {
         $motorPreditivo = $this->model('MotorPreditivo');
         $metaModel = $this->model('Meta');
         $conselhoModel = $this->model('ConselhoIa');
+        $logModel = $this->model('LogApi');
 
         $perfil = $perfilModel->buscarPorIdUsuario($id_usuario);
         $projecao = $motorPreditivo->calcularProjecaoMensal($id_usuario);
@@ -137,16 +138,27 @@ class IaController extends Controller {
             curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4); 
             curl_setopt($ch, CURLOPT_TIMEOUT, 15);
 
+            $inicioTimer = microtime(true); 
+
             $resposta = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             $erroCurl = curl_error($ch); 
             curl_close($ch);
 
+            $tempoRespostaMs = round((microtime(true) - $inicioTimer) * 1000); 
+
             if ($erroCurl) {
                 error_log("Erro de cURL no Preditiv.ia: " . $erroCurl);
+                $logModel->registrar($id_usuario, "analisar (Erro cURL)", 500, 0, 0, $tempoRespostaMs);
                 continue; 
             }
 
             $resultado = json_decode($resposta, true);
+
+            $tokensPrompt = $resultado['usageMetadata']['promptTokenCount'] ?? 0;
+            $tokensCompletion = $resultado['usageMetadata']['candidatesTokenCount'] ?? 0;
+
+            $logModel->registrar($id_usuario, "analisar ({$modelo})", $httpCode, $tokensPrompt, $tokensCompletion, $tempoRespostaMs);
 
             if (isset($resultado['error'])) {
                 error_log("Erro na API do Gemini ({$modelo}): " . json_encode($resultado['error']));
@@ -194,7 +206,7 @@ class IaController extends Controller {
         $prompt .= "INSTRUÇÃO:\nRetorne APENAS um JSON válido com a seguinte estrutura:\n";
         $prompt .= "{\"titulo\": \"Frase de motivação\", \"analise\": \"Explique de forma simples quanto ele precisa guardar por mês para bater a meta a tempo\", \"acao_imediata\": \"Diga exatamente o que ele deve cortar do 'Ralo de Dinheiro' para acelerar a meta\", \"aprendizado\": \"Um conceito simples sobre juros compostos ou sacrifício temporário\"}";
 
-        $_SESSION['insight_temporario'] = $this->_chamarGemini($prompt);
+        $_SESSION['insight_temporario'] = $this->_chamarGemini($prompt, 'analisarMeta');
         
         header("Location: /financas/metas");
         exit;
@@ -216,13 +228,16 @@ class IaController extends Controller {
         $prompt .= "INSTRUÇÃO:\nRetorne APENAS um JSON válido com a seguinte estrutura:\n";
         $prompt .= "{\"titulo\": \"Nome da ideia criativa de renda extra\", \"analise\": \"Um plano de ação em 3 passos simples cruzando as habilidades com as ferramentas que ele tem\", \"acao_imediata\": \"O que ele deve fazer hoje, em 10 minutos, para começar\", \"aprendizado\": \"Dica sobre como não misturar o dinheiro da renda extra com a conta pessoal\"}";
 
-        $_SESSION['insight_temporario'] = $this->_chamarGemini($prompt);
+        $_SESSION['insight_temporario'] = $this->_chamarGemini($prompt, 'analisarRendaExtra');
         
         header("Location: /financas/perfil");
         exit;
     }
 
-    private function _chamarGemini($prompt) {
+    private function _chamarGemini($prompt, $endpoint = 'generico') {
+        $id_usuario = $_SESSION['id_usuario'] ?? null;
+        $logModel = clone $this->model('LogApi');
+        
         $chaveApi = getenv('GEMINI_API_KEY') ?: $_ENV['GEMINI_API_KEY'];
         $chaveApi = trim($chaveApi, " '\"\t\n\r\0\x0B"); 
         
@@ -244,10 +259,21 @@ class IaController extends Controller {
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
             curl_setopt($ch, CURLOPT_TIMEOUT, 15);
 
+            $inicioTimer = microtime(true);
+
             $resposta = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
 
+            $tempoRespostaMs = round((microtime(true) - $inicioTimer) * 1000);
             $resultado = json_decode($resposta, true);
+
+            $tokensPrompt = $resultado['usageMetadata']['promptTokenCount'] ?? 0;
+            $tokensCompletion = $resultado['usageMetadata']['candidatesTokenCount'] ?? 0;
+
+            if ($id_usuario) {
+                $logModel->registrar($id_usuario, "{$endpoint} ({$modelo})", $httpCode, $tokensPrompt, $tokensCompletion, $tempoRespostaMs);
+            }
 
             if (isset($resultado['candidates'][0]['content']['parts'][0]['text'])) {
                 $textoBruto = $resultado['candidates'][0]['content']['parts'][0]['text'];

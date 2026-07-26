@@ -28,8 +28,36 @@ class Usuario {
         }
     }
 
-    public function listarTodos() {
-        return $this->pdo->query("SELECT id_usuario, nome, email, perfil, status FROM usuarios")->fetchAll();
+    public function listarComFiltro($busca = '', $limite = 10, $offset = 0) {
+        $sql = "SELECT id_usuario, nome, email, perfil, status FROM usuarios ";
+        $params = [];
+        
+        if (!empty($busca)) {
+            $sql .= "WHERE nome LIKE ? OR email LIKE ? ";
+            $params[] = "%$busca%";
+            $params[] = "%$busca%";
+        }
+        
+        $sql .= "ORDER BY id_usuario DESC LIMIT $limite OFFSET $offset";
+        
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function contarTotal($busca = '') {
+        $sql = "SELECT COUNT(*) as total FROM usuarios ";
+        $params = [];
+        
+        if (!empty($busca)) {
+            $sql .= "WHERE nome LIKE ? OR email LIKE ? ";
+            $params[] = "%$busca%";
+            $params[] = "%$busca%";
+        }
+        
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetch(PDO::FETCH_ASSOC)['total'];
     }
 
     public function deletar($id) {

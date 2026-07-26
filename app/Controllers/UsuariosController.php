@@ -4,7 +4,7 @@ require_once BASE_PATH . '/core/Controller.php';
 class UsuariosController extends Controller {
 
     public function __construct() {
-        if (!isset($_SESSION['perfil']) || $_SESSION['perfil'] != 'admin') {
+        if (!isset($_SESSION['perfil']) || !in_array($_SESSION['perfil'], ['admin', 'super_admin'])) {
             die("<div style='text-align:center; margin-top:50px;'><h2 style='color:red;'>🛑 Acesso Negado</h2><p>Apenas administradores podem gerenciar usuários.</p><a href='/financas'>Voltar ao Dashboard</a></div>");
         }
 
@@ -13,14 +13,32 @@ class UsuariosController extends Controller {
 
     public function index() {
         $usuarioModel = $this->model('Usuario');
+        $logModel = $this->model('LogApi');
         
         if (empty($_SESSION['csrf_token'])) {
             $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
         }
 
+        $busca = trim($_GET['busca'] ?? '');
+        $paginaAtual = isset($_GET['pagina']) ? max(1, (int)$_GET['pagina']) : 1;
+        $limite = 5;
+        $offset = ($paginaAtual - 1) * $limite;
+
+        $totalUsuarios = $usuarioModel->contarTotal($busca);
+        $totalPaginas = max(1, ceil($totalUsuarios / $limite));
+        $usuarios = $usuarioModel->listarComFiltro($busca, $limite, $offset);
+
+        $metricasIa = $logModel->obterMetricasGerais();
+        $graficoIa = $logModel->obterGrafico7Dias();
+
         $this->view('usuarios/index', [
-            'titulo' => 'Gestão de Usuários',
-            'usuarios' => $usuarioModel->listarTodos(),
+            'titulo' => 'Painel de Administração',
+            'usuarios' => $usuarios,
+            'busca' => $busca,
+            'paginaAtual' => $paginaAtual,
+            'totalPaginas' => $totalPaginas,
+            'metricasIa' => $metricasIa,
+            'graficoIa' => $graficoIa,
             'csrf_token' => $_SESSION['csrf_token']
         ]);
     }
@@ -78,6 +96,10 @@ class UsuariosController extends Controller {
         $usuario = $usuarioModel->buscarPorId($id);
 
         if ($usuario) {
+            if ($_SESSION['perfil'] === 'admin' && $usuario['perfil'] === 'super_admin') {
+                die("<div style='text-align:center; margin-top:50px;'><h2 style='color:red;'>🛑 Acesso Negado</h2><p>Você não tem privilégios para alterar um Super Administrador.</p><a href='/financas/usuarios'>Voltar</a></div>");
+            }
+
             if (empty($_SESSION['csrf_token'])) {
                 $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
             }
@@ -99,10 +121,15 @@ class UsuariosController extends Controller {
             }
 
             $usuarioModel = $this->model('Usuario');
+            $usuario = $usuarioModel->buscarPorId($id);
+
+            if ($usuario && $_SESSION['perfil'] === 'admin' && $usuario['perfil'] === 'super_admin') {
+                die("<div style='text-align:center; margin-top:50px;'><h2 style='color:red;'>🛑 Acesso Negado</h2><p>Você não tem privilégios para alterar um Super Administrador.</p><a href='/financas/usuarios'>Voltar</a></div>");
+            }
             
             $perfil = $_POST['perfil'];
             if ($id == $_SESSION['id_usuario']) {
-                $perfil = 'admin'; 
+                $perfil = $_SESSION['perfil']; 
             }
             
             $usuarioModel->atualizar($id, $_POST['nome'], $_POST['email'], '', $perfil);
@@ -119,7 +146,14 @@ class UsuariosController extends Controller {
             if ($id == $_SESSION['id_usuario']) {
                 die("Você não pode excluir a sua própria conta."); 
             }
+
             $usuarioModel = $this->model('Usuario');
+            $usuario = $usuarioModel->buscarPorId($id);
+
+            if ($usuario && $_SESSION['perfil'] === 'admin' && $usuario['perfil'] === 'super_admin') {
+                die("<div style='text-align:center; margin-top:50px;'><h2 style='color:red;'>🛑 Acesso Negado</h2><p>Você não tem privilégios para alterar um Super Administrador.</p><a href='/financas/usuarios'>Voltar</a></div>");
+            }
+
             $usuarioModel->deletar($id);
             header("Location: /financas/usuarios");
         }
@@ -136,6 +170,12 @@ class UsuariosController extends Controller {
             }
             
             $usuarioModel = $this->model('Usuario');
+            $usuario = $usuarioModel->buscarPorId($id);
+
+            if ($usuario && $_SESSION['perfil'] === 'admin' && $usuario['perfil'] === 'super_admin') {
+                die("<div style='text-align:center; margin-top:50px;'><h2 style='color:red;'>🛑 Acesso Negado</h2><p>Você não tem privilégios para alterar um Super Administrador.</p><a href='/financas/usuarios'>Voltar</a></div>");
+            }
+
             $usuarioModel->reativar($id);
             header("Location: /financas/usuarios");
             exit;
