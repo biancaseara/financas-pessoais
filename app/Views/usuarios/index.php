@@ -65,7 +65,7 @@
                         <th>ID</th>
                         <th>Nome</th>
                         <th>E-mail</th>
-                        <th>Perfil</th>
+                        <th>Status / Perfil</th>
                         <th class="text-right">Ações</th>
                     </tr>
                 </thead>
@@ -76,25 +76,42 @@
                                 <td class="text-secondary font-medium">#<?= $item['id_usuario'] ?></td>
                                 <td class="font-medium"><?= htmlspecialchars($item['nome'], ENT_QUOTES, 'UTF-8') ?></td>
                                 <td class="text-secondary"><?= htmlspecialchars($item['email'], ENT_QUOTES, 'UTF-8') ?></td>
+                                
                                 <td>
+                                    <?php if (isset($item['status']) && $item['status'] == 'inativo'): ?>
+                                        <span class="badge badge-danger" style="margin-right: 4px;"><i class="ph ph-user-minus"></i> Inativo</span>
+                                    <?php else: ?>
+                                        <span class="badge badge-success" style="margin-right: 4px;"><i class="ph ph-user-check"></i> Ativo</span>
+                                    <?php endif; ?>
+
                                     <?php if ($item['perfil'] == 'admin'): ?>
                                         <span class="badge badge-admin"><i class="ph-fill ph-shield-star"></i> Admin</span>
                                     <?php else: ?>
                                         <span class="badge badge-common"><i class="ph ph-user"></i> Comum</span>
                                     <?php endif; ?>
                                 </td>
+                                
                                 <td class="text-right">
                                     <div style="display: flex; gap: 8px; justify-content: flex-end;">
                                         <a href="/financas/usuarios/edit/<?= $item['id_usuario'] ?>" class="icon-btn-sm" title="Editar">
                                             <i class="ph ph-pencil-simple"></i>
                                         </a>
                                         
-                                        <form action="/financas/usuarios/delete/<?= $item['id_usuario'] ?>" method="POST" style="margin: 0;">
-                                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token ?? '', ENT_QUOTES, 'UTF-8') ?>">
-                                            <button type="submit" class="icon-btn-sm danger" title="Excluir" onclick="return confirm('Apagar este usuário? O processo é irreversível.');">
-                                                <i class="ph ph-trash"></i>
-                                            </button>
-                                        </form>
+                                        <?php if (isset($item['status']) && $item['status'] == 'inativo'): ?>
+                                            <form action="/financas/usuarios/reativar/<?= $item['id_usuario'] ?>" method="POST" style="margin: 0;">
+                                                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token ?? '', ENT_QUOTES, 'UTF-8') ?>">
+                                                <button type="submit" class="icon-btn-sm" title="Reativar Usuário" onclick="return confirm('Deseja reativar o acesso deste usuário?');" style="color: var(--color-emerald);">
+                                                    <i class="ph ph-check-circle"></i>
+                                                </button>
+                                            </form>
+                                        <?php else: ?>
+                                            <form action="/financas/usuarios/delete/<?= $item['id_usuario'] ?>" method="POST" style="margin: 0;">
+                                                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token ?? '', ENT_QUOTES, 'UTF-8') ?>">
+                                                <button type="submit" class="icon-btn-sm danger" title="Bloquear Usuário" onclick="return confirm('Deseja bloquear este usuário? O acesso dele será suspenso, mas os dados financeiros serão mantidos.');">
+                                                    <i class="ph ph-prohibit"></i>
+                                                </button>
+                                            </form>
+                                        <?php endif; ?>
                                     </div>
                                 </td>
                             </tr>

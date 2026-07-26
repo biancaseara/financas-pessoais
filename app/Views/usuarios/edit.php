@@ -47,7 +47,7 @@
 
             <div class="form-actions" style="margin-top: 24px; display: flex; gap: 16px;">
                 <a href="/financas/usuarios" class="btn-outline flex-1 text-center" style="display: inline-flex; justify-content: center;">
-                    <i class="ph ph-x-circle"></i> Cancelar
+                    <i class="ph ph-x-circle" style="margin-right: 3px; align-self: center;"></i> Cancelar
                 </a>
                 <button type="submit" class="btn-primary flex-1 text-center" style="display: inline-flex; justify-content: center;">
                     <i class="ph ph-check-circle"></i> Salvar Alterações

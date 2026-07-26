@@ -92,4 +92,21 @@ class UsuariosController extends Controller {
             header("Location: /financas/usuarios");
         }
     }
+
+    public function reativar($id) {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+                throw new Exception("Falha de segurança CSRF detectada.");
+            }
+
+            if ($id == $_SESSION['id_usuario']) {
+                die("Ação não permitida na própria conta."); 
+            }
+            
+            $usuarioModel = $this->model('Usuario');
+            $usuarioModel->reativar($id);
+            header("Location: /financas/usuarios");
+            exit;
+        }
+    }
 }

@@ -44,13 +44,17 @@ class AuthController extends Controller
 
                     if ($usuario && password_verify($_POST['senha'], $usuario['senha'])) {
                         
-                        session_regenerate_id(true);
+                        if (isset($usuario['status']) && $usuario['status'] === 'inativo') {
+                            $erro = "Sua conta foi desativada. Entre em contato com o suporte.";
+                        } else {
+                            session_regenerate_id(true);
 
-                        $_SESSION['id_usuario'] = $usuario['id_usuario'];
-                        $_SESSION['perfil'] = $usuario['perfil'];
-                        $_SESSION['nome'] = $usuario['nome'];
-                        header("Location: /financas");
-                        exit;
+                            $_SESSION['id_usuario'] = $usuario['id_usuario'];
+                            $_SESSION['perfil'] = $usuario['perfil'];
+                            $_SESSION['nome'] = $usuario['nome'];
+                            header("Location: /financas");
+                            exit;
+                        }
                     } else {
                         $erro = "E-mail ou senha inválidos.";
                     }

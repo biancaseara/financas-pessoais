@@ -29,7 +29,18 @@ class Usuario {
     }
 
     public function listarTodos() {
-        return $this->pdo->query("SELECT id_usuario, nome, email, perfil FROM usuarios")->fetchAll();
+        return $this->pdo->query("SELECT id_usuario, nome, email, perfil, status FROM usuarios")->fetchAll();
+    }
+
+    public function deletar($id) {
+        // Soft Delete
+        $stmt = $this->pdo->prepare("UPDATE usuarios SET status = 'inativo' WHERE id_usuario = ?");
+        return $stmt->execute([$id]);
+    }
+
+    public function reativar($id) {
+        $stmt = $this->pdo->prepare("UPDATE usuarios SET status = 'ativo' WHERE id_usuario = ?");
+        return $stmt->execute([$id]);
     }
 
     public function buscarPorId($id) {
@@ -50,15 +61,6 @@ class Usuario {
             $sql = "UPDATE usuarios SET nome=?, email=?, perfil=? WHERE id_usuario=?";
             $stmt = $this->pdo->prepare($sql);
             return $stmt->execute([$nome, $email, $perfil, $id]);
-        }
-    }
-
-    public function deletar($id) {
-        try {
-            $stmt = $this->pdo->prepare("DELETE FROM usuarios WHERE id_usuario = ?");
-            return $stmt->execute([$id]);
-        } catch (PDOException $e) {
-            return false; // Retorna falso se houver dados vinculados a este usuário
         }
     }
 
