@@ -78,13 +78,20 @@ class AuthController extends Controller
                 $nome = trim($_POST['nome']);
                 $email = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
                 $senha = trim($_POST['senha']);
+                $senha_confirmacao = trim($_POST['senha_confirmacao'] ?? '');
     
                 $aceitou_termos = isset($_POST['termos']) ? 1 : 0;
                 $data_aceite_termos = date('Y-m-d H:i:s');
     
                 if (!$email) {
                     $erro = "E-mail inválido.";
-                } elseif (!empty($nome) && !empty($senha)) {
+                } elseif (empty($nome) || empty($senha)) {
+                    $erro = "Preencha todos os campos.";
+                } elseif ($senha !== $senha_confirmacao) {
+                    $erro = "As senhas digitadas não coincidem.";
+                } elseif (strlen($senha) < 8 || !preg_match('/[A-Za-z]/', $senha) || !preg_match('/[0-9]/', $senha)) {
+                    $erro = "A senha deve ter pelo menos 8 caracteres, incluindo letras e números.";
+                } else {
                     $usuarioModel = $this->model('Usuario');
                     $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
     
@@ -95,25 +102,25 @@ class AuthController extends Controller
                         $db = new Database();
                         $pdo = $db->getConnection();
 
-                        $sqlConta = "INSERT INTO contas (id_usuario, nome_conta, saldo, tipo_conta) VALUES (?, 'Carteira Principal', 0, 'Conta Corrente')";
+                        $sqlConta = "INSERT INTO contas (id_usuario, nome_banco, saldo_inicial, cor_identificacao) VALUES (?, 'Carteira Principal', 0.00, '#8b5cf6')";
                         $pdo->prepare($sqlConta)->execute([$id_novo_usuario]);
 
                         $categoriasPadrao = [
-                            ['Alimentação', 'Saida', '#ef4444'],
-                            ['Moradia', 'Saida', '#f59e0b'],
-                            ['Transporte', 'Saida', '#3b82f6'],
-                            ['Saúde', 'Saida', '#ec4899'],
-                            ['Renda Principal', 'Entrada', '#10b981'],
-                            ['Reserva e Investimentos', 'Saida', '#8b5cf6'],
-                            ['Assinaturas e Streaming', 'Saida', '#6366f1'],
-                            ['Internet e Telefonia', 'Saida', '#14b8a6'],
+                            ['Alimentação', 'D'],
+                            ['Moradia', 'D'],
+                            ['Transporte', 'D'],
+                            ['Saúde', 'D'],
+                            ['Renda Principal', 'R'],
+                            ['Reserva e Investimentos', 'D'],
+                            ['Assinaturas e Streaming', 'D'],
+                            ['Internet e Telefonia', 'D'],
                         ];
 
-                        $sqlCategoria = "INSERT INTO categorias (id_usuario, nome_categoria, tipo_categoria, cor) VALUES (?, ?, ?, ?)";
+                        $sqlCategoria = "INSERT INTO categorias (id_usuario, nome_categoria, tipo) VALUES (?, ?, ?)";
                         $stmtCat = $pdo->prepare($sqlCategoria);
 
                         foreach ($categoriasPadrao as $cat) {
-                            $stmtCat->execute([$id_novo_usuario, $cat[0], $cat[1], $cat[2]]);
+                            $stmtCat->execute([$id_novo_usuario, $cat[0], $cat[1]]);
                         }
 
                         session_regenerate_id(true);
@@ -127,8 +134,6 @@ class AuthController extends Controller
                     } else {
                         $erro = "Este e-mail já está cadastrado.";
                     }
-                } else {
-                    $erro = "Preencha todos os campos.";
                 }
             }
         }

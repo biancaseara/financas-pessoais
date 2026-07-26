@@ -781,9 +781,10 @@ a.btn-outline {
 
 .auth-card {
   width: 100%;
-  max-width: 420px;
+  max-width: 600px;
   padding: 40px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  border-radius: 16px;
 }
 
 .auth-header {
@@ -802,6 +803,12 @@ a.btn-outline {
   display: flex;
   flex-direction: column;
   gap: 20px;
+}
+
+.auth-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
 }
 
 .input-with-icon {
@@ -1420,4 +1427,10 @@ select.form-control {
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(5px); }
     to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 640px) {
+    .auth-form-grid {
+        grid-template-columns: 1fr;
+    }
 }

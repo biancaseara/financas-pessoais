@@ -38,15 +38,40 @@ class PerfilController extends Controller {
             }
 
             $usuarioModel = $this->model('Usuario');
-            
             $id_logado = $_SESSION['id_usuario'];
             $perfil_atual = $_SESSION['perfil'];
-            
-            $usuarioModel->atualizar($id_logado, $_POST['nome'], $_POST['email'], $_POST['senha'], $perfil_atual);
-            
+
+            $usuario_bd = $usuarioModel->buscarPorId($id_logado);
+            $dados_completos = $usuarioModel->buscarPorEmail($usuario_bd['email']);
+
+            $senhaHash = '';
+            $nova_senha = $_POST['nova_senha'] ?? '';
+
+            if (!empty($nova_senha)) {
+                $senha_atual = $_POST['senha_atual'] ?? '';
+                $confirmacao = $_POST['nova_senha_confirmacao'] ?? '';
+
+                if (!password_verify($senha_atual, $dados_completos['senha'])) {
+                    header("Location: /financas/perfil?erro=" . urlencode("Sua senha atual está incorreta."));
+                    exit;
+                }
+                if ($nova_senha !== $confirmacao) {
+                    header("Location: /financas/perfil?erro=" . urlencode("As novas senhas digitadas não coincidem."));
+                    exit;
+                }
+                if (strlen($nova_senha) < 8 || !preg_match('/[A-Za-z]/', $nova_senha) || !preg_match('/[0-9]/', $nova_senha)) {
+                    header("Location: /financas/perfil?erro=" . urlencode("A nova senha deve ter no mínimo 8 caracteres, com letras e números."));
+                    exit;
+                }
+                
+                $senhaHash = password_hash($nova_senha, PASSWORD_DEFAULT);
+            }
+
+            $usuarioModel->atualizar($id_logado, $_POST['nome'], $_POST['email'], $senhaHash, $perfil_atual);
             $_SESSION['nome'] = $_POST['nome'];
 
             header("Location: /financas/perfil?sucesso=1");
+            exit;
         }
     }
 

@@ -16,6 +16,13 @@ $p = $perfil ?? [];
         </div>
     <?php endif; ?>
 
+    <?php if (isset($_GET['erro'])): ?>
+        <div class="alert alert-danger profile-alert">
+            <i class="ph ph-warning-circle" style="font-size: 18px;"></i> 
+            <?= htmlspecialchars($_GET['erro'], ENT_QUOTES, 'UTF-8') ?>
+        </div>
+    <?php endif; ?>
+
     <!-- CARD 1: DADOS BÁSICOS DO USUÁRIO -->
     <div class="card form-container profile-card">
         <div class="card-header">
@@ -43,12 +50,32 @@ $p = $perfil ?? [];
 
             <hr class="form-divider">
 
+            <h5 style="font-size: 14px; margin-bottom: 16px; color: var(--text-primary);"><i class="ph ph-shield-check"></i> Segurança e Senha</h5>
+            <p class="text-secondary helper-text" style="margin-bottom: 16px;">Preencha os campos abaixo apenas se desejar alterar a sua senha atual.</p>
+
             <div class="form-group">
-                <label>Trocar Senha</label>
-                <p class="text-secondary helper-text">Preencha apenas se quiser alterar a sua senha atual.</p>
+                <label>Senha Atual</label>
                 <div class="input-with-icon">
-                    <i class="ph ph-lock-key"></i>
-                    <input type="password" name="senha" class="form-control" placeholder="Digite a nova senha">
+                    <i class="ph ph-lock-key-open"></i>
+                    <input type="password" name="senha_atual" class="form-control" placeholder="Digite sua senha atual">
+                </div>
+            </div>
+
+            <div class="content-row">
+                <div class="form-group">
+                    <label>Nova Senha</label>
+                    <div class="input-with-icon">
+                        <i class="ph ph-lock-key"></i>
+                        <input type="password" name="nova_senha" class="form-control" placeholder="Mínimo 8 caracteres">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Confirmar Nova Senha</label>
+                    <div class="input-with-icon">
+                        <i class="ph ph-lock-key"></i>
+                        <input type="password" name="nova_senha_confirmacao" class="form-control" placeholder="Repita a nova senha">
+                    </div>
                 </div>
             </div>
 

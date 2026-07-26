@@ -1,5 +1,5 @@
 <div class="auth-wrapper">
-    <div class="auth-card card">
+    <div class="auth-card card" style="max-width: 420px;">
 
         <div class="auth-header">
             <div class="auth-logo-container">
@@ -35,7 +35,8 @@
                 </div>
             </div>
 
-            <button type="submit" class="btn-primary w-full" style="margin-top: 12px; height: 48px; font-size: 16px;">Entrar <i class="ph ph-sign-in"></i>
+            <button type="submit" class="btn-primary w-full" style="margin-top: 12px; height: 48px; font-size: 16px; justify-content: center;">
+                Entrar <i class="ph ph-sign-in"></i>
             </button>
         </form>
 
