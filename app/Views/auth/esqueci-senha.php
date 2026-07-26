@@ -7,8 +7,8 @@
                 <h1 class="logo-text">PREDITIV<span class="highlight">.IA</span></h1>
             </div>
 
-            <h2 class="auth-title"><?= htmlspecialchars($titulo, ENT_QUOTES, 'UTF-8') ?></h2>
-            <p class="text-secondary">Acesse sua conta para continuar.</p>
+            <h2 class="auth-title">Recuperar Senha</h2>
+            <p class="text-secondary">Digite seu e-mail para receber um link de redefinição seguro.</p>
         </div>
 
         <?php if (!empty($erro)): ?>
@@ -18,8 +18,15 @@
             </div>
         <?php endif; ?>
 
-        <form action="/financas/auth/login" method="POST" class="auth-form">
-            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8') ?>">
+        <?php if (!empty($sucesso)): ?>
+            <div class="alert alert-success">
+                <i class="ph ph-check-circle" style="font-size: 18px;"></i>
+                <?= htmlspecialchars($sucesso, ENT_QUOTES, 'UTF-8') ?>
+            </div>
+        <?php endif; ?>
+
+        <form action="/financas/auth/recuperarSenha" method="POST" class="auth-form">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token ?? '', ENT_QUOTES, 'UTF-8') ?>">
 
             <div class="form-group">
                 <div class="input-with-icon">
@@ -28,24 +35,14 @@
                 </div>
             </div>
 
-            <div class="form-group">
-                <div class="input-with-icon">
-                    <i class="ph ph-lock-key"></i>
-                    <input type="password" name="senha" class="form-control" placeholder="••••••••" required autocomplete="current-password">
-                </div>
-                <div style="text-align: right; margin-top: 0; margin-bottom: 16px;">
-                    <a href="/financas/auth/esqueciSenha" class="auth-link" style="font-size: 13px; margin: 0;">Esqueceu sua senha?</a>
-                </div>
-            </div>
-
             <button type="submit" class="btn-primary w-full" style="margin-top: 12px; height: 48px; font-size: 16px; justify-content: center;">
-                Entrar <i class="ph ph-sign-in"></i>
+                Enviar Link <i class="ph ph-paper-plane-right"></i>
             </button>
         </form>
 
         <div class="auth-footer">
-            <span class="text-secondary">Não tem uma conta?</span>
-            <a href="/financas/auth/registro" class="auth-link">Crie aqui</a>
+            <span class="text-secondary">Lembrou da senha?</span>
+            <a href="/financas/auth/login" class="auth-link">Voltar ao Login</a>
         </div>
 
     </div>

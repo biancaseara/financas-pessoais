@@ -150,6 +150,137 @@ class AuthController extends Controller
         ]);
     }
 
+    public function esqueciSenha()
+    {
+        $csrf_token = $this->initCsrfToken();
+        $this->view('auth/esqueci-senha', [
+            'titulo' => 'Recuperar Senha',
+            'erro' => '',
+            'sucesso' => '',
+            'csrf_token' => $csrf_token
+        ]);
+    }
+
+    public function recuperarSenha()
+    {
+        $erro = "";
+        $sucesso = "";
+        $csrf_token = $this->initCsrfToken();
+
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            if (!$this->validateCsrfToken()) {
+                $erro = "Token de segurança inválido.";
+            } else {
+                $email = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
+
+                if (!$email) {
+                    $erro = "E-mail inválido.";
+                } else {
+                    $usuarioModel = $this->model('Usuario');
+                    $usuario = $usuarioModel->buscarPorEmail($email);
+
+                    if ($usuario) {
+                        $token = bin2hex(random_bytes(32));
+                        $expiracao = date('Y-m-d H:i:s', strtotime('+1 hour'));
+
+                        if ($usuarioModel->salvarTokenRecuperacao($email, $token, $expiracao)) {
+                            require_once BASE_PATH . '/core/Email.php';
+                            $emailService = new Email();
+
+                            $linkRecuperacao = "http://" . $_SERVER['HTTP_HOST'] . "/financas/auth/redefinirSenha?token=" . $token;
+
+                            $assunto = "Recuperação de Senha - PREDITIV.IA";
+                            $corpoHTML = "
+                                <div style='font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px;'>
+                                    <h2 style='color: #8b5cf6;'>Olá, " . htmlspecialchars($usuario['nome']) . "!</h2>
+                                    <p>Recebemos uma solicitação para redefinir a senha da sua conta no <strong>PREDITIV.IA</strong>.</p>
+                                    <p>Clique no botão abaixo para criar uma nova senha. Por segurança, este link é válido por apenas 1 hora.</p>
+                                    <div style='text-align: center; margin: 30px 0;'>
+                                        <a href='{$linkRecuperacao}' style='background: #8b5cf6; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;'>Redefinir Minha Senha</a>
+                                    </div>
+                                    <p style='font-size: 12px; color: #6b7280;'>Se você não solicitou essa alteração, apenas ignore este e-mail. Nenhuma mudança será feita na sua conta.</p>
+                                </div>
+                            ";
+
+                            if ($emailService->enviar($email, $usuario['nome'], $assunto, $corpoHTML)) {
+                                $sucesso = "Se o e-mail estiver cadastrado, você receberá um link de recuperação em instantes.";
+                            } else {
+                                $erro = "Erro ao tentar enviar o e-mail. Verifique suas configurações de SMTP.";
+                            }
+                        } else {
+                            $erro = "Erro interno ao processar a solicitação.";
+                        }
+                    } else {
+                        $sucesso = "Se o e-mail estiver cadastrado, você receberá um link de recuperação em instantes.";
+                    }
+                }
+            }
+        }
+
+        $this->view('auth/esqueci-senha', [
+            'titulo' => 'Recuperar Senha',
+            'erro' => $erro,
+            'sucesso' => $sucesso,
+            'csrf_token' => $csrf_token
+        ]);
+    }
+
+    public function redefinirSenha()
+    {
+        $erro = "";
+        $sucesso = "";
+        $csrf_token = $this->initCsrfToken();
+        
+        $token = $_GET['token'] ?? $_POST['token'] ?? '';
+
+        if (empty($token)) {
+            header("Location: /financas/auth/login");
+            exit;
+        }
+
+        $usuarioModel = $this->model('Usuario');
+        $usuario = $usuarioModel->buscarPorTokenReset($token);
+        $token_valido = true;
+
+        if (!$usuario) {
+            $erro = "O link de redefinição é inválido ou expirou. Por favor, solicite um novo.";
+            $token_valido = false;
+        } else {
+            if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+                if (!$this->validateCsrfToken()) {
+                    $erro = "Token de segurança inválido.";
+                } else {
+                    $senha = trim($_POST['senha']);
+                    $senha_confirmacao = trim($_POST['senha_confirmacao'] ?? '');
+
+                    if (empty($senha) || $senha !== $senha_confirmacao) {
+                        $erro = "As senhas digitadas não coincidem.";
+                    } elseif (strlen($senha) < 8 || !preg_match('/[A-Za-z]/', $senha) || !preg_match('/[0-9]/', $senha)) {
+                        $erro = "A senha deve ter pelo menos 8 caracteres, incluindo letras e números.";
+                    } else {
+                        $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
+                        
+                        if ($usuarioModel->atualizarSenhaEToken($usuario['id_usuario'], $senhaHash)) {
+                            $sucesso = "Sua senha foi redefinida com sucesso! Você já pode acessar o sistema.";
+                            $token_valido = false;
+                        } else {
+                            $erro = "Erro interno ao atualizar a senha.";
+                        }
+                    }
+                }
+            }
+        }
+
+        $this->view('auth/redefinir-senha', [
+            'titulo' => 'Criar Nova Senha',
+            'erro' => $erro,
+            'sucesso' => $sucesso,
+            'csrf_token' => $csrf_token,
+            'token' => $token,
+            'token_valido' => $token_valido
+        ]);
+    }
+
     public function logout()
     {
         session_destroy();

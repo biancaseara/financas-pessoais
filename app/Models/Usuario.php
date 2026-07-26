@@ -68,4 +68,20 @@ class Usuario {
         $stmt = $this->pdo->prepare("UPDATE usuarios SET fez_onboarding = 1 WHERE id_usuario = ?");
         return $stmt->execute([$id]);
     }
+
+    public function salvarTokenRecuperacao($email, $token, $expiracao) {
+        $stmt = $this->pdo->prepare("UPDATE usuarios SET reset_token = ?, reset_token_expira = ? WHERE email = ?");
+        return $stmt->execute([$token, $expiracao, $email]);
+    }
+
+    public function buscarPorTokenReset($token) {
+        $stmt = $this->pdo->prepare("SELECT * FROM usuarios WHERE reset_token = ? AND reset_token_expira > NOW()");
+        $stmt->execute([$token]);
+        return $stmt->fetch();
+    }
+
+    public function atualizarSenhaEToken($id_usuario, $novaSenhaHash) {
+        $stmt = $this->pdo->prepare("UPDATE usuarios SET senha = ?, reset_token = NULL, reset_token_expira = NULL WHERE id_usuario = ?");
+        return $stmt->execute([$novaSenhaHash, $id_usuario]);
+    }
 }
