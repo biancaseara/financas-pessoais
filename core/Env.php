@@ -3,7 +3,7 @@
 class Env {
     public static function load($path) {
         if (!file_exists($path)) {
-            die("Erro: Arquivo .env não encontrado.");
+            return;
         }
 
         $linhas = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
