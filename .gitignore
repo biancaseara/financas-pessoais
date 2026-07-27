@@ -8,3 +8,5 @@ Thumbs.db
 
 # Ignorar dependências de terceiros
 /vendor/
+ca.pem
+backup_financas.sql

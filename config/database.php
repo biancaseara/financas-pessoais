@@ -19,11 +19,15 @@ class Database {
 
         try {
             $dsn = "mysql:host=" . $this->host . ";port=" . $this->port . ";dbname=" . $this->dbname . ";charset=utf8mb4";
-            $this->pdo = new PDO($dsn, $this->user, $this->password);
-           
-            $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             
-            $this->pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+            $options = [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::MYSQL_ATTR_SSL_CA => __DIR__ . '/ca.pem' 
+            ];
+
+            $this->pdo = new PDO($dsn, $this->user, $this->password, $options);
+           
         } catch(PDOException $e) {
             die("Erro de Conexão: " . $e->getMessage());
         }
