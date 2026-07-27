@@ -6,11 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PREDITIV.IA</title>
 
-    <link rel="stylesheet" href="/financas/public/css/style.css">
+    <link rel="stylesheet" href="/css/style.css">
 
-    <link rel="icon" type="image/png" sizes="192x192" href="/financas/public/images/icon-fill-192.png">
-    <link rel="manifest" href="/financas/public/manifest.json">
-    <link rel="apple-touch-icon" href="/financas/public/images/icon-fill-192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/images/icon-fill-192.png">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/images/icon-fill-192.png">
     <meta name="theme-color" content="#000000">
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
