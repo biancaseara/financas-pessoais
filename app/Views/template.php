@@ -25,7 +25,7 @@
         <aside class="sidebar">
             <div class="logo-container">
                 <a href="/financas" class="logo-link">
-                    <img src="/financas/public/images/logo.png" alt="Ícone PREDITIV.IA" class="logo-img">
+                    <img src="/images/logo.png" alt="Ícone PREDITIV.IA" class="logo-img">
                     <h1 class="logo-text">PREDITIV<span class="highlight">.IA</span></h1>
                 </a>
             </div>
