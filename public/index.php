@@ -9,6 +9,7 @@ define('BASE_PATH', dirname(__DIR__));
 // Acorda com o ambiente, configure as variáveis de ambiente e as configurações dinâmicas de exibição de erros.
 require_once BASE_PATH . '/core/Env.php';
 Env::load(BASE_PATH . '/.env');
+define('BASE_URL', $_ENV['APP_URL'] ?? '');
 
 if (isset($_ENV['APP_ENV']) && $_ENV['APP_ENV'] === 'development') {
     ini_set('display_errors', 1);

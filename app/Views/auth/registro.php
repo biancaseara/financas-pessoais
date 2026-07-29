@@ -3,7 +3,7 @@
 
         <div class="auth-header">
             <div class="auth-logo-container">
-                <img src="/images/logo.png" alt="Ícone PREDITIV.IA" class="logo-img">
+                <img src="<?php echo BASE_URL; ?>/images/logo.png" alt="Ícone PREDITIV.IA" class="logo-img">
                 <h1 class="logo-text">PREDITIV<span class="highlight">.IA</span></h1>
             </div>
 

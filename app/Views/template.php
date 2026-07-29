@@ -6,11 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PREDITIV.IA</title>
 
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/css/style.css">
 
-    <link rel="icon" type="image/png" sizes="192x192" href="/images/icon-fill-192.png">
-    <link rel="manifest" href="/manifest.json">
-    <link rel="apple-touch-icon" href="/images/icon-fill-192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="<?php echo BASE_URL; ?>/images/icon-fill-192.png">
+    <link rel="manifest" href="<?php echo BASE_URL; ?>/manifest.json">
+    <link rel="apple-touch-icon" href="<?php echo BASE_URL; ?>/images/icon-fill-192.png">
     <meta name="theme-color" content="#000000">
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -24,8 +24,8 @@
 
         <aside class="sidebar">
             <div class="logo-container">
-                <a href="/financas" class="logo-link">
-                    <img src="/images/logo.png" alt="Ícone PREDITIV.IA" class="logo-img">
+                <a href="<?php echo BASE_URL; ?>/financas" class="logo-link">
+                    <img src="<?php echo BASE_URL; ?>/images/logo.png" alt="Ícone PREDITIV.IA" class="logo-img">
                     <h1 class="logo-text">PREDITIV<span class="highlight">.IA</span></h1>
                 </a>
             </div>
