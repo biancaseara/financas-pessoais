@@ -243,6 +243,31 @@
                 </tbody>
             </table>
         </div>
+        <?php if (isset($total_paginas) && $total_paginas > 1): ?>
+        <div class="pagination-container" style="display: flex; justify-content: center; gap: 8px; padding: 24px 16px; border-top: 1px solid var(--border-color);">
+            
+            <?php if ($pagina_atual > 1): ?>
+                <a href="?pagina=<?= $pagina_atual - 1 ?>" class="btn-outline" style="padding: 6px 12px; border-radius: 6px; text-decoration: none; display: flex; align-items: center; gap: 4px;">
+                    <i class="ph ph-caret-left"></i> Anterior
+                </a>
+            <?php endif; ?>
+
+            <div style="display: flex; gap: 4px; align-items: center;">
+                <?php for ($i = 1; $i <= $total_paginas; $i++): ?>
+                    <a href="?pagina=<?= $i ?>" class="<?= $i == $pagina_atual ? 'btn-primary' : 'btn-outline' ?>" style="padding: 6px 12px; border-radius: 6px; text-decoration: none; min-width: 36px; text-align: center;">
+                        <?= $i ?>
+                    </a>
+                <?php endfor; ?>
+            </div>
+
+            <?php if ($pagina_atual < $total_paginas): ?>
+                <a href="?pagina=<?= $pagina_atual + 1 ?>" class="btn-outline" style="padding: 6px 12px; border-radius: 6px; text-decoration: none; display: flex; align-items: center; gap: 4px;">
+                    Próxima <i class="ph ph-caret-right"></i>
+                </a>
+            <?php endif; ?>
+            
+        </div>
+        <?php endif; ?>        
     </div>
 </div>
 

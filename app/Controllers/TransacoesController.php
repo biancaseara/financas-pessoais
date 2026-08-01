@@ -24,13 +24,26 @@ class TransacoesController extends Controller
             $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
         }
 
+        $pagina_atual = isset($_GET['pagina']) ? (int)$_GET['pagina'] : 1;
+        if ($pagina_atual < 1) $pagina_atual = 1;
+        
+        $limite = 10;
+        $offset = ($pagina_atual - 1) * $limite;
+
+        $total_transacoes = $transacaoModel->contarTodos($id_usuario);
+        $total_paginas = ceil($total_transacoes / $limite);
+        
+        $transacoes_paginadas = $transacaoModel->listarTodos($id_usuario, $limite, $offset);
+
         $this->view('transacoes/index', [
             'titulo' => 'Extrato de Transações',
-            'transacoes' => $transacaoModel->listarTodos($id_usuario),
+            'transacoes' => $transacoes_paginadas,
             'contas' => $contaModel->listarTodos($id_usuario),
             'categorias' => $categoriaModel->listarTodos($id_usuario),
             'cartoes' => $cartaoModel->listarTodos($id_usuario),
-            'csrf_token' => $_SESSION['csrf_token']
+            'csrf_token' => $_SESSION['csrf_token'],
+            'pagina_atual' => $pagina_atual,
+            'total_paginas' => $total_paginas
         ]);
     }
 

@@ -10,17 +10,35 @@ class Transacao
         $this->pdo = $db->getConnection();
     }
 
-    public function listarTodos($id_usuario)
+    public function listarTodos($id_usuario, $limite = 10, $offset = 0)
     {
+        $limite = (int) $limite;
+        $offset = (int) $offset;
+
         $sql = "SELECT t.*, c.nome_banco, cat.nome_categoria 
                 FROM transacoes t 
                 LEFT JOIN contas c ON t.id_conta = c.id_conta 
                 LEFT JOIN categorias cat ON t.id_categoria = cat.id_categoria 
                 WHERE (c.id_usuario = ? OR t.id_fatura IN (SELECT id_fatura FROM faturas f JOIN cartoes car ON f.id_cartao = car.id_cartao WHERE car.id_usuario = ?))
-                ORDER BY t.data_transacao DESC";
+                ORDER BY t.data_transacao DESC
+                LIMIT $limite OFFSET $offset";
+        
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([$id_usuario, $id_usuario]);
         return $stmt->fetchAll();
+    }
+
+    public function contarTodos($id_usuario)
+    {
+        $sql = "SELECT COUNT(*) as total 
+                FROM transacoes t 
+                LEFT JOIN contas c ON t.id_conta = c.id_conta 
+                WHERE (c.id_usuario = ? OR t.id_fatura IN (SELECT id_fatura FROM faturas f JOIN cartoes car ON f.id_cartao = car.id_cartao WHERE car.id_usuario = ?))";
+        
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$id_usuario, $id_usuario]);
+        $resultado = $stmt->fetch();
+        return $resultado['total'] ?? 0;
     }
 
     public function buscarPorId($id, $id_usuario)
