@@ -48,7 +48,7 @@ class WebhookController extends Controller {
             
             $descricao = $dados['descricao'] ?? 'Gasto via Telegram';
             $tipo_transacao = 'Saida';
-            $tipo_categoria = 'Despesa';
+            $tipo_categoria = 'D'; // <--- A MÁGICA ESTÁ AQUI
 
             $categoriaModel = $this->model('Categoria');
             $categorias = $categoriaModel->listarTodos($id_usuario);
@@ -61,7 +61,6 @@ class WebhookController extends Controller {
                 }
             }
 
-            // CORREÇÃO: Busca o ID mapeando novamente após a inserção
             if (!$id_categoria) {
                 $categoriaModel->cadastrar($id_usuario, $nome_categoria_ia, $tipo_categoria, null);
                 
