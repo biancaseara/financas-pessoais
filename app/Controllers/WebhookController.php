@@ -47,7 +47,8 @@ class WebhookController extends Controller {
             $valor = (float) $valor_bruto;
             
             $descricao = $dados['descricao'] ?? 'Gasto via Telegram';
-            $tipo_transacao = 'Saida'; 
+            $tipo_transacao = 'Saida';
+            $tipo_categoria = 'Despesa';
 
             $categoriaModel = $this->model('Categoria');
             $categorias = $categoriaModel->listarTodos($id_usuario);
@@ -61,7 +62,7 @@ class WebhookController extends Controller {
             }
 
             if (!$id_categoria) {
-                $categoriaModel->cadastrar($id_usuario, $nome_categoria_ia, $tipo_transacao, null);
+                $categoriaModel->cadastrar($id_usuario, $nome_categoria_ia, $tipo_categoria, null);
                 $id_categoria = $pdo->lastInsertId();
             }
 
