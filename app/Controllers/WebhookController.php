@@ -61,9 +61,17 @@ class WebhookController extends Controller {
                 }
             }
 
+            // CORREÇÃO: Busca o ID mapeando novamente após a inserção
             if (!$id_categoria) {
                 $categoriaModel->cadastrar($id_usuario, $nome_categoria_ia, $tipo_categoria, null);
-                $id_categoria = $pdo->lastInsertId();
+                
+                $categoriasAtualizadas = $categoriaModel->listarTodos($id_usuario);
+                foreach ($categoriasAtualizadas as $cat) {
+                    if (strtolower(trim($cat['nome_categoria'])) == strtolower(trim($nome_categoria_ia))) {
+                        $id_categoria = $cat['id_categoria'];
+                        break;
+                    }
+                }
             }
 
             $contaModel = $this->model('Conta');
