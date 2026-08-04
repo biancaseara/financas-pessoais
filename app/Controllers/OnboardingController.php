@@ -24,7 +24,7 @@ class OnboardingController extends Controller {
         }
 
         $this->view('onboarding/index', [
-            'titulo' => 'Personalize sua Experiência',
+            'titulo' => 'Configuração Inicial',
             'csrf_token' => $_SESSION['csrf_token']
         ], false);
     }
@@ -32,13 +32,16 @@ class OnboardingController extends Controller {
     public function store() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-                throw new Exception("Falha de segurança CSRF detectada.");
+                $this->setFlash('error', 'Falha de segurança CSRF detectada.');
+                header("Location: /financas/auth/login");
+                exit;
             }
 
+            $id_usuario = $_SESSION['id_usuario'];
+
             $perfilModel = $this->model('PerfilFinanceiro');
-            
             $perfilModel->salvarOnboardingInicial(
-                $_SESSION['id_usuario'],
+                $id_usuario,
                 $_POST['sentimento_dinheiro'] ?? null,
                 $_POST['conhecimento_financeiro'] ?? null,
                 $_POST['renda_exata'] ?? null,
@@ -47,10 +50,30 @@ class OnboardingController extends Controller {
                 $_POST['objetivo_principal'] ?? null
             );
 
-            $usuarioModel = $this->model('Usuario');
-            $usuarioModel->marcarOnboardingConcluido($_SESSION['id_usuario']);
+            $contaModel = $this->model('Conta');
+            $saldo_inicial = str_replace(['.', ','], ['', '.'], $_POST['saldo_inicial'] ?? '0');
+            $contaModel->cadastrar(
+                $id_usuario, 
+                strip_tags(trim($_POST['nome_banco'])), 
+                (float) $saldo_inicial, 
+                $_POST['cor_conta'] ?? '#8b5cf6'
+            );
 
-            $this->setFlash('success', 'Onboarding concluído! Bem-vinda ao seu painel.');
+            $cartaoModel = $this->model('Cartao');
+            $limite_total = str_replace(['.', ','], ['', '.'], $_POST['limite_total'] ?? '0');
+            $cartaoModel->cadastrar(
+                $id_usuario, 
+                strip_tags(trim($_POST['nome_cartao'])), 
+                (float) $limite_total, 
+                $_POST['dia_fechamento'], 
+                $_POST['dia_vencimento'], 
+                '#8b5cf6'
+            );
+
+            $usuarioModel = $this->model('Usuario');
+            $usuarioModel->marcarOnboardingConcluido($id_usuario);
+
+            $this->setFlash('success', 'Tudo pronto! O Preditiv.ia foi configurado para você.');
             header("Location: /financas/dashboard");
             exit;
         }
