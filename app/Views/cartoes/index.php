@@ -125,15 +125,21 @@
                         <?php if ($faturaAtual['id_fatura'] && $faturaAtual['status'] !== 'Paga' && $faturaAtual['valor_total'] > 0): ?>
                             <?php if (date('d') >= $c['dia_fechamento']): ?>
                                 <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-color);">
-                                    <form action="/financas/transacoes/pagarFatura/<?= $faturaAtual['id_fatura'] ?>" method="POST" style="margin: 0; display: flex; gap: 8px;">
+                                    <form action="/financas/transacoes/pagarFatura/<?= $faturaAtual['id_fatura'] ?>" method="POST" style="margin: 0; display: flex; gap: 8px; align-items: stretch;">
                                         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8') ?>">
-                                        <select name="id_conta_pagamento" class="form-control" style="flex: 2; padding: 6px; font-size: 0.9rem;" required>
-                                            <option value="" disabled selected>Pagar com qual conta?</option>
-                                            <?php foreach ($contasParaPagar as $contaPagar): ?>
-                                                <option value="<?= $contaPagar['id_conta'] ?>"><?= htmlspecialchars($contaPagar['nome_banco'], ENT_QUOTES, 'UTF-8') ?></option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                        <button type="submit" class="btn-primary" style="flex: 1; padding: 6px; font-size: 0.9rem; background-color: var(--color-emerald);" onclick="return confirm('Confirmar o pagamento desta fatura?');">
+                                        
+                                        <div style="flex: 2;">
+                                            <select name="id_conta_pagamento" class="form-control" style="width: 100%; height: 100%; padding: 8px 12px; font-size: 0.85rem; border-radius: 6px; background-color: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); cursor: pointer;" required>
+                                                <option value="" disabled selected>Pagar com qual conta?</option>
+                                                <?php foreach ($contasParaPagar as $contaPagar): ?>
+                                                    <option value="<?= $contaPagar['id_conta'] ?>" style="background-color: var(--surface-color); color: var(--text-color);">
+                                                        <?= htmlspecialchars($contaPagar['nome_banco'], ENT_QUOTES, 'UTF-8') ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                        </div>
+
+                                        <button type="submit" class="btn-primary" style="flex: 1; padding: 0 16px; font-size: 0.85rem; background-color: var(--color-emerald); display: inline-flex; align-items: center; justify-content: center; border: none; border-radius: 6px; cursor: pointer;" onclick="return confirm('Confirmar o pagamento desta fatura?');">
                                             Pagar
                                         </button>
                                     </form>
@@ -146,15 +152,15 @@
                         <?php endif; ?>
                     </div>
 
-                    <div class="cc-actions">
-                        <a href="/financas/cartoes/edit/<?= $c['id_cartao'] ?>" class="btn-outline flex-1 text-center" style="justify-content: center;">
-                            <i class="ph ph-pencil-simple"></i> Editar
+                    <div class="cc-actions" style="display: flex; gap: 12px; margin-top: 16px;">
+                        <a href="/financas/cartoes/edit/<?= $c['id_cartao'] ?>" class="btn-outline" style="flex: 1; display: inline-flex; align-items: center; justify-content: center; padding: 10px; border-radius: 6px;">
+                            <i class="ph ph-pencil-simple" style="margin-right: 6px;"></i> Editar
                         </a>
                         
-                        <form action="/financas/cartoes/delete/<?= $c['id_cartao'] ?>" method="POST" class="flex-1 m-0 d-flex">
+                        <form action="/financas/cartoes/delete/<?= $c['id_cartao'] ?>" method="POST" style="flex: 1; margin: 0; display: flex;">
                             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8') ?>">
-                            <button type="submit" class="btn-danger w-full" onclick="return confirm('Excluir este cartão e todas as faturas atreladas a ele?');">
-                                <i class="ph ph-trash"></i> Excluir
+                            <button type="submit" class="btn-danger" style="flex: 1; width: 100%; display: inline-flex; align-items: center; justify-content: center; padding: 10px; border-radius: 6px; border: none; cursor: pointer;" onclick="return confirm('Excluir este cartão e todas as faturas atreladas a ele?');">
+                                <i class="ph ph-trash" style="margin-right: 6px;"></i> Excluir
                             </button>
                         </form>
                     </div>
