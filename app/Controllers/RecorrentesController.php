@@ -46,6 +46,8 @@ class RecorrentesController extends Controller {
                 $_POST['valor'],
                 $_POST['dia_vencimento']
             );
+
+            $this->setFlash('success', 'Despesa fixa cadastrada!');
             header("Location: /financas/recorrentes");
         }
     }
@@ -92,6 +94,8 @@ class RecorrentesController extends Controller {
                 $_POST['dia_vencimento'],
                 $_POST['status']
             );
+
+            $this->setFlash('success', 'Despesa fixa atualizada!');
             header("Location: /financas/recorrentes");
         }
     }
@@ -104,6 +108,8 @@ class RecorrentesController extends Controller {
 
             $recorrenteModel = $this->model('DespesaRecorrente');
             $recorrenteModel->deletar($id, $_SESSION['id_usuario']);
+
+            $this->setFlash('success', 'Despesa fixa removida.');
             header("Location: /financas/recorrentes");
         }
     }
@@ -144,6 +150,8 @@ class RecorrentesController extends Controller {
                     }
                 }
             }
+
+            $this->setFlash('success', 'Todas as despesas fixas deste mês foram lançadas nas transações!');
             header("Location: /financas/transacoes");
         }
     }

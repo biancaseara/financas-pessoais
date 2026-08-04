@@ -49,6 +49,8 @@ class CategoriasController extends Controller
             }
 
             $categoriaModel->cadastrar($id_usuario, $_POST['nome_categoria'], $_POST['tipo'], $limite);
+
+            $this->setFlash('success', 'Categoria criada com sucesso!');
             header("Location: /financas/categorias");
         }
     }
@@ -89,6 +91,8 @@ class CategoriasController extends Controller
             }
 
             $categoriaModel->atualizar($id, $id_usuario, $_POST['nome_categoria'], $_POST['tipo'], $limite);
+
+            $this->setFlash('success', 'Categoria atualizada!');
             header("Location: /financas/categorias");
         }
     }
@@ -102,6 +106,8 @@ class CategoriasController extends Controller
             $categoriaModel = $this->model('Categoria');
             $id_usuario = $_SESSION['id_usuario'];
             $categoriaModel->deletar($id, $id_usuario);
+
+            $this->setFlash('success', 'Categoria apagada.');
             header("Location: /financas/categorias");
         }
     }

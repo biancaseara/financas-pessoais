@@ -45,6 +45,8 @@ class InvestimentosController extends Controller {
                 $_POST['data_aplicacao'],
                 $vencimento
             );
+
+            $this->setFlash('success', 'Investimento adicionado ao portfólio!');
             header("Location: /financas/investimentos");
         }
     }
@@ -87,6 +89,8 @@ class InvestimentosController extends Controller {
                 $_POST['data_aplicacao'],
                 $vencimento
             );
+
+            $this->setFlash('success', 'Investimento atualizado.');
             header("Location: /financas/investimentos");
         }
     }
@@ -99,6 +103,8 @@ class InvestimentosController extends Controller {
 
             $investimentoModel = $this->model('Investimento');
             $investimentoModel->deletar($id, $_SESSION['id_usuario']);
+
+            $this->setFlash('success', 'Investimento removido.');
             header("Location: /financas/investimentos");
         }
     }

@@ -175,6 +175,7 @@ class IaController extends Controller {
 
         $conselhoModel->salvarConselho($id_usuario, $mensagemIA);
 
+        $this->setFlash('success', 'Nova análise preditiva gerada pela IA!');
         header("Location: /financas/dashboard");
         exit;
     }
@@ -208,6 +209,7 @@ class IaController extends Controller {
 
         $_SESSION['insight_temporario'] = $this->_chamarGemini($prompt, 'analisarMeta');
         
+        $this->setFlash('success', 'Plano de ação para sua meta gerado com sucesso!');
         header("Location: /financas/metas");
         exit;
     }
@@ -230,6 +232,7 @@ class IaController extends Controller {
 
         $_SESSION['insight_temporario'] = $this->_chamarGemini($prompt, 'analisarRendaExtra');
         
+        $this->setFlash('success', 'Ideias de renda extra personalizadas geradas!');
         header("Location: /financas/perfil");
         exit;
     }

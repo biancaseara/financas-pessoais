@@ -284,6 +284,8 @@ class AuthController extends Controller
     public function logout()
     {
         session_destroy();
+
+        $this->setFlash('info', 'Você saiu do sistema com segurança.');
         header("Location: /financas/auth/login");
         exit;
     }

@@ -50,6 +50,7 @@ class OnboardingController extends Controller {
             $usuarioModel = $this->model('Usuario');
             $usuarioModel->marcarOnboardingConcluido($_SESSION['id_usuario']);
 
+            $this->setFlash('success', 'Onboarding concluído! Bem-vinda ao seu painel.');
             header("Location: /financas/dashboard");
             exit;
         }

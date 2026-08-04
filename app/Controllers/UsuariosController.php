@@ -87,6 +87,8 @@ class UsuariosController extends Controller {
                     }
                 }
             }
+
+            $this->setFlash('success', 'Usuário cadastrado e convite enviado!');
             header("Location: /financas/usuarios");
         }
     }
@@ -133,6 +135,8 @@ class UsuariosController extends Controller {
             }
             
             $usuarioModel->atualizar($id, $_POST['nome'], $_POST['email'], '', $perfil);
+
+            $this->setFlash('success', 'Privilégios do usuário atualizados!');
             header("Location: /financas/usuarios");
         }
     }
@@ -155,6 +159,8 @@ class UsuariosController extends Controller {
             }
 
             $usuarioModel->deletar($id);
+
+            $this->setFlash('success', 'Usuário removido do sistema.');
             header("Location: /financas/usuarios");
         }
     }
@@ -177,6 +183,8 @@ class UsuariosController extends Controller {
             }
 
             $usuarioModel->reativar($id);
+
+            $this->setFlash('success', 'Usuário reativado com sucesso.');
             header("Location: /financas/usuarios");
             exit;
         }

@@ -8,7 +8,6 @@ class PerfilController extends Controller {
             header("Location: /financas/auth/login");
             exit;
         }
-
         $this->exigirOnboarding();
     }
 
@@ -34,7 +33,9 @@ class PerfilController extends Controller {
     public function update() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-                throw new Exception("Falha de segurança CSRF detectada no perfil.");
+                $this->setFlash('error', 'Falha de segurança CSRF detectada no perfil.');
+                header("Location: /financas/perfil");
+                exit;
             }
 
             $usuarioModel = $this->model('Usuario');
@@ -52,15 +53,18 @@ class PerfilController extends Controller {
                 $confirmacao = $_POST['nova_senha_confirmacao'] ?? '';
 
                 if (!password_verify($senha_atual, $dados_completos['senha'])) {
-                    header("Location: /financas/perfil?erro=" . urlencode("Sua senha atual está incorreta."));
+                    $this->setFlash('error', 'Sua senha atual está incorreta.');
+                    header("Location: /financas/perfil");
                     exit;
                 }
                 if ($nova_senha !== $confirmacao) {
-                    header("Location: /financas/perfil?erro=" . urlencode("As novas senhas digitadas não coincidem."));
+                    $this->setFlash('error', 'As novas senhas digitadas não coincidem.');
+                    header("Location: /financas/perfil");
                     exit;
                 }
                 if (strlen($nova_senha) < 8 || !preg_match('/[A-Za-z]/', $nova_senha) || !preg_match('/[0-9]/', $nova_senha)) {
-                    header("Location: /financas/perfil?erro=" . urlencode("A nova senha deve ter no mínimo 8 caracteres, com letras e números."));
+                    $this->setFlash('error', 'A nova senha deve ter no mínimo 8 caracteres, com letras e números.');
+                    header("Location: /financas/perfil");
                     exit;
                 }
                 
@@ -70,7 +74,8 @@ class PerfilController extends Controller {
             $usuarioModel->atualizar($id_logado, $_POST['nome'], $_POST['email'], $senhaHash, $perfil_atual);
             $_SESSION['nome'] = $_POST['nome'];
 
-            header("Location: /financas/perfil?sucesso=1");
+            $this->setFlash('success', 'Seus dados foram atualizados com sucesso!');
+            header("Location: /financas/perfil");
             exit;
         }
     }
@@ -78,7 +83,9 @@ class PerfilController extends Controller {
     public function atualizarIa() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-                throw new Exception("Falha de segurança CSRF detectada na atualização da IA.");
+                $this->setFlash('error', 'Falha de segurança CSRF detectada na atualização da IA.');
+                header("Location: /financas/perfil");
+                exit;
             }
 
             $perfilModel = $this->model('PerfilFinanceiro');
@@ -108,8 +115,6 @@ class PerfilController extends Controller {
                 $_POST['acesso_tecnologia'] ?? null,
                 $_POST['dependentes'] ?? null,
                 $_POST['tempo_melhoria'] ?? null,
-                
-                // AS 6 PERGUNTAS DO ONBOARDING INICIAL
                 $_POST['sentimento_dinheiro'] ?? null,
                 $_POST['conhecimento_financeiro'] ?? null,
                 $_POST['renda_exata'] ?? null,
@@ -118,7 +123,8 @@ class PerfilController extends Controller {
                 $_POST['objetivo_principal'] ?? null
             );
 
-            header("Location: /financas/perfil?sucesso=1");
+            $this->setFlash('success', 'Perfil comportamental atualizado para a IA!');
+            header("Location: /financas/perfil");
             exit;
         }
     }

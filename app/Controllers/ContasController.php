@@ -56,6 +56,8 @@ class ContasController extends Controller
             $saldo_inicial = (float) $saldo_inicial; // Garante que seja número
 
             $contaModel->cadastrar($id_usuario, $nome_banco, $saldo_inicial, $cor);
+
+            $this->setFlash('success', 'Nova conta registrada!');
             header("Location: /financas/contas");
         }
     }
@@ -105,6 +107,8 @@ class ContasController extends Controller
             $saldo_inicial = (float) $saldo_inicial;
 
             $contaModel->atualizar($id, $id_usuario, $nome_banco, $saldo_inicial, $cor);
+
+            $this->setFlash('success', 'Conta atualizada!');
             header("Location: /financas/contas");
         }
     }
@@ -120,6 +124,8 @@ class ContasController extends Controller
             $id_usuario = $_SESSION['id_usuario'];
 
             $contaModel->deletar($id, $id_usuario);
+
+            $this->setFlash('success', 'Conta removida com sucesso.');
             header("Location: /financas/contas");
         }
     }

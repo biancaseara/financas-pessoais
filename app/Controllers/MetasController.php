@@ -51,6 +51,8 @@ class MetasController extends Controller {
                 $valor_atual, 
                 $_POST['data_limite']
             );
+
+            $this->setFlash('success', 'Novo objetivo financeiro traçado!');
             header("Location: /financas/metas");
         }
     }
@@ -98,6 +100,8 @@ class MetasController extends Controller {
                 $valor_atual, 
                 $_POST['data_limite']
             );
+
+            $this->setFlash('success', 'Meta atualizada com sucesso!');
             header("Location: /financas/metas");
         }
     }
@@ -113,6 +117,8 @@ class MetasController extends Controller {
             $id_usuario = $_SESSION['id_usuario'];
 
             $metaModel->deletar($id, $id_usuario);
+
+            $this->setFlash('success', 'Meta excluída.');
             header("Location: /financas/metas");
         }
     }

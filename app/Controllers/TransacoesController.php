@@ -102,6 +102,7 @@ class TransacoesController extends Controller
                 );
             }
 
+            $this->setFlash('success', 'Transação registrada com sucesso!');
             header("Location: /financas/transacoes");
         }
     }
@@ -159,6 +160,8 @@ class TransacoesController extends Controller
                 $id, $id_usuario, $id_conta, $id_categoria, $descricao, $valor, 
                 $_POST['data_transacao'], $tipo_transacao, $forma_pagamento, $id_conta_destino
             );
+
+            $this->setFlash('success', 'Transação atualizada!');
             header("Location: /financas/transacoes");
         }
     }
@@ -173,6 +176,8 @@ class TransacoesController extends Controller
             $id_usuario = $_SESSION['id_usuario'];
             
             $transacaoModel->deletar($id, $id_usuario);
+
+            $this->setFlash('success', 'Transação excluída e saldos revertidos.');
             header("Location: /financas/transacoes");
         }
     }
@@ -202,6 +207,8 @@ class TransacoesController extends Controller
                     $transacaoModel->cadastrar($id_usuario,$id_conta, null, $descricao, $fatura['valor_total'], date('Y-m-d'), 'Saida', null, null);
 
                     $pdo->commit();
+
+                    $this->setFlash('success', 'Fatura paga e saldo descontado da conta!');
                     header("Location: /financas/cartoes");
                 } catch (Exception $e) {
                     if (isset($pdo)) $pdo->rollBack();

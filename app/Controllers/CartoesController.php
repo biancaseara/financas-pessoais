@@ -43,7 +43,8 @@ class CartoesController extends Controller
 
             $cartaoModel->cadastrar($id_usuario, strip_tags(trim($_POST['nome_cartao'])), $limite, $_POST['dia_fechamento'], $_POST['dia_vencimento'], $_POST['cor_identificacao'] ?? '#000000'
             );
-            
+
+            $this->setFlash('success', 'Cartão cadastrado com sucesso!');
             header("Location: /financas/cartoes");
         }
     }
@@ -85,6 +86,7 @@ class CartoesController extends Controller
 
             $cartaoModel->atualizar($id, $id_usuario, strip_tags(trim($_POST['nome_cartao'])), $limite, $_POST['dia_fechamento'], $_POST['dia_vencimento'], $_POST['cor_identificacao']);
 
+            $this->setFlash('success', 'Cartão atualizado!');
             header("Location: /financas/cartoes");
         }
     }
@@ -99,6 +101,8 @@ class CartoesController extends Controller
             $id_usuario = $_SESSION['id_usuario'];
             
             $cartaoModel->deletar($id, $id_usuario);
+
+            $this->setFlash('success', 'Cartão excluído do sistema.');
             header("Location: /financas/cartoes");
         }
     }
