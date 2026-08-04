@@ -64,8 +64,27 @@
 
     <div class="cards-grid">
         <?php if (count($cartoes) > 0): ?>
+            <?php 
+                $cartaoModel = new Cartao(); 
+                $contaModel = new Conta();
+                $contasParaPagar = $contaModel->listarTodos($_SESSION['id_usuario']); 
+            ?>
+            
             <?php foreach ($cartoes as $c): ?>
-                <div class="card credit-card-item" style="border-top: 4px solid <?= htmlspecialchars($c['cor_identificacao'], ENT_QUOTES, 'UTF-8') ?>;">
+                <?php
+                    $faturaAtual = $cartaoModel->obterValorFaturaAtual($c['id_cartao']);
+                    $limiteDisponivel = $cartaoModel->calcularLimiteDisponivel($c['limite_total'], $c['id_cartao']);
+                    $limiteUsado = $c['limite_total'] - $limiteDisponivel;
+                    
+                    $porcentagemUso = ($c['limite_total'] > 0) ? ($limiteUsado / $c['limite_total']) * 100 : 0;
+                    if ($porcentagemUso > 100) $porcentagemUso = 100;
+                    
+                    $corBarra = 'var(--color-emerald)';
+                    if ($porcentagemUso > 75) $corBarra = 'var(--color-rose)';
+                    else if ($porcentagemUso > 50) $corBarra = '#f59e0b'; // Laranja
+                ?>
+                
+                <div class="card credit-card-item" style="border-top: 4px solid <?= htmlspecialchars($c['cor_identificacao'], ENT_QUOTES, 'UTF-8') ?>; position: relative;">
                     
                     <div class="cc-header">
                         <div class="cc-title">
@@ -74,11 +93,24 @@
                         </div>
                     </div>
                     
-                    <div class="cc-body">
-                        <span class="cc-label">Limite Total</span>
-                        <h4 class="cc-limit">R$ <?= number_format($c['limite_total'], 2, ',', '.') ?></h4>
+                    <div class="cc-body" style="padding-bottom: 8px;">
+                        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px;">
+                            <span class="cc-label">Fatura Atual (<?= date('M/Y') ?>)</span>
+                            <h4 class="cc-limit" style="font-size: 1.5rem; color: var(--color-rose);">
+                                R$ <?= number_format($faturaAtual['valor_total'], 2, ',', '.') ?>
+                            </h4>
+                        </div>
                         
-                        <div class="cc-dates">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 8px;">
+                            <span>Disp: R$ <?= number_format($limiteDisponivel, 2, ',', '.') ?></span>
+                            <span>Total: R$ <?= number_format($c['limite_total'], 2, ',', '.') ?></span>
+                        </div>
+                        
+                        <div style="width: 100%; height: 6px; background-color: var(--surface-color); border-radius: 4px; overflow: hidden; margin-bottom: 16px;">
+                            <div style="height: 100%; width: <?= $porcentagemUso ?>%; background-color: <?= $corBarra ?>; transition: width 0.3s ease;"></div>
+                        </div>
+                        
+                        <div class="cc-dates" style="background-color: var(--surface-color); padding: 8px 12px; border-radius: 8px;">
                             <div class="date-info">
                                 <span>Fechamento</span>
                                 <strong>Dia <?= htmlspecialchars($c['dia_fechamento'], ENT_QUOTES, 'UTF-8') ?></strong>
@@ -87,7 +119,36 @@
                                 <span>Vencimento</span>
                                 <strong>Dia <?= htmlspecialchars($c['dia_vencimento'], ENT_QUOTES, 'UTF-8') ?></strong>
                             </div>
+                            <div class="date-info" style="text-align: right;">
+                                <span>Status</span>
+                                <strong style="color: <?= ($faturaAtual['status'] == 'Paga') ? 'var(--color-emerald)' : 'var(--color-ia-purple)' ?>;">
+                                    <?= htmlspecialchars($faturaAtual['status'], ENT_QUOTES, 'UTF-8') ?>
+                                </strong>
+                            </div>
                         </div>
+                        
+                        <?php if ($faturaAtual['id_fatura'] && $faturaAtual['status'] !== 'Paga' && $faturaAtual['valor_total'] > 0): ?>
+                            <?php if (date('d') >= $c['dia_fechamento']): ?>
+                                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-color);">
+                                    <form action="/financas/transacoes/pagarFatura/<?= $faturaAtual['id_fatura'] ?>" method="POST" style="margin: 0; display: flex; gap: 8px;">
+                                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8') ?>">
+                                        <select name="id_conta_pagamento" class="form-control" style="flex: 2; padding: 6px; font-size: 0.9rem;" required>
+                                            <option value="" disabled selected>Pagar com qual conta?</option>
+                                            <?php foreach ($contasParaPagar as $contaPagar): ?>
+                                                <option value="<?= $contaPagar['id_conta'] ?>"><?= htmlspecialchars($contaPagar['nome_banco'], ENT_QUOTES, 'UTF-8') ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                        <button type="submit" class="btn-primary" style="flex: 1; padding: 6px; font-size: 0.9rem; background-color: var(--color-emerald);" onclick="return confirm('Confirmar o pagamento desta fatura?');">
+                                            Pagar
+                                        </button>
+                                    </form>
+                                </div>
+                            <?php else: ?>
+                                <div style="margin-top: 16px; text-align: center; font-size: 0.85rem; color: var(--text-secondary);">
+                                    <i class="ph ph-lock-key"></i> O pagamento será liberado no dia <?= $c['dia_fechamento'] ?>
+                                </div>
+                            <?php endif; ?>
+                        <?php endif; ?>
                     </div>
 
                     <div class="cc-actions">
@@ -110,6 +171,8 @@
                 <p>Você ainda não possui cartões de crédito cadastrados.</p>
             </div>
         <?php endif; ?>
+    </div>
+
     </div>
 
 </div>
