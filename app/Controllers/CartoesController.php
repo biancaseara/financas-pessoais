@@ -8,12 +8,12 @@ class CartoesController extends Controller
             header("Location: /financas/auth/login");
             exit;
         }
-
         $this->exigirOnboarding();
     }
 
     public function index() {
         $cartaoModel = $this->model('Cartao');
+        $contaModel = $this->model('Conta'); 
         $id_usuario = $_SESSION['id_usuario'];
 
         if (empty($_SESSION['csrf_token'])) {
@@ -23,6 +23,8 @@ class CartoesController extends Controller
         $this->view('cartoes/index', [
             'titulo' => 'Meus Cartões de Crédito',
             'cartoes' => $cartaoModel->listarTodos($id_usuario),
+            'contasParaPagar' => $contaModel->listarTodos($id_usuario), 
+            'cartaoModel' => $cartaoModel,
             'csrf_token' => $_SESSION['csrf_token']
         ]);
     }
@@ -30,7 +32,9 @@ class CartoesController extends Controller
     public function store() {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-                throw new Exception("Falha de segurança CSRF detectada.");
+                $this->setFlash('error', 'Falha de segurança CSRF detectada.');
+                header("Location: /financas/cartoes");
+                exit;
             }
 
             $cartaoModel = $this->model('Cartao');
@@ -41,11 +45,11 @@ class CartoesController extends Controller
             $limite = str_replace(',', '.', $limite);
             $limite = (float) $limite;
 
-            $cartaoModel->cadastrar($id_usuario, strip_tags(trim($_POST['nome_cartao'])), $limite, $_POST['dia_fechamento'], $_POST['dia_vencimento'], $_POST['cor_identificacao'] ?? '#000000'
-            );
+            $cartaoModel->cadastrar($id_usuario, strip_tags(trim($_POST['nome_cartao'])), $limite, $_POST['dia_fechamento'], $_POST['dia_vencimento'], $_POST['cor_identificacao'] ?? '#000000');
 
             $this->setFlash('success', 'Cartão cadastrado com sucesso!');
             header("Location: /financas/cartoes");
+            exit;
         }
     }
 
@@ -67,13 +71,16 @@ class CartoesController extends Controller
             ]);
         } else {
             header("Location: /financas/cartoes");
+            exit;
         }
     }
 
     public function update($id) {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-                throw new Exception("Falha de segurança CSRF detectada.");
+                $this->setFlash('error', 'Falha de segurança CSRF detectada.');
+                header("Location: /financas/cartoes");
+                exit;
             }
 
             $cartaoModel = $this->model('Cartao');
@@ -88,6 +95,7 @@ class CartoesController extends Controller
 
             $this->setFlash('success', 'Cartão atualizado!');
             header("Location: /financas/cartoes");
+            exit;
         }
     }
 
@@ -113,7 +121,6 @@ class CartoesController extends Controller
             exit;
         }
     }
-
 }
 
 ?>

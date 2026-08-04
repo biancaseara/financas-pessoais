@@ -64,11 +64,6 @@
 
     <div class="cards-grid">
         <?php if (count($cartoes) > 0): ?>
-            <?php 
-                $cartaoModel = new Cartao(); 
-                $contaModel = new Conta();
-                $contasParaPagar = $contaModel->listarTodos($_SESSION['id_usuario']); 
-            ?>
             
             <?php foreach ($cartoes as $c): ?>
                 <?php
@@ -171,8 +166,6 @@
                 <p>Você ainda não possui cartões de crédito cadastrados.</p>
             </div>
         <?php endif; ?>
-    </div>
-
     </div>
 
 </div>
