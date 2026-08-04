@@ -192,6 +192,75 @@
         </script>
     <?php endif; ?>
 
+    <!-- Sistema de Feedback Visual (Flash Messages) - Mensagens de Sucesso, Erro, Aviso e Informação -->
+    <?php if (isset($flash) && $flash): ?>
+        <div id="flash-toast" class="toast-notification toast-<?= htmlspecialchars($flash['tipo'], ENT_QUOTES, 'UTF-8') ?>">
+            <div class="toast-icon">
+                <?php if ($flash['tipo'] == 'success'): ?>
+                    <i class="ph ph-check-circle"></i>
+                <?php elseif ($flash['tipo'] == 'error'): ?>
+                    <i class="ph ph-warning-circle"></i>
+                <?php elseif ($flash['tipo'] == 'warning'): ?>
+                    <i class="ph ph-warning"></i>
+                <?php else: ?>
+                    <i class="ph ph-info"></i>
+                <?php endif; ?>
+            </div>
+            <div class="toast-message"><?= htmlspecialchars($flash['mensagem'], ENT_QUOTES, 'UTF-8') ?></div>
+            <button class="toast-close" onclick="document.getElementById('flash-toast').remove()">
+                <i class="ph ph-x"></i>
+            </button>
+        </div>
+
+        <style>
+            .toast-notification {
+                position: fixed;
+                top: 24px;
+                right: 24px;
+                z-index: 9999;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 16px 20px;
+                border-radius: 8px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                color: #fff;
+                animation: slideInRight 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+                min-width: 250px;
+                max-width: 400px;
+            }
+            .toast-success { background-color: var(--color-emerald, #10b981); }
+            .toast-error { background-color: var(--color-rose, #f43f5e); }
+            .toast-warning { background-color: #f59e0b; color: #fff; }
+            .toast-info { background-color: var(--color-ia-purple, #8b5cf6); }
+            .toast-icon { font-size: 1.5rem; display: flex; }
+            .toast-message { flex-grow: 1; font-weight: 500; font-size: 0.95rem; line-height: 1.4; }
+            .toast-close { background: none; border: none; color: white; cursor: pointer; opacity: 0.7; font-size: 1.2rem; display: flex; transition: opacity 0.2s; }
+            .toast-close:hover { opacity: 1; }
+            
+            @keyframes slideInRight {
+                from { transform: translateX(120%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOutRight {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(120%); opacity: 0; }
+            }
+            .toast-fade-out {
+                animation: slideOutRight 0.4s ease forwards;
+            }
+        </style>
+
+        <script>
+            setTimeout(() => {
+                const toast = document.getElementById('flash-toast');
+                if (toast) {
+                    toast.classList.add('toast-fade-out');
+                    setTimeout(() => toast.remove(), 400);
+                }
+            }, 4000);
+        </script>
+    <?php endif; ?>
 </body>
 
 </html>
