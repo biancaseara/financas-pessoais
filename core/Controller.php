@@ -18,6 +18,8 @@ class Controller {
         $viewName = preg_replace('/[^a-zA-Z0-9_\-\/]/', '', $viewName); 
         $viewName = str_replace(['..', '../'], '', $viewName);
 
+        $dados['flash'] = $this->getFlash();
+
         extract($dados, EXTR_SKIP);
         
         $arquivoView = BASE_PATH . '/app/Views/' . $viewName . '.php';
@@ -31,7 +33,6 @@ class Controller {
                     throw new Exception("Erro: O template.php não foi encontrado.");
                 }
             } else {
-                // Se não for para usar o template, carrega a view diretamente
                 require_once $arquivoView;
             }
         } else {
@@ -47,13 +48,28 @@ class Controller {
             if ($usuario && (!isset($usuario['fez_onboarding']) || $usuario['fez_onboarding'] == 0)) {
                 $urlAtual = $_SERVER['REQUEST_URI'];
                 
-                // Evita um loop infinito de redirecionamento checando se ele já está na rota do onboarding ou tentando sair
                 if (strpos($urlAtual, '/onboarding') === false && strpos($urlAtual, '/auth/logout') === false) {
                     header("Location: /financas/onboarding");
                     exit;
                 }
             }
         }
+    }
+
+    public function setFlash($tipo, $mensagem) {
+        $_SESSION['flash'] = [
+            'tipo' => $tipo,
+            'mensagem' => $mensagem
+        ];
+    }
+
+    private function getFlash() {
+        if (isset($_SESSION['flash'])) {
+            $flash = $_SESSION['flash'];
+            unset($_SESSION['flash']);
+            return $flash;
+        }
+        return null;
     }
 }
 ?>
