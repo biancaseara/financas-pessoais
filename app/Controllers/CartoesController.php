@@ -94,16 +94,23 @@ class CartoesController extends Controller
     public function delete($id) {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-                throw new Exception("Falha de segurança CSRF detectada.");
+                $this->setFlash('error', 'Falha de segurança CSRF detectada.');
+                header("Location: /financas/cartoes");
+                exit;
             }
 
             $cartaoModel = $this->model('Cartao');
             $id_usuario = $_SESSION['id_usuario'];
             
-            $cartaoModel->deletar($id, $id_usuario);
+            try {
+                $cartaoModel->deletar($id, $id_usuario);
+                $this->setFlash('success', 'Cartão excluído do sistema.');
+            } catch (Exception $e) {
+                $this->setFlash('error', 'Não é possível excluir um cartão que já possui transações ou faturas vinculadas.');
+            }
 
-            $this->setFlash('success', 'Cartão excluído do sistema.');
             header("Location: /financas/cartoes");
+            exit;
         }
     }
 

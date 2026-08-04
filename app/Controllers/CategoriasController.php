@@ -100,15 +100,23 @@ class CategoriasController extends Controller
     public function delete($id) {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-                throw new Exception("Falha de segurança CSRF.");
+                $this->setFlash('error', 'Falha de segurança CSRF.');
+                header("Location: /financas/categorias");
+                exit;
             }
 
             $categoriaModel = $this->model('Categoria');
             $id_usuario = $_SESSION['id_usuario'];
-            $categoriaModel->deletar($id, $id_usuario);
+            
+            try {
+                $categoriaModel->deletar($id, $id_usuario);
+                $this->setFlash('success', 'Categoria apagada.');
+            } catch (Exception $e) {
+                $this->setFlash('error', 'Não é possível excluir uma categoria que já está sendo usada em transações.');
+            }
 
-            $this->setFlash('success', 'Categoria apagada.');
             header("Location: /financas/categorias");
+            exit;
         }
     }
 }

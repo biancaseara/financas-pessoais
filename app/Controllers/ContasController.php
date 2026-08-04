@@ -117,16 +117,23 @@ class ContasController extends Controller
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-                throw new Exception("Acesso negado: Falha de segurança CSRF.");
+                $this->setFlash('error', 'Acesso negado: Falha de segurança CSRF.');
+                header("Location: /financas/contas");
+                exit;
             }
 
             $contaModel = $this->model('Conta');
             $id_usuario = $_SESSION['id_usuario'];
 
-            $contaModel->deletar($id, $id_usuario);
-
-            $this->setFlash('success', 'Conta removida com sucesso.');
+            try {
+                $contaModel->deletar($id, $id_usuario);
+                $this->setFlash('success', 'Conta removida com sucesso.');
+            } catch (Exception $e) {
+                $this->setFlash('error', 'Não é possível excluir uma conta que já possui transações. Tente apenas zerar o saldo.');
+            }
+            
             header("Location: /financas/contas");
+            exit;
         }
     }
 }
