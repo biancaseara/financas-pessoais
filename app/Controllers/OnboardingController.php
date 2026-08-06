@@ -78,4 +78,18 @@ class OnboardingController extends Controller {
             exit;
         }
     }
+
+    public function refazer() {
+        if (!isset($_SESSION['id_usuario'])) {
+            header("Location: /financas/auth/login");
+            exit;
+        }
+
+        $db = new Database();
+        $pdo = $db->getConnection();
+        $pdo->prepare("UPDATE usuarios SET fez_onboarding = 0 WHERE id_usuario = ?")->execute([$_SESSION['id_usuario']]);
+        
+        header("Location: /financas/onboarding");
+        exit;
+    }
 }

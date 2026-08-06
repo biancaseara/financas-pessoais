@@ -85,6 +85,19 @@ $p = $perfil ?? [];
                 </button>
             </div>
         </form>
+
+        <!-- ÁREA DE TESTE DO ONBOARDING -->
+        <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border-color);">
+            <h4 style="margin-bottom: 8px; color: var(--text-primary); font-size: 15px;">
+                <i class="ph ph-magic-wand" style="margin-right: 4px;"></i> Testar Guia Inicial
+            </h4>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 16px;">
+                Quer ver a apresentação do sistema novamente? Isso criará uma nova conta e um novo cartão de teste, que você pode apagar depois.
+            </p>
+            <a href="/financas/onboarding/refazer" class="btn-outline w-full" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
+                <i class="ph ph-arrow-counter-clockwise"></i> Refazer Guia Interativo
+            </a>
+        </div>
     </div>
 
     <!-- CARD 2: PERFIL COMPORTAMENTAL (IA) -->
