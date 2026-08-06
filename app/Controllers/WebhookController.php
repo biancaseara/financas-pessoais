@@ -25,6 +25,7 @@ class WebhookController extends Controller {
             $usuario = $stmt->fetch();
 
             if (!$usuario) {
+                $this->enviarMensagemTelegram($chat_id, "❌ *Erro:* Este Chat ID não está vinculado a nenhuma conta no Preditiv.ia. Acesse o sistema e vincule seu Telegram na aba 'Telegram Bot'.");
                 http_response_code(403);
                 echo json_encode(["erro" => "Usuario nao encontrado pelo chat_id"]);
                 exit;
@@ -48,7 +49,7 @@ class WebhookController extends Controller {
             
             $descricao = $dados['descricao'] ?? 'Gasto via Telegram';
             $tipo_transacao = 'Saida';
-            $tipo_categoria = 'D'; // <--- A MÁGICA ESTÁ AQUI
+            $tipo_categoria = 'D';
 
             $categoriaModel = $this->model('Categoria');
             $categorias = $categoriaModel->listarTodos($id_usuario);
@@ -77,6 +78,7 @@ class WebhookController extends Controller {
             $contas = $contaModel->listarTodos($id_usuario);
             
             if (empty($contas)) {
+                $this->enviarMensagemTelegram($chat_id, "⚠️ *Atenção:* Você precisa ter pelo menos uma Conta bancária cadastrada no Preditiv.ia para lançar despesas.");
                 http_response_code(400);
                 echo json_encode(["erro" => "O usuario precisa de pelo menos uma conta cadastrada"]);
                 exit;
@@ -89,13 +91,51 @@ class WebhookController extends Controller {
                 $data, $tipo_transacao, $forma_pagamento, null, null
             );
             
+            $msgSucesso = "✅ *Despesa Registrada com Sucesso!*\n\n";
+            $msgSucesso .= "💰 *Valor:* R$ " . number_format($valor, 2, ',', '.') . "\n";
+            $msgSucesso .= "🏷️ *Categoria:* " . htmlspecialchars($nome_categoria_ia) . "\n";
+            $msgSucesso .= "📝 *Descrição:* " . htmlspecialchars($descricao) . "\n";
+            $msgSucesso .= "🏦 *Conta:* " . htmlspecialchars($contas[0]['nome_banco']);
+            
+            $this->enviarMensagemTelegram($chat_id, $msgSucesso);
+
             http_response_code(200);
             echo json_encode(["status" => "sucesso"]);
             
         } catch (Exception $e) {
+            if (isset($chat_id)) {
+                $this->enviarMensagemTelegram($chat_id, "❌ *Erro interno:* Não foi possível processar sua despesa no momento.");
+            }
             http_response_code(500);
             echo json_encode(["erro_interno" => $e->getMessage(), "linha" => $e->getLine()]);
         }
         exit;
+    }
+
+    private function enviarMensagemTelegram($chat_id, $mensagem) {
+        $token = $_ENV['TELEGRAM_BOT_TOKEN'] ?? getenv('TELEGRAM_BOT_TOKEN');
+        
+        if (!$token) {
+            return false;
+        }
+
+        $url = "https://api.telegram.org/bot" . $token . "/sendMessage";
+        
+        $dados = [
+            'chat_id' => $chat_id,
+            'text' => $mensagem,
+            'parse_mode' => 'Markdown'
+        ];
+
+        $opcoes = [
+            'http' => [
+                'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
+                'method'  => 'POST',
+                'content' => http_build_query($dados)
+            ]
+        ];
+
+        $contexto = stream_context_create($opcoes);
+        file_get_contents($url, false, $contexto);
     }
 }

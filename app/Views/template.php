@@ -31,7 +31,6 @@
             </div>
 
             <?php
-            // VERIFICA URL PARA SABER EM QUE PÁGINA ESTÁ E APLICAR A CLASSE ACTIVE NO MENU
             $urlAtual = $_SERVER['REQUEST_URI'];
             ?>
 
@@ -66,6 +65,10 @@
 
                 <a href="/financas/investimentos" class="menu-item <?= (strpos($urlAtual, '/financas/investimentos') !== false) ? 'active' : '' ?>">
                     <i class="ph ph-trend-up"></i> Investimentos
+                </a>
+                
+                <a href="/financas/telegram" class="menu-item <?= (strpos($urlAtual, '/financas/telegram') !== false) ? 'active' : '' ?>">
+                    <i class="ph ph-telegram-logo"></i> Telegram Bot
                 </a>
 
                 <?php if (isset($_SESSION['perfil']) && in_array($_SESSION['perfil'], ['admin', 'super_admin'])): ?>
