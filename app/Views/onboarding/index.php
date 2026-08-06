@@ -72,15 +72,15 @@
             <div class="wizard-header">
                 <div>
                     <h2 class="auth-title" id="step-title" style="margin: 0; font-size: 20px;">Perfil Financeiro</h2>
-                    <p id="step-desc" style="color: var(--text-secondary); font-size: 13px; margin-top: 4px;">Para a IA moldar o sistema para você.</p>
+                    <p id="step-desc" style="color: var(--text-secondary); font-size: 13px; margin-top: 4px;">Como você lida com o seu dinheiro hoje?</p>
                 </div>
-                <div class="step-indicator" id="step-counter">Passo 1 de 3</div>
+                <div class="step-indicator" id="step-counter">Passo 1 de 4</div>
             </div>
 
             <form action="/financas/onboarding/store" method="POST" id="onboardingForm">
                 <input type="hidden" name="csrf_token" value="<?= $csrf_token ?>">
 
-                <!-- ================= PASSO 1: PERFIL IA ================= -->
+                <!-- PASSO 1: PERFIL IA -->
                 <div class="step-container active" id="step1">
                     
                     <label class="form-label">1. Como você se sente em relação ao seu dinheiro hoje?</label>
@@ -105,6 +105,15 @@
                         <label class="radio-card"><input type="radio" name="tem_dividas" value="Sim"><div class="radio-content"><i class="ph ph-warning"></i> Sim, possuo</div></label>
                     </div>
 
+                    <div class="btn-group">
+                        <button type="button" class="btn-primary" style="width: 100%; justify-content: center;" onclick="changeStep(1, 2)">
+                            Próximo Passo <i class="ph ph-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- PASSO 2: PERFIL IA -->
+                <div class="step-container" id="step2">
                     <label class="form-label">4. Qual a sua renda mensal líquida exata?</label>
                     <div class="form-group" style="margin-bottom: 32px;">
                         <div class="input-with-icon" style="position: relative;">
@@ -127,17 +136,21 @@
                         <label class="radio-card"><input type="radio" name="objetivo_principal" value="Controlar gastos"><div class="radio-content">Controlar gastos</div></label>
                         <label class="radio-card"><input type="radio" name="objetivo_principal" value="Reserva de emergencia"><div class="radio-content">Criar reserva</div></label>
                         <label class="radio-card"><input type="radio" name="objetivo_principal" value="Investir"><div class="radio-content">Aprender a investir</div></label>
+                        <label class="radio-card"><input type="radio" name="objetivo_principal" value="Aumentar patrimonio"><div class="radio-content">Aumentar patrimônio</div></label>
                     </div>
 
                     <div class="btn-group">
-                        <button type="button" class="btn-primary" style="width: 100%; justify-content: center;" onclick="changeStep(1, 2)">
+                        <button type="button" class="btn-outline" style="flex: 1; justify-content: center;" onclick="changeStep(2, 1)">
+                            <i class="ph ph-arrow-left"></i> Voltar
+                        </button>
+                        <button type="button" class="btn-primary" style="flex: 2; justify-content: center;" onclick="changeStep(2, 3)">
                             Próximo Passo <i class="ph ph-arrow-right"></i>
                         </button>
                     </div>
                 </div>
 
-                <!-- ================= PASSO 2: PRIMEIRA CONTA ================= -->
-                <div class="step-container" id="step2">
+                <!-- PASSO 3: PRIMEIRA CONTA -->
+                <div class="step-container" id="step3">
                     <div class="form-grid">
                         <div class="form-group full-width">
                             <label>Nome do Banco / Conta</label>
@@ -165,17 +178,17 @@
                     </div>
 
                     <div class="btn-group">
-                        <button type="button" class="btn-outline" style="flex: 1; justify-content: center;" onclick="changeStep(2, 1)">
+                        <button type="button" class="btn-outline" style="flex: 1; justify-content: center;" onclick="changeStep(3, 2)">
                             <i class="ph ph-arrow-left"></i> Voltar
                         </button>
-                        <button type="button" class="btn-primary" style="flex: 2; justify-content: center;" onclick="changeStep(2, 3)">
+                        <button type="button" class="btn-primary" style="flex: 2; justify-content: center;" onclick="changeStep(3, 4)">
                             Próximo Passo <i class="ph ph-arrow-right"></i>
                         </button>
                     </div>
                 </div>
 
-                <!-- ================= PASSO 3: PRIMEIRO CARTÃO ================= -->
-                <div class="step-container" id="step3">
+                <!-- PASSO 4: PRIMEIRO CARTÃO -->
+                <div class="step-container" id="step4">
                     <div class="form-grid">
                         <div class="form-group full-width">
                             <label>Nome do Cartão de Crédito</label>
@@ -211,7 +224,7 @@
                     </div>
 
                     <div class="btn-group">
-                        <button type="button" class="btn-outline" style="flex: 1; justify-content: center;" onclick="changeStep(3, 2)">
+                        <button type="button" class="btn-outline" style="flex: 1; justify-content: center;" onclick="changeStep(4, 3)">
                             <i class="ph ph-arrow-left"></i> Voltar
                         </button>
                         <button type="submit" class="btn-primary" style="flex: 2; justify-content: center; background-color: var(--color-emerald);">
@@ -224,51 +237,59 @@
         </div>
     </div>
 
-    <!-- SCRIPT DO WIZARD -->
     <script>
         const stepTitles = {
-            1: { title: "Perfil Financeiro", desc: "Para a IA moldar o sistema para você." },
-            2: { title: "Sua Primeira Conta", desc: "Onde o seu dinheiro vive hoje?" },
-            3: { title: "Seu Primeiro Cartão", desc: "Para gerenciar suas faturas com inteligência." }
+            1: { title: "Perfil Financeiro", desc: "Como você lida com o seu dinheiro hoje?" },
+            2: { title: "Sua Realidade", desc: "Para a IA calcular seu limite seguro." },
+            3: { title: "Sua Primeira Conta", desc: "Onde o seu dinheiro vive hoje?" },
+            4: { title: "Seu Primeiro Cartão", desc: "Para gerenciar suas faturas com inteligência." }
         };
 
         function changeStep(current, target) {
-            // Validação ao avançar
             if (target > current) {
                 if (current === 1) {
-                    const groups = ['sentimento_dinheiro', 'conhecimento_financeiro', 'tem_dividas', 'tipo_renda', 'objetivo_principal'];
+                    const groups = ['sentimento_dinheiro', 'conhecimento_financeiro', 'tem_dividas'];
+                    let isValid = true;
+                    groups.forEach(group => {
+                        if (!document.querySelector(`input[name="${group}"]:checked`)) isValid = false;
+                    });
+                    if (!isValid) {
+                        alert("Por favor, selecione uma opção para cada pergunta antes de avançar.");
+                        return;
+                    }
+                }
+                
+                if (current === 2) {
+                    const groups = ['tipo_renda', 'objetivo_principal'];
                     let isValid = true;
                     groups.forEach(group => {
                         if (!document.querySelector(`input[name="${group}"]:checked`)) isValid = false;
                     });
                     const renda = document.getElementById('renda_exata').value;
                     if (!isValid || !renda) {
-                        alert("Por favor, preencha todas as perguntas do perfil para a IA funcionar corretamente.");
+                        alert("Por favor, preencha o valor da sua renda e selecione todas as opções.");
                         return;
                     }
                 }
                 
-                if (current === 2) {
+                if (current === 3) {
                     const banco = document.getElementById('nome_banco').value;
                     const saldo = document.getElementById('saldo_inicial').value;
                     if (!banco || !saldo) {
-                        alert("Preencha o nome do banco e o saldo inicial (coloque 0 se estiver vazia).");
+                        alert("Preencha o nome do banco e o saldo inicial (coloque 0 se a conta estiver vazia).");
                         return;
                     }
                 }
             }
 
-            // Alternar classes
             document.getElementById(`step${current}`).classList.remove('active');
             document.getElementById(`step${target}`).classList.add('active');
             
-            // Atualizar cabeçalho
-            document.getElementById('step-counter').innerText = `Passo ${target} de 3`;
+            document.getElementById('step-counter').innerText = `Passo ${target} de 4`;
             document.getElementById('step-title').innerText = stepTitles[target].title;
             document.getElementById('step-desc').innerText = stepTitles[target].desc;
         }
 
-        // Validação no submit (Passo 3)
         document.getElementById('onboardingForm').addEventListener('submit', function(e) {
             const cartao = document.getElementById('nome_cartao').value;
             const limite = document.getElementById('limite_total').value;
