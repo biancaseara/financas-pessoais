@@ -25,7 +25,8 @@ class OnboardingController extends Controller {
 
         $this->view('onboarding/index', [
             'titulo' => 'Configuração Inicial',
-            'csrf_token' => $_SESSION['csrf_token']
+            'csrf_token' => $_SESSION['csrf_token'],
+            'is_refazendo' => $_SESSION['is_refazendo'] ?? false
         ], false);
     }
 
@@ -72,6 +73,10 @@ class OnboardingController extends Controller {
 
             $usuarioModel = $this->model('Usuario');
             $usuarioModel->marcarOnboardingConcluido($id_usuario);
+            
+            if (isset($_SESSION['is_refazendo'])) {
+                unset($_SESSION['is_refazendo']);
+            }
 
             $this->setFlash('success', 'Tudo pronto! O Preditiv.ia foi configurado para você.');
             header("Location: /financas/dashboard");
@@ -80,14 +85,26 @@ class OnboardingController extends Controller {
     }
 
     public function refazer() {
-        if (!isset($_SESSION['id_usuario'])) {
-            header("Location: /financas/auth/login");
-            exit;
-        }
-
         $db = new Database();
         $pdo = $db->getConnection();
         $pdo->prepare("UPDATE usuarios SET fez_onboarding = 0 WHERE id_usuario = ?")->execute([$_SESSION['id_usuario']]);
+        
+        $_SESSION['is_refazendo'] = true;
+        
+        header("Location: /financas/onboarding");
+        exit;
+    }
+
+    public function cancelar() {
+        if (isset($_SESSION['is_refazendo']) && $_SESSION['is_refazendo'] === true) {
+            $usuarioModel = $this->model('Usuario');
+            $usuarioModel->marcarOnboardingConcluido($_SESSION['id_usuario']);
+            unset($_SESSION['is_refazendo']);
+            
+            $this->setFlash('info', 'Alteração cancelada. Seu perfil foi mantido.');
+            header("Location: /financas/perfil");
+            exit;
+        }
         
         header("Location: /financas/onboarding");
         exit;

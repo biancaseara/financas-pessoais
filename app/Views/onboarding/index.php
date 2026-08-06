@@ -62,11 +62,17 @@
 <body>
     <div class="auth-wrapper" style="padding: 40px 20px;">
         <div class="auth-card" style="max-width: 650px; width: 100%;">
-            <div class="auth-header" style="margin-bottom: 16px;">
+            <div class="auth-header" style="margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
                 <div class="auth-logo-container">
                     <i class="ph-fill ph-sparkle" style="color: var(--color-ia-purple); font-size: 32px;"></i>
                     <h1 class="logo-text">Preditiv<span class="highlight">.ia</span></h1>
                 </div>
+                
+                <?php if(isset($is_refazendo) && $is_refazendo): ?>
+                    <a href="/financas/onboarding/cancelar" class="btn-outline" style="padding: 6px 12px; font-size: 13px; border: none;">
+                        <i class="ph ph-x" style="margin-right: 4px;"></i> Cancelar
+                    </a>
+                <?php endif; ?>
             </div>
 
             <div class="wizard-header">
