@@ -90,12 +90,14 @@ class IaController extends Controller {
     }
 }";
 
-        $chaveApi = getenv('GEMINI_API_KEY') ?: $_ENV['GEMINI_API_KEY'];
-        $chaveApi = trim($chaveApi, " '\"\t\n\r\0\x0B"); 
+        $chavesRaw = getenv('GEMINI_API_KEY') ?: $_ENV['GEMINI_API_KEY'];
+        $chavesRaw = trim($chavesRaw, " '\"\t\n\r\0\x0B"); 
         
-        if (!$chaveApi) {
+        if (!$chavesRaw) {
             die("Erro Crítico: A Chave de API do Gemini não foi encontrada no arquivo .env.");
         }
+
+        $listaChaves = array_map('trim', explode(',', $chavesRaw));
 
         $dados = [
             "contents" => [
@@ -125,51 +127,60 @@ class IaController extends Controller {
             ]
         ]);
 
-        foreach ($modelosDisponiveis as $modelo) {
-            $url = "https://generativelanguage.googleapis.com/v1beta/models/{$modelo}:generateContent?key=" . $chaveApi;
+        $sucessoAPI = false;
 
-            $ch = curl_init($url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($dados));
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); 
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-            curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4); 
-            curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+        // Loop Triplo Mágico: Tenta chave por chave, e modelo por modelo
+        foreach ($listaChaves as $chaveApi) {
+            if ($sucessoAPI) break;
+            if (empty($chaveApi)) continue;
 
-            $inicioTimer = microtime(true); 
+            foreach ($modelosDisponiveis as $modelo) {
+                $url = "https://generativelanguage.googleapis.com/v1beta/models/{$modelo}:generateContent?key=" . $chaveApi;
 
-            $resposta = curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            $erroCurl = curl_error($ch); 
-            curl_close($ch);
+                $ch = curl_init($url);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+                curl_setopt($ch, CURLOPT_POST, true);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($dados));
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); 
+                curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+                curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4); 
+                curl_setopt($ch, CURLOPT_TIMEOUT, 15);
 
-            $tempoRespostaMs = round((microtime(true) - $inicioTimer) * 1000); 
+                $inicioTimer = microtime(true); 
 
-            if ($erroCurl) {
-                error_log("Erro de cURL no Preditiv.ia: " . $erroCurl);
-                $logModel->registrar($id_usuario, "analisar (Erro cURL)", 500, 0, 0, $tempoRespostaMs);
-                continue; 
-            }
+                $resposta = curl_exec($ch);
+                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                $erroCurl = curl_error($ch); 
+                curl_close($ch);
 
-            $resultado = json_decode($resposta, true);
+                $tempoRespostaMs = round((microtime(true) - $inicioTimer) * 1000); 
 
-            $tokensPrompt = $resultado['usageMetadata']['promptTokenCount'] ?? 0;
-            $tokensCompletion = $resultado['usageMetadata']['candidatesTokenCount'] ?? 0;
+                if ($erroCurl) {
+                    error_log("Erro de cURL no Preditiv.ia: " . $erroCurl);
+                    $logModel->registrar($id_usuario, "analisar (Erro cURL)", 500, 0, 0, $tempoRespostaMs);
+                    continue; // Erro de conexão, tenta o próximo modelo
+                }
 
-            $logModel->registrar($id_usuario, "analisar ({$modelo})", $httpCode, $tokensPrompt, $tokensCompletion, $tempoRespostaMs);
+                $resultado = json_decode($resposta, true);
 
-            if (isset($resultado['error'])) {
-                error_log("Erro na API do Gemini ({$modelo}): " . json_encode($resultado['error']));
-                continue;
-            }
+                $tokensPrompt = $resultado['usageMetadata']['promptTokenCount'] ?? 0;
+                $tokensCompletion = $resultado['usageMetadata']['candidatesTokenCount'] ?? 0;
 
-            if (isset($resultado['candidates'][0]['content']['parts'][0]['text'])) {
-                $textoBruto = $resultado['candidates'][0]['content']['parts'][0]['text'];
-                $textoBruto = str_replace(['```json', '```'], '', $textoBruto);
-                $mensagemIA = trim($textoBruto);
-                break;
+                $logModel->registrar($id_usuario, "analisar ({$modelo})", $httpCode, $tokensPrompt, $tokensCompletion, $tempoRespostaMs);
+
+                if (isset($resultado['error'])) {
+                    error_log("Erro na API do Gemini ({$modelo} - {$httpCode}): " . json_encode($resultado['error']));
+                    continue; // Erro da API (ex: 429 quota exceeded), tenta o próximo modelo/chave
+                }
+
+                if ($httpCode === 200 && isset($resultado['candidates'][0]['content']['parts'][0]['text'])) {
+                    $textoBruto = $resultado['candidates'][0]['content']['parts'][0]['text'];
+                    $textoBruto = str_replace(['```json', '```'], '', $textoBruto);
+                    $mensagemIA = trim($textoBruto);
+                    $sucessoAPI = true;
+                    break; // Sai do loop de modelos
+                }
             }
         }
 
@@ -241,8 +252,9 @@ class IaController extends Controller {
         $id_usuario = $_SESSION['id_usuario'] ?? null;
         $logModel = clone $this->model('LogApi');
         
-        $chaveApi = getenv('GEMINI_API_KEY') ?: $_ENV['GEMINI_API_KEY'];
-        $chaveApi = trim($chaveApi, " '\"\t\n\r\0\x0B"); 
+        $chavesRaw = getenv('GEMINI_API_KEY') ?: $_ENV['GEMINI_API_KEY'];
+        $chavesRaw = trim($chavesRaw, " '\"\t\n\r\0\x0B"); 
+        $listaChaves = array_map('trim', explode(',', $chavesRaw));
         
         $dados = [
             "contents" => [["parts" => [["text" => $prompt]]]],
@@ -251,36 +263,40 @@ class IaController extends Controller {
 
         $modelosDisponiveis = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-flash-latest'];
         
-        foreach ($modelosDisponiveis as $modelo) {
-            $url = "https://generativelanguage.googleapis.com/v1beta/models/{$modelo}:generateContent?key=" . $chaveApi;
-            $ch = curl_init($url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($dados));
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); 
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+        foreach ($listaChaves as $chaveApi) {
+            if (empty($chaveApi)) continue;
 
-            $inicioTimer = microtime(true);
+            foreach ($modelosDisponiveis as $modelo) {
+                $url = "https://generativelanguage.googleapis.com/v1beta/models/{$modelo}:generateContent?key=" . $chaveApi;
+                $ch = curl_init($url);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+                curl_setopt($ch, CURLOPT_POST, true);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($dados));
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); 
+                curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+                curl_setopt($ch, CURLOPT_TIMEOUT, 15);
 
-            $resposta = curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
+                $inicioTimer = microtime(true);
 
-            $tempoRespostaMs = round((microtime(true) - $inicioTimer) * 1000);
-            $resultado = json_decode($resposta, true);
+                $resposta = curl_exec($ch);
+                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                curl_close($ch);
 
-            $tokensPrompt = $resultado['usageMetadata']['promptTokenCount'] ?? 0;
-            $tokensCompletion = $resultado['usageMetadata']['candidatesTokenCount'] ?? 0;
+                $tempoRespostaMs = round((microtime(true) - $inicioTimer) * 1000);
+                $resultado = json_decode($resposta, true);
 
-            if ($id_usuario) {
-                $logModel->registrar($id_usuario, "{$endpoint} ({$modelo})", $httpCode, $tokensPrompt, $tokensCompletion, $tempoRespostaMs);
-            }
+                $tokensPrompt = $resultado['usageMetadata']['promptTokenCount'] ?? 0;
+                $tokensCompletion = $resultado['usageMetadata']['candidatesTokenCount'] ?? 0;
 
-            if (isset($resultado['candidates'][0]['content']['parts'][0]['text'])) {
-                $textoBruto = $resultado['candidates'][0]['content']['parts'][0]['text'];
-                return trim(str_replace(['```json', '```'], '', $textoBruto));
+                if ($id_usuario) {
+                    $logModel->registrar($id_usuario, "{$endpoint} ({$modelo})", $httpCode, $tokensPrompt, $tokensCompletion, $tempoRespostaMs);
+                }
+
+                if ($httpCode === 200 && isset($resultado['candidates'][0]['content']['parts'][0]['text'])) {
+                    $textoBruto = $resultado['candidates'][0]['content']['parts'][0]['text'];
+                    return trim(str_replace(['```json', '```'], '', $textoBruto));
+                }
             }
         }
         

@@ -1547,7 +1547,9 @@ select.form-control {
 }
 
 @media (max-width: 640px) {
-    .auth-form-grid {
+    .auth-form-grid,
+    .grid-options,
+    .cards-grid { 
         grid-template-columns: 1fr;
     }
 }
