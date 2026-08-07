@@ -31,7 +31,7 @@ class WebhookController extends Controller {
                 $msgErro .= "👉 Copie o número acima, vá no Preditiv.ia na aba 'Telegram Bot', cole e clique em Vincular.";
                 
                 $this->enviarMensagemTelegram($chat_id, $msgErro);
-                http_response_code(403);
+                http_response_code(200);
                 echo json_encode(["erro" => "Usuario nao encontrado pelo chat_id"]);
                 exit;
             }
