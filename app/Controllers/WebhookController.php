@@ -25,7 +25,12 @@ class WebhookController extends Controller {
             $usuario = $stmt->fetch();
 
             if (!$usuario) {
-                $this->enviarMensagemTelegram($chat_id, "❌ *Erro:* Este Chat ID não está vinculado a nenhuma conta no Preditiv.ia. Acesse o sistema e vincule seu Telegram na aba 'Telegram Bot'.");
+                $msgErro = "⚠️ *Conta Não Vinculada!*\n\n";
+                $msgErro .= "Para usar a IA, você precisa vincular o seu Telegram ao sistema.\n\n";
+                $msgErro .= "Seu Código de Vínculo é: `" . $chat_id . "`\n\n";
+                $msgErro .= "👉 Copie o número acima, vá no Preditiv.ia na aba 'Telegram Bot', cole e clique em Vincular.";
+                
+                $this->enviarMensagemTelegram($chat_id, $msgErro);
                 http_response_code(403);
                 echo json_encode(["erro" => "Usuario nao encontrado pelo chat_id"]);
                 exit;
