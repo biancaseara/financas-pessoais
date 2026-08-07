@@ -4,8 +4,8 @@ FROM php:8.2-apache
 # Instala a extensão do MySQL necessária para conectar ao banco de dados
 RUN docker-php-ext-install pdo pdo_mysql
 
-# Instala utilitários necessários para o Composer
-RUN apt-get update && apt-get install -y unzip && rm -rf /var/lib/apt/lists/*
+# Instala utilitários necessários para o Composer, Git e Certificados SSL para e-mail
+RUN apt-get update && apt-get install -y unzip git ca-certificates && rm -rf /var/lib/apt/lists/*
 
 # Habilita o sistema de rotas amigáveis 
 RUN a2enmod rewrite

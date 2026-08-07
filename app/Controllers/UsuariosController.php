@@ -83,7 +83,13 @@ class UsuariosController extends Controller {
                             </div>
                         ";
                         
-                        $emailService->enviar($email, $nome, $assunto, $corpoHTML);
+                        $enviou = $emailService->enviar($email, $nome, $assunto, $corpoHTML);
+
+                        if (!$enviou) {
+                            $this->setFlash('error', 'Usuário criado, mas ocorreu um erro no servidor ao disparar o e-mail de convite. Verifique os logs no Render.');
+                            header("Location: /financas/usuarios");
+                            exit;
+                        }
                     }
                 }
             }
