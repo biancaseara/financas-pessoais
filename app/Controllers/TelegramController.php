@@ -16,8 +16,12 @@ class TelegramController extends Controller {
             $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
         }
 
+        $usuarioModel = $this->model('Usuario');
+        $usuario = $usuarioModel->buscarPorId($_SESSION['id_usuario']);
+
         $this->view('telegram/index', [
             'titulo' => 'Conectar Bot do Telegram',
+            'usuario' => $usuario,
             'csrf_token' => $_SESSION['csrf_token']
         ]);
     }
@@ -50,6 +54,27 @@ class TelegramController extends Controller {
                 $this->setFlash('error', 'Erro ao vincular conta. Tente novamente.');
             }
 
+            header("Location: /financas/telegram");
+            exit;
+        }
+    }
+
+    public function desvincular() {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            if (!isset($_SESSION['id_usuario'])) {
+                header("Location: /financas/auth/login");
+                exit;
+            }
+
+            $id_usuario = $_SESSION['id_usuario'];
+            
+            $db = new Database();
+            $pdo = $db->getConnection();
+            
+            $stmt = $pdo->prepare("UPDATE usuarios SET chat_id_telegram = NULL WHERE id_usuario = ?");
+            $stmt->execute([$id_usuario]);
+
+            $this->setFlash('success', 'Seus dados do Telegram foram desvinculados com sucesso.');
             header("Location: /financas/telegram");
             exit;
         }
