@@ -9,7 +9,7 @@
     <div class="card form-container">
         <div class="card-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 16px; margin-bottom: 24px;">
             <h4><i class="ph-fill ph-telegram-logo" style="color: #0088cc; margin-right: 8px;"></i> <?= htmlspecialchars($titulo, ENT_QUOTES, 'UTF-8') ?></h4>
-            <p class="text-secondary" style="font-size: 0.9rem; margin-top: 8px;">
+            <p class="text-secondary" style="font-size: 0.9rem; margin-top: 24px; margin-bottom: 24px; line-height: 1.5; display: block;">
                 Registre suas despesas de forma rápida enviando uma mensagem no Telegram. Siga os passos abaixo para vincular sua conta.
             </p>
         </div>

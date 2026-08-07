@@ -57,42 +57,45 @@
 <body>
     <div class="container">
         <h1>Nossa Política de Privacidade</h1>
-        
-        <p>A sua privacidade é uma prioridade para o <strong>PREDITIV.IA</strong>. Sabemos que informações financeiras são sensíveis, e esta política explica de forma transparente como coletamos, usamos e protegemos os seus dados.</p>
+
+        <p>A sua privacidade é uma prioridade para o <strong>PREDITIV.IA</strong>. Sabemos que informações financeiras e comportamentais são extremamente sensíveis. Esta política explica de forma transparente como coletamos, processamos por Inteligência Artificial e protegemos os seus dados.</p>
 
         <h2>1. Informações que Coletamos</h2>
-        <p>Para o funcionamento adequado do sistema, coletamos dois tipos principais de dados:</p>
+        <p>Para o funcionamento adequado do nosso motor preditivo, coletamos as seguintes informações:</p>
         <ul>
             <li><strong>Dados de Cadastro:</strong> Nome, endereço de e-mail e credenciais de acesso para criar e gerenciar sua conta.</li>
-            <li><strong>Dados Financeiros:</strong> Informações sobre receitas, despesas, categorias de gastos, orçamentos e metas financeiras que você insere voluntariamente na plataforma para análise.</li>
+            <li><strong>Dados Financeiros:</strong> Informações sobre receitas, despesas, cartões, metas e categorias que você insere na plataforma.</li>
+            <li><strong>Perfil Comportamental:</strong> Respostas do nosso onboarding inicial sobre seus sentimentos em relação ao dinheiro, nível de conhecimento e principais dores financeiras.</li>
+            <li><strong>Dados de Integração:</strong> Seu Chat ID caso opte por vincular o Telegram para registro rápido de despesas.</li>
         </ul>
 
-        <h2>2. Como Usamos Seus Dados</h2>
+        <h2>2. Como a Inteligência Artificial Usa Seus Dados</h2>
         <div class="highlight">
-            <p><strong>A Inteligência do Sistema:</strong> Utilizamos seus dados financeiros estritamente para fornecer os serviços do PREDITIV.IA. Isso inclui a geração de gráficos, relatórios de fluxo de caixa e o processamento através de nossos algoritmos preditivos para sugerir tendências e alertas sobre o seu comportamento financeiro.</p>
+            <p><strong>O Motor Preditivo:</strong> Para gerar conselhos personalizados, o PREDITIV.IA envia recortes anônimos do seu fluxo de caixa e perfil comportamental para processamento em nuvem utilizando a API do Google Gemini. <strong>Seus dados são usados estritamente no momento da análise para gerar o "Veredito da IA" e não são utilizados para treinar modelos de inteligência artificial públicos.</strong></p>
         </div>
-        <p>Também utilizamos seus dados de contato (como e-mail) para enviar avisos importantes sobre sua conta, atualizações de segurança ou novidades do sistema.</p>
+        <p>Também utilizamos seus dados de contato (como e-mail) para enviar avisos importantes sobre sua conta, atualizações de segurança ou recuperação de senhas.</p>
 
         <h2>3. Compartilhamento de Informações</h2>
-        <p><strong>Nós não vendemos, alugamos ou repassamos seus dados financeiros ou pessoais para terceiros.</strong> Suas informações podem ser compartilhadas apenas nos seguintes casos estritos:</p>
+        <p><strong>Nós não vendemos, alugamos ou repassamos seus dados para fins publicitários</strong>. Suas informações são compartilhadas apenas em cenários estritamente operacionais:</p>
         <ul>
+            <li>Com a infraestrutura do Google (API Generative Language) de forma criptografada para processamento de linguagem natural e cálculos preditivos.</li>
             <li>Com provedores de infraestrutura e hospedagem de servidores em nuvem, sob rigorosos contratos de confidencialidade.</li>
             <li>Quando exigido por lei ou ordem judicial válida.</li>
         </ul>
 
         <h2>4. Segurança dos Dados</h2>
-        <p>Implementamos medidas técnicas e organizacionais de ponta, como criptografia de senhas e comunicação segura (HTTPS), para proteger suas informações contra acesso não autorizado, alteração ou destruição. Contudo, nenhum sistema é 100% impenetrável, e contamos com sua ajuda para criar senhas fortes e manter seu acesso seguro.</p>
+        <p>Implementamos medidas técnicas e organizacionais de ponta, como criptografia de senhas (Hashes irreversíveis) e comunicação segura (HTTPS), para proteger suas informações contra acesso não autorizado. Contudo, nenhum sistema é 100% impenetrável, e contamos com sua ajuda para criar senhas fortes e manter seu acesso seguro.</p>
 
         <h2>5. Seus Direitos e Controle</h2>
         <p>Você tem controle total sobre as informações inseridas no PREDITIV.IA. A qualquer momento, você pode:</p>
         <ul>
-            <li>Acessar, corrigir ou atualizar seus dados através do painel de configurações.</li>
-            <li>Exportar seus dados financeiros inseridos na plataforma.</li>
-            <li>Solicitar a exclusão definitiva da sua conta e de todos os dados associados a ela, ação que será processada em nossos bancos de dados de forma irreversível.</li>
+            <li>Acessar, corrigir ou atualizar seus dados através do menu "Meu Perfil".</li>
+            <li>Desvincular o seu Telegram da plataforma a qualquer momento.</li>
+            <li>Solicitar a exclusão ou bloqueio da sua conta, ação que inativará o acesso aos seus dados nos nossos sistemas.</li>
         </ul>
 
         <h2>6. Contato</h2>
-        <p>Se você tiver qualquer dúvida sobre como seus dados são tratados, entre em contato com nossa equipe de suporte através dos canais de atendimento disponibilizados no sistema.</p>
+        <p>Se você tiver qualquer dúvida sobre como seus dados são tratados pela nossa Inteligência Artificial, entre em contato com a equipe de administração do sistema.</p>
 
         <div class="footer-note">
             <p>Última atualização: <?php echo date('d/m/Y'); ?></p>

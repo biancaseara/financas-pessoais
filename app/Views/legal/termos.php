@@ -50,31 +50,34 @@
 <body>
     <div class="container">
         <h1>Nossos Termos de Uso</h1>
-        
-        <p>Bem-vindo(a) ao <strong>PREDITIV.IA</strong>. Ao acessar e utilizar nosso sistema de gestão financeira, você concorda em cumprir os seguintes termos e condições. Recomendamos que leia atentamente.</p>
+
+        <p>Bem-vindo(a) ao <strong>PREDITIV.IA</strong>. Ao acessar e utilizar nosso assistente financeiro movido a Inteligência Artificial, você concorda em cumprir os seguintes termos e condições. Recomendamos que leia atentamente.</p>
 
         <h2>1. Descrição do Serviço</h2>
-        <p>O PREDITIV.IA é uma plataforma de gestão financeira que utiliza algoritmos e inteligência para ajudar na organização de receitas, despesas e na geração de projeções financeiras. O sistema é fornecido "no estado em que se encontra", como uma ferramenta de auxílio, e não substitui o aconselhamento de um profissional financeiro ou contador.</p>
+        <p>O PREDITIV.IA é uma plataforma de educação e gestão financeira que cruza seus dados bancários com seu perfil comportamental para gerar insights, alertas de taxa de queima (burn rate) e planos de aceleração de metas utilizando Inteligência Artificial (LLMs). O sistema é fornecido como uma ferramenta de auxílio educacional e não substitui o aconselhamento formal de um profissional financeiro ou contador.</p>
 
-        <h2>2. Uso da Plataforma e Responsabilidades</h2>
+        <h2>2. Limitações da Inteligência Artificial</h2>
         <ul>
-            <li><strong>Precisão dos Dados:</strong> A qualidade das previsões e relatórios gerados pelo PREDITIV.IA depende diretamente da exatidão das informações financeiras inseridas por você. Não nos responsabilizamos por decisões tomadas com base em dados incorretos.</li>
-            <li><strong>Segurança da Conta:</strong> Você é o único responsável por manter a confidencialidade de sua senha e por todas as atividades que ocorrerem em sua conta.</li>
-            <li><strong>Uso Pessoal:</strong> O sistema destina-se ao seu uso pessoal e intransferível, sendo proibida a comercialização ou engenharia reversa de nossas ferramentas preditivas.</li>
+            <li><strong>Natureza Preditiva:</strong> As análises geradas pelo sistema são baseadas em probabilidade e matemática preditiva. A Inteligência Artificial pode interpretar contextos de forma equivocada e os resultados financeiros futuros não são garantidos.</li>
+            <li><strong>Isenção de Responsabilidade:</strong> Todas as decisões tomadas a partir dos conselhos ("Veredito da IA" ou "Plano de Aceleração") são de sua inteira responsabilidade. Não nos responsabilizamos por perdas financeiras resultantes da aplicação das nossas dicas.</li>
         </ul>
 
-        <h2>3. Isenção de Responsabilidade</h2>
-        <p>Embora o PREDITIV.IA utilize tecnologias avançadas para fornecer tendências e previsões sobre sua saúde financeira, <strong>não garantimos resultados financeiros específicos</strong>. As projeções são baseadas em padrões históricos e modelos matemáticos, e o mercado está sujeito a variáveis imprevisíveis. Todas as decisões financeiras são de sua inteira responsabilidade.</p>
+        <h2>3. Uso da Plataforma e Responsabilidades</h2>
+        <ul>
+            <li><strong>Precisão dos Dados:</strong> A qualidade das previsões geradas pelo PREDITIV.IA depende diretamente da exatidão das transações, despesas fixas e cartões inseridos por você. </li>
+            <li><strong>Uso do Telegram:</strong> O registro via Telegram ("Bot") deve ser feito utilizando linguagem natural adequada. O sistema pode rejeitar comandos mal formatados ou não reconhecidos pelo algoritmo.</li>
+            <li><strong>Segurança da Conta:</strong> Você é o único responsável por manter a confidencialidade de sua senha.</li>
+            <li><strong>Uso Pessoal:</strong> O sistema destina-se ao seu uso pessoal e intransferível, sendo estritamente proibida a engenharia reversa das nossas engrenagens de prompts e Inteligência Artificial.</li>
+        </ul>
 
-        <h2>4. Modificações nos Termos e no Sistema</h2>
-        <p>Reservamo-nos o direito de atualizar o PREDITIV.IA, adicionar ou remover recursos, e modificar estes Termos de Uso a qualquer momento. Notificaremos os usuários sobre mudanças significativas através do próprio sistema ou por e-mail.</p>
+        <h2>4. Disponibilidade do Sistema (Fallback)</h2>
+        <p>O PREDITIV.IA depende de servidores de terceiros para a geração de Inteligência Artificial. Em momentos de alta demanda ou esgotamento de taxa (Rate Limit), o sistema poderá entrar em modo de contingência, fornecendo mensagens padrão até que as conexões sejam restabelecidas. A indisponibilidade temporária dos insights não afeta o registro básico das suas finanças.</p>
 
-        <h2>5. Cancelamento</h2>
-        <p>Você pode encerrar sua conta no PREDITIV.IA a qualquer momento. Ao fazer isso, seus dados financeiros serão tratados de acordo com nossa Política de Privacidade.</p>
+        <h2>5. Modificações nos Termos</h2>
+        <p>Reservamo-nos o direito de atualizar o PREDITIV.IA, adicionar ou remover recursos, treinar novas lógicas de IA e modificar estes Termos de Uso a qualquer momento.</p>
 
         <div class="footer-note">
             <p>Última atualização: <?php echo date('d/m/Y'); ?></p>
         </div>
-    </div>
 </body>
 </html>
