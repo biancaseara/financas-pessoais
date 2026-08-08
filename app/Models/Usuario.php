@@ -72,7 +72,7 @@ class Usuario {
     }
 
     public function buscarPorId($id) {
-        $stmt = $this->pdo->prepare("SELECT id_usuario, nome, email, perfil, fez_onboarding FROM usuarios WHERE id_usuario = ?");
+        $stmt = $this->pdo->prepare("SELECT id_usuario, nome, email, perfil, fez_onboarding, chat_id_telegram FROM usuarios WHERE id_usuario = ?");
         $stmt->execute([$id]);
         return $stmt->fetch();
     }
