@@ -119,14 +119,21 @@ class MotorPreditivo {
         $apiKey = $_ENV['GEMINI_API_KEY'];
         $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" . $apiKey;
 
-        $prompt = "Atue como um extrator de dados financeiros focado na precisão. O texto bruto abaixo é de um extrato do Nubank/outros bancos. Extraia as transações.
+        $prompt = "Atue como um extrator de dados financeiros de alta precisão. O texto abaixo foi copiado de um PDF de extrato bancário (como o Nubank).
         
+        O FORMATO É DESAFIADOR:
+        No Nubank, as descrições das transações ficam agrupadas em cima, e os valores ficam empilhados em baixo, sob a frase 'VALORES EM R$'. Você DEVE correlacionar a descrição com o seu respectivo valor seguindo a ordem exata em que aparecem. Ignore valores de 'Saldo' ou rendimentos vazios (+0,00) que não tenham descrição associada.
+
         REGRAS RÍGIDAS:
-        1. ESTRUTURA: A data aparece uma vez (ex: '02 SET 2026') e as linhas de movimentação abaixo pertencem a ela até surgir uma nova data. Converta o mês para número (SET = 09).
-        2. LIMPEZA ABSOLUTA: Ignore completamente linhas com 'Total de saídas', 'Total de entradas', 'Saldo', e mensagens de atendimento.
-        3. DESCRIÇÃO: Remova CNPJs, nomes próprios longos ou códigos de agência. Deixe apenas o nome comercial essencial.
-        4. VALORES E TIPO: Retorne apenas o número float (ex: 1415.48). Se houver um símbolo '-' antes do valor, marque o 'tipo_transacao' como 'Saida'. Se houver '+', marque como 'Entrada'.
-        5. SAÍDA OBRIGATÓRIA: DEVE retornar EXATAMENTE um array JSON puro. Não explique a resposta.
+        1. DATA: A data aparece uma vez (ex: '02 SET 2026') e as transações a seguir pertencem a ela. Formato final: YYYY-MM-DD (converta o mês para número).
+        2. LIMPEZA: Ignore completamente 'Total de saídas', 'Total de entradas', 'Saldo', mensagens de ouvidoria, CNPJs do banco, e horários de atendimento.
+        3. DESCRIÇÃO: Remova o nome do titular da conta, CPFs (ex: •••.400.845-••) e agência/conta. Deixe apenas o nome comercial, de quem enviou ou de quem recebeu.
+        4. TIPO E VALOR: 
+           - Valores com '-' são 'Saida'.
+           - Valores com '+' ou sem sinal são 'Entrada'.
+           - O valor deve ser apenas numérico e positivo (ex: 15.90).
+           - NUNCA classifique como 'Transferencia'. Use EXCLUSIVAMENTE 'Entrada' ou 'Saida'.
+        5. SAÍDA OBRIGATÓRIA: Você deve devolver APENAS um array JSON válido. NENHUM texto antes ou depois. Nenhuma marcação markdown.
         
         EXEMPLO DO FORMATO ESPERADO:
         [
@@ -153,25 +160,13 @@ class MotorPreditivo {
                 ]
             ],
             "generationConfig" => [
-                "temperature" => 0.0 
+                "temperature" => 0.0 // Sem criatividade, focado em cruzamento de dados exato
             ],
             "safetySettings" => [
-                [
-                    "category" => "HARM_CATEGORY_DANGEROUS_CONTENT",
-                    "threshold" => "BLOCK_NONE"
-                ],
-                [
-                    "category" => "HARM_CATEGORY_HARASSMENT",
-                    "threshold" => "BLOCK_NONE"
-                ],
-                [
-                    "category" => "HARM_CATEGORY_HATE_SPEECH",
-                    "threshold" => "BLOCK_NONE"
-                ],
-                [
-                    "category" => "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-                    "threshold" => "BLOCK_NONE"
-                ]
+                ["category" => "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold" => "BLOCK_NONE"],
+                ["category" => "HARM_CATEGORY_HARASSMENT", "threshold" => "BLOCK_NONE"],
+                ["category" => "HARM_CATEGORY_HATE_SPEECH", "threshold" => "BLOCK_NONE"],
+                ["category" => "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold" => "BLOCK_NONE"]
             ]
         ];
 
@@ -189,11 +184,15 @@ class MotorPreditivo {
         if (isset($resultado['candidates'][0]['content']['parts'][0]['text'])) {
             $textoIA = $resultado['candidates'][0]['content']['parts'][0]['text'];
             
-            if (preg_match('/\[\s*\{.*\}\s*\]/s', $textoIA, $matches)) {
-                return $matches[0];
+            $inicio = strpos($textoIA, '[');
+            $fim = strrpos($textoIA, ']');
+            
+            if ($inicio !== false && $fim !== false) {
+                return substr($textoIA, $inicio, $fim - $inicio + 1);
             }
         }
 
         return "[]"; 
-    }}
+    }
+}
 ?>
