@@ -307,4 +307,28 @@ class IaController extends Controller {
             "aprendizado" => "O sistema possui um mecanismo de fallback para proteger sua experiência."
         ]);
     }
+
+    public function processarExtrato() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo json_encode(['erro' => 'Método não permitido']);
+            return;
+        }
+
+        $textoBruto = $_POST['texto_extrato'] ?? '';
+
+        if (empty(trim($textoBruto))) {
+            http_response_code(400);
+            echo json_encode(['erro' => 'O texto do extrato não pode estar vazio.']);
+            return;
+        }
+
+        require_once __DIR__ . '/../Models/MotorPreditivo.php';
+        $motor = new \MotorPreditivo();
+        
+        $jsonTransacoes = $motor->analisarExtratoTexto($textoBruto);
+
+        header('Content-Type: application/json');
+        echo $jsonTransacoes;
+    }
 }

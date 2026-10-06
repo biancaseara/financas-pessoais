@@ -217,4 +217,49 @@ class TransacoesController extends Controller
             }
         }
     }
+
+    public function salvarImportacao() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo json_encode(['erro' => 'Método não permitido']);
+            return;
+        }
+
+        $json = file_get_contents('php://input');
+        $dados = json_decode($json, true);
+
+        if (!isset($dados['transacoes']) || empty($dados['transacoes'])) {
+            http_response_code(400);
+            echo json_encode(['erro' => 'Nenhuma transação recebida.']);
+            return;
+        }
+
+        require_once __DIR__ . '/../Models/Transacao.php';
+        require_once __DIR__ . '/../Models/Categoria.php';
+        
+        $transacaoModel = new \Transacao();
+        $categoriaModel = new \Categoria();
+
+        $sucesso = 0;
+
+        foreach ($dados['transacoes'] as $t) {
+            
+            $idCategoria = 1; 
+
+            $dadosInsert = [
+                'id_conta'        => $t['id_conta'],
+                'id_categoria'    => $idCategoria,
+                'descricao'       => $t['descricao'],
+                'valor'           => str_replace(',', '.', $t['valor']),
+                'data_transacao'  => $t['data'],
+                'tipo_transacao'  => $t['tipo_transacao'],
+                'forma_pagamento' => $t['forma_pagamento']
+            ];
+
+            $transacaoModel->insert($dadosInsert);
+            $sucesso++;
+        }
+
+        echo json_encode(['status' => 'sucesso', 'inseridas' => $sucesso]);
+    }
 }

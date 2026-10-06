@@ -167,6 +167,62 @@
         </form>
     </div>
 
+    <div class="acoes-topo">
+        <button type="button" class="btn btn-secondary" onclick="abrirModalImportacao()">
+            <i class="icon-upload"></i> Importar Extrato
+        </button>
+    </div>
+
+    <div id="modalImportacao" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close" onclick="fecharModalImportacao()">&times;</span>
+            <h2>Importação Inteligente de Extrato</h2>
+            <p class="text-muted">Cole o texto bruto do seu extrato e a IA do PREDITIV.IA fará a categorização.</p>
+
+            <form id="formImportacao">
+                <div class="form-group">
+                    <label for="contaDestinoImportacao">Selecione a Conta/Cartão:</label>
+                    <select id="contaDestinoImportacao" name="id_conta" required>
+                        <option value="">Selecione...</option>
+                        <?php foreach ($contas as $conta): ?>
+                            <option value="<?= $conta['id_conta'] ?>"><?= htmlspecialchars($conta['nome_banco']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="textoExtrato">Cole o texto do extrato aqui:</label>
+                    <textarea id="textoExtrato" name="texto_extrato" rows="10" placeholder="Ex: 02 JUN 2026 Transferência enviada pelo Pix - 12,90..." required></textarea>
+                </div>
+
+                <div id="statusImportacao" class="status-msg" style="display: none;">
+                    <p>⚙️ A IA está analisando seu extrato, aguarde alguns segundos...</p>
+                </div>
+
+                <button type="button" class="btn btn-primary" onclick="enviarParaIA()">Analisar com IA</button>
+            </form>
+            
+            <div id="areaRevisao" style="display: none;">
+                <h3>Revisão das Transações</h3>
+                <table class="tabela-extrato" id="tabelaRevisao">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Descrição</th>
+                            <th>Valor</th>
+                            <th>Categoria</th>
+                            <th>Forma Pag.</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+                <button type="button" class="btn btn-success" onclick="salvarImportacaoNoBanco()">Confirmar e Salvar</button>
+            </div>
+
+        </div>
+    </div>
+
     <div class="card table-container">
         <div class="card-header">
             <h4><?= htmlspecialchars($titulo, ENT_QUOTES, 'UTF-8') ?></h4>
@@ -321,4 +377,102 @@ $(document).ready(function() {
         }
     });
 });
+
+let transacoesExtraidas = [];
+
+function abrirModalImportacao() {
+    document.getElementById('modalImportacao').style.display = 'block';
+}
+
+function fecharModalImportacao() {
+    document.getElementById('modalImportacao').style.display = 'none';
+    document.getElementById('areaRevisao').style.display = 'none';
+    document.getElementById('textoExtrato').value = '';
+    document.getElementById('statusImportacao').style.display = 'none';
+}
+
+async function enviarParaIA() {
+    const texto = document.getElementById('textoExtrato').value;
+    const idConta = document.getElementById('contaDestinoImportacao').value;
+
+    if (!idConta) {
+        alert('Por favor, selecione a conta ou cartão.');
+        return;
+    }
+    if (!texto) {
+        alert('Cole o texto do extrato antes de analisar.');
+        return;
+    }
+
+    document.getElementById('statusImportacao').style.display = 'block';
+    document.getElementById('areaRevisao').style.display = 'none';
+
+    try {
+        const formData = new FormData();
+        formData.append('texto_extrato', texto);
+
+        const response = await fetch('/ia/processarExtrato', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) throw new Error('Falha na comunicação com a IA.');
+
+        transacoesExtraidas = await response.json();
+        
+        transacoesExtraidas = transacoesExtraidas.map(t => ({...t, id_conta: idConta}));
+
+        renderizarTabelaRevisao(transacoesExtraidas);
+        
+        document.getElementById('statusImportacao').style.display = 'none';
+        document.getElementById('areaRevisao').style.display = 'block';
+
+    } catch (error) {
+        alert('Ops! Ocorreu um erro ao processar o extrato com a IA. Tente novamente.');
+        document.getElementById('statusImportacao').style.display = 'none';
+        console.error(error);
+    }
+}
+
+function renderizarTabelaRevisao(transacoes) {
+    const tbody = document.querySelector('#tabelaRevisao tbody');
+    tbody.innerHTML = '';
+
+    transacoes.forEach((t, index) => {
+        const tr = document.createElement('tr');
+        
+        const corValor = t.tipo_transacao === 'Saida' ? 'color: red;' : 'color: green;';
+        
+        tr.innerHTML = `
+            <td>${t.data}</td>
+            <td>${t.descricao}</td>
+            <td style="${corValor}">R$ ${parseFloat(t.valor).toFixed(2).replace('.', ',')}</td>
+            <td>${t.categoria}</td>
+            <td>${t.forma_pagamento}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+async function salvarImportacaoNoBanco() {
+    if (transacoesExtraidas.length === 0) return;
+
+    try {
+        const response = await fetch('/transacoes/salvarImportacao', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ transacoes: transacoesExtraidas })
+        });
+
+        if (response.ok) {
+            alert('Transações importadas com sucesso!');
+            window.location.reload();
+        } else {
+            alert('Erro ao salvar as transações no banco de dados.');
+        }
+    } catch (error) {
+        alert('Erro ao comunicar com o servidor.');
+        console.error(error);
+    }
+}
 </script>

@@ -114,5 +114,58 @@ class MotorPreditivo {
         $stmt->execute([$id_usuario, $id_usuario, $mesPassado, $id_usuario, $id_usuario, $mesAtual]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public function analisarExtratoTexto($textoBruto) {
+        $apiKey =$_ENV['GEMINI_API_KEY'];
+        $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" . $apiKey;
+
+        $prompt = "Você é um assistente financeiro especialista em processamento de dados.
+        Vou te enviar um texto bruto copiado de um extrato bancário brasileiro.
+        Sua única tarefa é extrair as movimentações reais e retornar ESTRITAMENTE um array JSON válido, sem NENHUM texto adicional antes ou depois, e sem marcação markdown (não use ```json).
+        
+        Regras de extração:
+        1. Ignore saldos iniciais, saldos finais, rendimento líquido, totais do período e cabeçalhos.
+        2. 'data': Formato YYYY-MM-DD. Se a linha da transação não tiver ano, busque o ano no cabeçalho do texto. Converta meses em português (ex: JUN para 06).
+        3. 'descricao': O nome do estabelecimento limpo. Remova CNPJs e códigos inúteis de agência/conta.
+        4. 'valor': Apenas numérico positivo (float com ponto, ex: 12.90).
+        5. 'tipo_transacao': Retorne 'Saida' (para valores negativos, pagamentos ou débitos) ou 'Entrada' (para valores positivos, rendimentos ou recebimentos).
+        6. 'forma_pagamento': Deduza pelo texto (ex: 'Pix', 'Crédito', 'Débito', 'Transferência').
+        7. 'categoria': Atribua uma categoria básica lógica (Alimentação, Moradia, Transporte, Saúde, Educação, Lazer, Renda Principal, Outros).
+        8. 'parcelas': Se o texto indicar parcelamento (ex: 01/05 ou 2/12), retorne uma string '1/5'. Se não houver, retorne null.
+
+        Texto do Extrato:
+        " . $textoBruto;
+
+        $data = [
+            "contents" => [
+                [
+                    "parts" => [
+                        ["text" => $prompt]
+                    ]
+                ]
+            ],
+            "generationConfig" => [
+                "temperature" => 0.1
+            ]
+        ];
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        $resultado = json_decode($response, true);
+
+        if (isset($resultado['candidates'][0]['content']['parts'][0]['text'])) {
+            $jsonLimpo = trim($resultado['candidates'][0]['content']['parts'][0]['text']);
+            return $jsonLimpo;
+        }
+
+        return "[]";
+    }
 }
 ?>
