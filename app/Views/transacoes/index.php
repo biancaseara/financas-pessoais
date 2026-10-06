@@ -195,8 +195,11 @@
                     <textarea id="textoExtrato" name="texto_extrato" rows="10" placeholder="Ex: 02 JUN 2026 Transferência enviada pelo Pix - 12,90..." required></textarea>
                 </div>
 
-                <div id="statusImportacao" class="status-msg" style="display: none;">
-                    <p>⚙️ A IA está analisando seu extrato, aguarde alguns segundos...</p>
+                <div id="statusImportacao" class="status-msg form-group" style="display: none;">
+                    <p style="display: flex; align-items: center; gap: 8px; font-weight: 500;">
+                        <i class="ph ph-gear spinning-icon" style="font-size: 1.5rem; color: var(--primary-color, #6366f1);"></i> 
+                        A IA está analisando seu extrato, aguarde...
+                    </p>
                 </div>
 
                 <button type="button" class="btn btn-primary" onclick="enviarParaIA()">Analisar com IA</button>

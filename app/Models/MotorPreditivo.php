@@ -162,11 +162,14 @@ class MotorPreditivo {
         $resultado = json_decode($response, true);
 
         if (isset($resultado['candidates'][0]['content']['parts'][0]['text'])) {
-            $jsonLimpo = trim($resultado['candidates'][0]['content']['parts'][0]['text']);
-            return $jsonLimpo;
+            $textoIA = trim($resultado['candidates'][0]['content']['parts'][0]['text']);
+            
+            $textoIA = str_replace(['```json', '```'], '', $textoIA);
+            
+            return trim($textoIA);
         }
 
-        return "[]";
+        return "[]"; 
     }
 }
 ?>

@@ -1296,6 +1296,98 @@ select.form-control {
     color: var(--text-secondary);
 }
 
+.modal {
+    display: none; 
+    position: fixed; 
+    z-index: 9999; 
+    left: 0; 
+    top: 0; 
+    width: 100%; 
+    height: 100%; 
+    background-color: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(4px);
+    overflow-y: auto;
+}
+
+.modal-content {
+    background-color: var(--card-bg, #ffffff);
+    margin: 5% auto;
+    padding: 2rem;
+    border-radius: var(--border-radius, 12px);
+    width: 90%;
+    max-width: 800px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    position: relative;
+    border: 1px solid var(--border-color, #e2e8f0);
+}
+
+.modal-content .close {
+    position: absolute;
+    right: 1.5rem;
+    top: 1.5rem;
+    color: #94a3b8;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.modal-content .close:hover {
+    color: #ef4444;
+}
+
+#textoExtrato {
+    width: 100%;
+    padding: 1rem;
+    border: 1px solid var(--border-color, #cbd5e1);
+    border-radius: 8px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.875rem;
+    resize: vertical;
+    background-color: #f8fafc;
+    color: #334155;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+#textoExtrato:focus {
+    border-color: var(--primary-color, #6366f1);
+}
+
+.tabela-extrato {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+}
+
+.tabela-extrato th, .tabela-extrato td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color, #f1f5f9);
+}
+
+.tabela-extrato th {
+    color: #64748b;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.75rem;
+}
+
+.tabela-extrato tr:last-child td {
+    border-bottom: none;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.spinning-icon {
+    animation: spin 2s linear infinite;
+}
+
 /* ESTILIZAÇÃO DAS TABS DO PERFIL */
 .tabs-container {
     width: 100%;
