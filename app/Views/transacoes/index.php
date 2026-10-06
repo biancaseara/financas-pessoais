@@ -167,12 +167,6 @@
         </form>
     </div>
 
-    <div class="acoes-topo form-actions">
-        <button type="button" class="btn-primary w-full" onclick="abrirModalImportacao()">
-            <i class="icon-upload"></i> Importar Extrato
-        </button>
-    </div>
-
     <!-- Modal de Importação de Extrato -->
     <div id="modalImportacao" class="modal" style="display: none;">
         <div class="modal-content">
@@ -271,8 +265,12 @@
     </div>
 
     <div class="card table-container">
-        <div class="card-header">
-            <h4><?= htmlspecialchars($titulo, ENT_QUOTES, 'UTF-8') ?></h4>
+        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+            <h4 style="margin: 0;"><?= htmlspecialchars($titulo, ENT_QUOTES, 'UTF-8') ?></h4>
+            
+            <button type="button" class="btn-primary" onclick="abrirModalImportacao()" style="width: auto; padding: 8px 16px;">
+                <i class="ph ph-upload-simple"></i> Importar Extrato
+            </button>
         </div>
 
         <div class="table-responsive">
