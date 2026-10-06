@@ -115,53 +115,31 @@ class MotorPreditivo {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function analisarExtratoTexto($textoBruto) {
-        $apiKey = $_ENV['GEMINI_API_KEY'];
+    public function analisarExtratoCSV($jsonCsv) {
+        $apiKey =$_ENV['GEMINI_API_KEY'];
         $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" . $apiKey;
 
-        $prompt = "Atue como um extrator de dados financeiros de alta precisão. O texto abaixo foi copiado de um PDF de extrato bancário (como o Nubank).
-        
-        O FORMATO É DESAFIADOR:
-        No Nubank, as descrições das transações ficam agrupadas em cima, e os valores ficam empilhados em baixo, sob a frase 'VALORES EM R$'. Você DEVE correlacionar a descrição com o seu respectivo valor seguindo a ordem exata em que aparecem. Ignore valores de 'Saldo' ou rendimentos vazios (+0,00) que não tenham descrição associada.
+        $prompt = "Atue como um classificador financeiro de banco de dados.
+        Abaixo está um array JSON com transações extraídas de um CSV. 
+        Sua tarefa é analisar CADA transação e retornar o mesmo array JSON atualizado com novos campos.
 
-        REGRAS RÍGIDAS:
-        1. DATA: A data aparece uma vez (ex: '02 SET 2026') e as transações a seguir pertencem a ela. Formato final: YYYY-MM-DD (converta o mês para número).
-        2. LIMPEZA: Ignore completamente 'Total de saídas', 'Total de entradas', 'Saldo', mensagens de ouvidoria, CNPJs do banco, e horários de atendimento.
-        3. DESCRIÇÃO: Remova o nome do titular da conta, CPFs (ex: •••.400.845-••) e agência/conta. Deixe apenas o nome comercial, de quem enviou ou de quem recebeu.
-        4. TIPO E VALOR: 
-           - Valores com '-' são 'Saida'.
-           - Valores com '+' ou sem sinal são 'Entrada'.
-           - O valor deve ser apenas numérico e positivo (ex: 15.90).
-           - NUNCA classifique como 'Transferencia'. Use EXCLUSIVAMENTE 'Entrada' ou 'Saida'.
-        5. SAÍDA OBRIGATÓRIA: Você deve devolver APENAS um array JSON válido. NENHUM texto antes ou depois. Nenhuma marcação markdown.
+        REGRAS PARA CADA TRANSAÇÃO:
+        1. 'data': Mantenha a mesma, garantindo o formato YYYY-MM-DD.
+        2. 'valor': O valor original do CSV. Retire sinais de negativo e converta para float positivo.
+        3. 'tipo_transacao': Se o valor original for negativo, é 'Saida'. Se positivo, 'Entrada'.
+        4. 'descricao': Limpe o nome. Remova nomes próprios, CPFs, códigos e textos como 'Transferência recebida'. Deixe apenas a origem/destino principal.
+        5. 'forma_pagamento': Deduza se foi 'Pix', 'Crédito', 'Débito' ou 'Boleto' baseado na descrição original.
+        6. 'categoria': Atribua uma categoria (Alimentação, Transporte, Moradia, Saúde, Lazer, Renda, Outros).
+        7. 'parcelas': null.
         
-        EXEMPLO DO FORMATO ESPERADO:
-        [
-          {
-            \"data\": \"2026-09-02\",
-            \"descricao\": \"EBANX IP LTDA\",
-            \"valor\": 12.90,
-            \"tipo_transacao\": \"Saida\",
-            \"forma_pagamento\": \"Pix\",
-            \"categoria\": \"Outros\",
-            \"parcelas\": null
-          }
-        ]
+        RETORNO: EXATAMENTE um array JSON. Sem formatação markdown (```json).
 
-        TEXTO DO EXTRATO:
-        " . $textoBruto;
+        DADOS ORIGINAIS:
+        " . $jsonCsv;
 
         $data = [
-            "contents" => [
-                [
-                    "parts" => [
-                        ["text" => $prompt]
-                    ]
-                ]
-            ],
-            "generationConfig" => [
-                "temperature" => 0.0 // Sem criatividade, focado em cruzamento de dados exato
-            ],
+            "contents" => [["parts" => [["text" => $prompt]]]],
+            "generationConfig" => ["temperature" => 0.0],
             "safetySettings" => [
                 ["category" => "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold" => "BLOCK_NONE"],
                 ["category" => "HARM_CATEGORY_HARASSMENT", "threshold" => "BLOCK_NONE"],
@@ -175,7 +153,6 @@ class MotorPreditivo {
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-
         $response = curl_exec($ch);
         curl_close($ch);
 
@@ -183,15 +160,12 @@ class MotorPreditivo {
 
         if (isset($resultado['candidates'][0]['content']['parts'][0]['text'])) {
             $textoIA = $resultado['candidates'][0]['content']['parts'][0]['text'];
-            
             $inicio = strpos($textoIA, '[');
             $fim = strrpos($textoIA, ']');
-            
             if ($inicio !== false && $fim !== false) {
                 return substr($textoIA, $inicio, $fim - $inicio + 1);
             }
         }
-
         return "[]"; 
     }
 }

@@ -225,10 +225,9 @@
                 </div>
 
                 <div class="form-group full-width" style="margin-top: 15px;">
-                    <label>Texto do Extrato</label>
-                    <textarea id="textoExtrato" name="texto_extrato" class="form-control" rows="8" placeholder="Cole o extrato aqui..." style="resize: vertical; padding: 10px;" required></textarea>
+                    <label>Arquivo do Extrato (CSV)</label>
+                    <input type="file" id="arquivoExtrato" name="arquivo_extrato" class="form-control" accept=".csv" required>
                 </div>
-
                 <div id="statusImportacao" class="status-msg form-group" style="display: none; margin-top: 15px;">
                     <p style="display: flex; align-items: center; gap: 8px; font-weight: 500; margin: 0;">
                         <i class="ph ph-gear spinning-icon" style="font-size: 1.5rem; color: var(--primary-color);"></i> 
@@ -449,26 +448,20 @@ function alternarDestinoImportacao(tipo) {
 }
 
 async function enviarParaIA() {
-    const texto = document.getElementById('textoExtrato').value;
+    const arquivoInput = document.getElementById('arquivoExtrato');
     const idConta = document.getElementById('contaImportacao').value;
     const idCartao = document.getElementById('cartaoImportacao').value;
 
-    if (destinoSelecionado === 'conta' && !idConta) {
-        alert('Por favor, selecione a conta de destino.'); return;
-    }
-    if (destinoSelecionado === 'cartao' && !idCartao) {
-        alert('Por favor, selecione o cartão de destino.'); return;
-    }
-    if (!texto) {
-        alert('Cole o texto do extrato.'); return;
-    }
+    if (destinoSelecionado === 'conta' && !idConta) { alert('Selecione a conta.'); return; }
+    if (destinoSelecionado === 'cartao' && !idCartao) { alert('Selecione o cartão.'); return; }
+    if (arquivoInput.files.length === 0) { alert('Selecione o arquivo CSV do extrato.'); return; }
 
     document.getElementById('statusImportacao').style.display = 'block';
     document.getElementById('areaRevisao').style.display = 'none';
 
     try {
         const formData = new FormData();
-        formData.append('texto_extrato', texto);
+        formData.append('arquivo_extrato', arquivoInput.files[0]);
 
         const response = await fetch('/ia/processarExtrato', {
             method: 'POST',

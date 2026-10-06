@@ -309,24 +309,34 @@ class IaController extends Controller {
     }
 
     public function processarExtrato() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            http_response_code(405);
-            echo json_encode(['erro' => 'Método não permitido']);
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_FILES['arquivo_extrato'])) {
+            http_response_code(400);
+            echo json_encode(['erro' => 'Arquivo CSV não enviado.']);
             return;
         }
 
-        $textoBruto = $_POST['texto_extrato'] ?? '';
+        $arquivo = $_FILES['arquivo_extrato']['tmp_name'];
+        $transacoesBrutas = [];
 
-        if (empty(trim($textoBruto))) {
-            http_response_code(400);
-            echo json_encode(['erro' => 'O texto do extrato não pode estar vazio.']);
-            return;
+        if (($handle = fopen($arquivo, "r")) !== FALSE) {
+            fgetcsv($handle, 1000, ","); 
+            
+            while (($dados = fgetcsv($handle, 1000, ",")) !== FALSE) {
+                if (count($dados) >= 4) {
+                    $transacoesBrutas[] = [
+                        'data' => $dados[0],
+                        'valor' => $dados[1],
+                        'descricao' => $dados[3]
+                    ];
+                }
+            }
+            fclose($handle);
         }
 
         require_once __DIR__ . '/../Models/MotorPreditivo.php';
         $motor = new \MotorPreditivo();
         
-        $jsonTransacoes = $motor->analisarExtratoTexto($textoBruto);
+        $jsonTransacoes = $motor->analisarExtratoCSV(json_encode($transacoesBrutas));
 
         header('Content-Type: application/json');
         echo $jsonTransacoes;
