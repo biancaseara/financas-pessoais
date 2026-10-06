@@ -226,7 +226,10 @@
 
                 <div class="form-group full-width" style="margin-top: 15px;">
                     <label>Arquivo do Extrato (CSV)</label>
-                    <input type="file" id="arquivoExtrato" name="arquivo_extrato" class="form-control" accept=".csv" required>
+                    <div class="input-with-icon">
+                        <i class="ph ph-file-csv"></i>
+                        <input type="file" id="arquivoExtrato" name="arquivo_extrato" class="form-control" accept=".csv" required style="padding: 10px;">
+                    </div>
                 </div>
                 <div id="statusImportacao" class="status-msg form-group" style="display: none; margin-top: 15px;">
                     <p style="display: flex; align-items: center; gap: 8px; font-weight: 500; margin: 0;">
@@ -432,7 +435,7 @@ function abrirModalImportacao() {
 function fecharModalImportacao() {
     document.getElementById('modalImportacao').style.display = 'none';
     document.getElementById('areaRevisao').style.display = 'none';
-    document.getElementById('textoExtrato').value = '';
+    document.getElementById('arquivoExtrato').value = '';
     document.getElementById('statusImportacao').style.display = 'none';
 }
 
@@ -454,7 +457,7 @@ async function enviarParaIA() {
 
     if (destinoSelecionado === 'conta' && !idConta) { alert('Selecione a conta.'); return; }
     if (destinoSelecionado === 'cartao' && !idCartao) { alert('Selecione o cartão.'); return; }
-    if (arquivoInput.files.length === 0) { alert('Selecione o arquivo CSV do extrato.'); return; }
+    if (!arquivoInput.files || arquivoInput.files.length === 0) { alert('Selecione o arquivo CSV do extrato.'); return; }
 
     document.getElementById('statusImportacao').style.display = 'block';
     document.getElementById('areaRevisao').style.display = 'none';
@@ -463,7 +466,7 @@ async function enviarParaIA() {
         const formData = new FormData();
         formData.append('arquivo_extrato', arquivoInput.files[0]);
 
-        const response = await fetch('/ia/processarExtrato', {
+        const response = await fetch('/financas/ia/processarExtrato', {
             method: 'POST',
             body: formData
         });
@@ -473,7 +476,7 @@ async function enviarParaIA() {
         transacoesExtraidas = await response.json();
         
         if (transacoesExtraidas.length === 0) {
-            alert("A IA não conseguiu encontrar transações válidas neste texto.");
+            alert("Não foi possível processar o arquivo.");
             document.getElementById('statusImportacao').style.display = 'none';
             return;
         }
@@ -489,7 +492,7 @@ async function enviarParaIA() {
         document.getElementById('areaRevisao').style.display = 'block';
 
     } catch (error) {
-        alert('Erro ao processar o extrato. Tente novamente.');
+        alert('Erro ao processar o extrato. Verifique o console.');
         document.getElementById('statusImportacao').style.display = 'none';
         console.error(error);
     }
@@ -517,7 +520,7 @@ function renderizarTabelaRevisao(transacoes) {
 async function salvarImportacaoNoBanco() {
     if (transacoesExtraidas.length === 0) return;
     try {
-        const response = await fetch('/transacoes/salvarImportacao', {
+        const response = await fetch('/financas/transacoes/salvarImportacao', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ transacoes: transacoesExtraidas })

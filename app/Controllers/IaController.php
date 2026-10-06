@@ -248,6 +248,53 @@ class IaController extends Controller {
         exit;
     }
 
+    public function analisarExtratoCSV($jsonCsv) {
+        $apiKey = $_ENV['GEMINI_API_KEY'];
+        $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" . $apiKey;
+
+        $prompt = "Você é um categorizador financeiro de banco de dados.
+        O array JSON abaixo possui transações bancárias. Os valores, datas e tipos já estão 100% corretos.
+        Sua ÚNICA tarefa é analisar cada objeto e devolver O MESMO ARRAY, alterando estritamente 2 chaves:
+        
+        1. 'descricao': Limpe o nome. Remova instituições repetitivas (ex: MERCADO PAGO, NU PAGAMENTOS, IP LTDA), remova 'Transferência enviada pelo Pix -' e deixe um nome curto de quem enviou/recebeu ou o estabelecimento comercial.
+        2. 'categoria': Mude de 'Outros' para a categoria mais lógica (ex: Alimentação, Transporte, Saúde, Moradia, Serviços, Educação, Lazer, Receitas, Cartões).
+        
+        REGRA: Devolva APENAS o array JSON limpo. Nenhuma palavra a mais, nenhuma marcação markdown.
+        
+        JSON DE ENTRADA:
+        " . $jsonCsv;
+
+        $data = [
+            "contents" => [["parts" => [["text" => $prompt]]]],
+            "generationConfig" => ["temperature" => 0.0],
+            "safetySettings" => [
+                ["category" => "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold" => "BLOCK_NONE"],
+                ["category" => "HARM_CATEGORY_HARASSMENT", "threshold" => "BLOCK_NONE"],
+                ["category" => "HARM_CATEGORY_HATE_SPEECH", "threshold" => "BLOCK_NONE"],
+                ["category" => "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold" => "BLOCK_NONE"]
+            ]
+        ];
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        $resultado = json_decode($response, true);
+        if (isset($resultado['candidates'][0]['content']['parts'][0]['text'])) {
+            $textoIA = $resultado['candidates'][0]['content']['parts'][0]['text'];
+            $inicio = strpos($textoIA, '[');
+            $fim = strrpos($textoIA, ']');
+            if ($inicio !== false && $fim !== false) {
+                return substr($textoIA, $inicio, $fim - $inicio + 1);
+            }
+        }
+        return "[]"; 
+    }
+
     private function _chamarGemini($prompt, $endpoint = 'generico') {
         $id_usuario = $_SESSION['id_usuario'] ?? null;
         $logModel = clone $this->model('LogApi');
@@ -316,27 +363,55 @@ class IaController extends Controller {
         }
 
         $arquivo = $_FILES['arquivo_extrato']['tmp_name'];
-        $transacoesBrutas = [];
+        $transacoesTratadas = [];
 
         if (($handle = fopen($arquivo, "r")) !== FALSE) {
-            fgetcsv($handle, 1000, ","); 
+            fgetcsv($handle, 1000, ",");
             
             while (($dados = fgetcsv($handle, 1000, ",")) !== FALSE) {
                 if (count($dados) >= 4) {
-                    $transacoesBrutas[] = [
-                        'data' => $dados[0],
-                        'valor' => $dados[1],
-                        'descricao' => $dados[3]
+                    $dtParts = explode('/', $dados[0]);
+                    $dataF = count($dtParts) == 3 ? $dtParts[2].'-'.$dtParts[1].'-'.$dtParts[0] : $dados[0];
+                    
+                    $valor = (float) $dados[1];
+                    $tipo = $valor < 0 ? 'Saida' : 'Entrada';
+                    $desc = $dados[3];
+                    
+                    $forma = 'Outros';
+                    if (stripos($desc, 'pix') !== false) $forma = 'Pix';
+                    elseif (stripos($desc, 'débito') !== false || stripos($desc, 'compra') !== false) $forma = 'Débito';
+                    elseif (stripos($desc, 'fatura') !== false) $forma = 'Crédito';
+                    
+                    $transacoesTratadas[] = [
+                        'data' => $dataF,
+                        'valor' => abs($valor), 
+                        'tipo_transacao' => $tipo,
+                        'descricao' => $desc,
+                        'forma_pagamento' => $forma,
+                        'categoria' => 'Outros',
+                        'parcelas' => null
                     ];
                 }
             }
             fclose($handle);
         }
 
+        if (empty($transacoesTratadas)) {
+             echo json_encode([]);
+             return;
+        }
+
         require_once __DIR__ . '/../Models/MotorPreditivo.php';
         $motor = new \MotorPreditivo();
         
-        $jsonTransacoes = $motor->analisarExtratoCSV(json_encode($transacoesBrutas));
+        $jsonTransacoes = $motor->analisarExtratoCSV(json_encode($transacoesTratadas));
+        
+        $testeJson = json_decode($jsonTransacoes, true);
+        if (empty($testeJson)) {
+
+            echo json_encode($transacoesTratadas);
+            return;
+        }
 
         header('Content-Type: application/json');
         echo $jsonTransacoes;
