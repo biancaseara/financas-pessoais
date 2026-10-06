@@ -119,22 +119,29 @@ class MotorPreditivo {
         $apiKey =$_ENV['GEMINI_API_KEY'];
         $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" . $apiKey;
 
-        $prompt = "Você é um assistente financeiro especialista em processamento de dados.
-        Vou te enviar um texto bruto copiado de um extrato bancário brasileiro.
-        Sua única tarefa é extrair as movimentações reais e retornar ESTRITAMENTE um array JSON válido, sem NENHUM texto adicional antes ou depois, e sem marcação markdown (não use ```json).
+        $prompt = "Atue como um extrator de dados financeiros. Seu objetivo é ler o texto bruto de um extrato do Nubank/outros bancos e extrair as transações.
         
-        Regras de extração:
-        1. ANONIMIZAÇÃO RIGOROSA: Ignore e descarte completamente qualquer informação de identificação pessoal do titular da conta presente no texto, como nomes próprios, CPFs (mesmo mascarados como ***.123.456-**), RGs ou endereços.
-        2. Ignore saldos iniciais, saldos finais, rendimento líquido, totais do período e textos padrão do banco.
-        3. 'data': Formato YYYY-MM-DD. Se a linha da transação não tiver ano, busque o ano no cabeçalho do texto. Converta meses em português (ex: JUN para 06).
-        4. 'descricao': O nome do estabelecimento limpo. Remova CNPJs, códigos inúteis de agência/conta e textos como 'Transferência enviada pelo Pix'.
-        5. 'valor': Apenas numérico positivo (float com ponto, ex: 12.90).
-        6. 'tipo_transacao': Retorne 'Saida' (para valores negativos, pagamentos ou débitos) ou 'Entrada' (para valores positivos, rendimentos ou recebimentos).
-        7. 'forma_pagamento': Deduza pelo texto (ex: 'Pix', 'Crédito', 'Débito', 'Transferência').
-        8. 'categoria': Atribua uma categoria básica lógica (Alimentação, Moradia, Transporte, Saúde, Educação, Lazer, Renda Principal, Outros).
-        9. 'parcelas': Se o texto indicar parcelamento (ex: 01/05 ou 2/12), retorne uma string '1/5'. Se não houver, retorne null.
+        REGRAS RÍGIDAS:
+        1. ANONIMIZAÇÃO: Ignore nomes próprios, CPFs e dados do titular do extrato.
+        2. ESTRUTURA DO TEXTO: A data aparece uma vez (ex: '02 SET 2026') e as linhas abaixo pertencem a ela até aparecer nova data.
+        3. LIMPEZA: Ignore linhas contendo apenas 'Total de saídas', 'Total de entradas', 'Saldo', mensagens do banco, e remova CNPJs/Agência/Conta das descrições.
+        4. VALORES: Retorne apenas o número float positivo (ex: 1415.48). Se houver um '-' na frente da string original, o 'tipo_transacao' é 'Saida'.
+        5. SAÍDA OBRIGATÓRIA: Você DEVE retornar EXATAMENTE um array JSON puro. Não utilize marcação markdown (```json). Não inclua nenhum texto explicativo.
+        
+        EXEMPLO DO FORMATO ESPERADO:
+        [
+          {
+            \"data\": \"2026-09-02\",
+            \"descricao\": \"Nome do Local\",
+            \"valor\": 1415.48,
+            \"tipo_transacao\": \"Saida\",
+            \"forma_pagamento\": \"Pix\",
+            \"categoria\": \"Outros\",
+            \"parcelas\": null
+          }
+        ]
 
-        Texto do Extrato:
+        TEXTO DO EXTRATO:
         " . $textoBruto;
 
         $data = [

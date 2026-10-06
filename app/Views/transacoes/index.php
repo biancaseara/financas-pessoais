@@ -173,56 +173,98 @@
         </button>
     </div>
 
+    <!-- Modal de Importação de Extrato -->
     <div id="modalImportacao" class="modal" style="display: none;">
         <div class="modal-content">
             <span class="close" onclick="fecharModalImportacao()">&times;</span>
-            <h2>Importação Inteligente de Extrato</h2>
-            <p class="text-muted">Cole o texto bruto do seu extrato e a IA do PREDITIV.IA fará a categorização.</p>
+            <h3 style="margin-bottom: 5px;">Importação Inteligente</h3>
+            <p class="text-muted" style="margin-bottom: 20px;">Cole o texto bruto do extrato. A IA fará o resto.</p>
 
             <form id="formImportacao">
-                <div class="form-group">
-                    <label for="contaDestinoImportacao">Selecione a Conta/Cartão:</label>
-                    <select id="contaDestinoImportacao" name="id_conta" required>
-                        <option value="">Selecione...</option>
-                        <?php foreach ($contas as $conta): ?>
-                            <option value="<?= $conta['id_conta'] ?>"><?= htmlspecialchars($conta['nome_banco']) ?></option>
-                        <?php endforeach; ?>
-                    </select>
+                <div class="form-group type-toggle" style="margin-bottom: 20px;">
+                    <label class="radio-card income">
+                        <input type="radio" name="destino_importacao" value="conta" checked onclick="alternarDestinoImportacao('conta')">
+                        <div class="radio-content">
+                            <i class="ph ph-bank"></i>
+                            <span>Conta</span>
+                        </div>
+                    </label>
+                    <label class="radio-card expense">
+                        <input type="radio" name="destino_importacao" value="cartao" onclick="alternarDestinoImportacao('cartao')">
+                        <div class="radio-content">
+                            <i class="ph ph-credit-card"></i>
+                            <span>Cartão</span>
+                        </div>
+                    </label>
                 </div>
 
-                <div class="form-group">
-                    <label for="textoExtrato">Cole o texto do extrato aqui:</label>
-                    <textarea id="textoExtrato" name="texto_extrato" rows="10" placeholder="Ex: 02 JUN 2026 Transferência enviada pelo Pix - 12,90..." required></textarea>
+                <div class="form-group" id="divContaImportacao">
+                    <label>Conta Destino</label>
+                    <div class="input-with-icon">
+                        <i class="ph ph-bank"></i>
+                        <select id="contaImportacao" class="form-control">
+                            <option value="">Selecione a Conta...</option>
+                            <?php foreach ($contas as$c): ?>
+                                <option value="<?= $c['id_conta'] ?>"><?= htmlspecialchars($c['nome_banco'], ENT_QUOTES, 'UTF-8') ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
                 </div>
 
-                <div id="statusImportacao" class="status-msg form-group" style="display: none;">
-                    <p style="display: flex; align-items: center; gap: 8px; font-weight: 500;">
-                        <i class="ph ph-gear spinning-icon" style="font-size: 1.5rem; color: var(--primary-color, #6366f1);"></i> 
-                        A IA está analisando seu extrato, aguarde...
+                <div class="form-group" id="divCartaoImportacao" style="display: none;">
+                    <label>Cartão Destino</label>
+                    <div class="input-with-icon">
+                        <i class="ph ph-credit-card"></i>
+                        <select id="cartaoImportacao" class="form-control">
+                            <option value="">Selecione o Cartão...</option>
+                            <?php if (!empty($cartoes)): foreach ($cartoes as$cartao): ?>
+                                <option value="<?= $cartao['id_cartao'] ?>"><?= htmlspecialchars($cartao['nome_cartao'], ENT_QUOTES, 'UTF-8') ?></option>
+                            <?php endforeach; endif; ?>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group full-width" style="margin-top: 15px;">
+                    <label>Texto do Extrato</label>
+                    <textarea id="textoExtrato" name="texto_extrato" class="form-control" rows="8" placeholder="Cole o extrato aqui..." style="resize: vertical; padding: 10px;" required></textarea>
+                </div>
+
+                <div id="statusImportacao" class="status-msg form-group" style="display: none; margin-top: 15px;">
+                    <p style="display: flex; align-items: center; gap: 8px; font-weight: 500; margin: 0;">
+                        <i class="ph ph-gear spinning-icon" style="font-size: 1.5rem; color: var(--primary-color);"></i> 
+                        A IA está processando os dados...
                     </p>
                 </div>
 
-                <button type="button" class="btn btn-primary" onclick="enviarParaIA()">Analisar com IA</button>
+                <div class="form-actions" style="margin-top: 20px;">
+                    <button type="button" class="btn-primary w-full" onclick="enviarParaIA()">
+                        <i class="ph ph-magic-wand"></i> Analisar com IA
+                    </button>
+                </div>
             </form>
             
-            <div id="areaRevisao" style="display: none;">
-                <h3>Revisão das Transações</h3>
-                <table class="tabela-extrato" id="tabelaRevisao">
-                    <thead>
-                        <tr>
-                            <th>Data</th>
-                            <th>Descrição</th>
-                            <th>Valor</th>
-                            <th>Categoria</th>
-                            <th>Forma Pag.</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
-                <button type="button" class="btn btn-success" onclick="salvarImportacaoNoBanco()">Confirmar e Salvar</button>
+            <div id="areaRevisao" style="display: none; margin-top: 30px;">
+                <h4 style="margin-bottom: 10px;">Revisão das Transações</h4>
+                <div style="overflow-x: auto;">
+                    <table class="tabela-extrato" id="tabelaRevisao">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Descrição</th>
+                                <th>Valor</th>
+                                <th>Categoria</th>
+                                <th>Forma Pag.</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <div class="form-actions" style="margin-top: 20px;">
+                    <button type="button" class="btn-primary w-full" style="background-color: var(--success-color, #10b981);" onclick="salvarImportacaoNoBanco()">
+                        <i class="ph ph-check-circle"></i> Confirmar e Salvar
+                    </button>
+                </div>
             </div>
-
         </div>
     </div>
 
@@ -382,6 +424,7 @@ $(document).ready(function() {
 });
 
 let transacoesExtraidas = [];
+let destinoSelecionado = 'conta';
 
 function abrirModalImportacao() {
     document.getElementById('modalImportacao').style.display = 'block';
@@ -394,17 +437,30 @@ function fecharModalImportacao() {
     document.getElementById('statusImportacao').style.display = 'none';
 }
 
+function alternarDestinoImportacao(tipo) {
+    destinoSelecionado = tipo;
+    if (tipo === 'conta') {
+        document.getElementById('divContaImportacao').style.display = 'block';
+        document.getElementById('divCartaoImportacao').style.display = 'none';
+    } else {
+        document.getElementById('divContaImportacao').style.display = 'none';
+        document.getElementById('divCartaoImportacao').style.display = 'block';
+    }
+}
+
 async function enviarParaIA() {
     const texto = document.getElementById('textoExtrato').value;
-    const idConta = document.getElementById('contaDestinoImportacao').value;
+    const idConta = document.getElementById('contaImportacao').value;
+    const idCartao = document.getElementById('cartaoImportacao').value;
 
-    if (!idConta) {
-        alert('Por favor, selecione a conta ou cartão.');
-        return;
+    if (destinoSelecionado === 'conta' && !idConta) {
+        alert('Por favor, selecione a conta de destino.'); return;
+    }
+    if (destinoSelecionado === 'cartao' && !idCartao) {
+        alert('Por favor, selecione o cartão de destino.'); return;
     }
     if (!texto) {
-        alert('Cole o texto do extrato antes de analisar.');
-        return;
+        alert('Cole o texto do extrato.'); return;
     }
 
     document.getElementById('statusImportacao').style.display = 'block';
@@ -419,19 +475,28 @@ async function enviarParaIA() {
             body: formData
         });
 
-        if (!response.ok) throw new Error('Falha na comunicação com a IA.');
+        if (!response.ok) throw new Error('Falha no servidor.');
 
         transacoesExtraidas = await response.json();
         
-        transacoesExtraidas = transacoesExtraidas.map(t => ({...t, id_conta: idConta}));
+        if (transacoesExtraidas.length === 0) {
+            alert("A IA não conseguiu encontrar transações válidas neste texto.");
+            document.getElementById('statusImportacao').style.display = 'none';
+            return;
+        }
+
+        transacoesExtraidas = transacoesExtraidas.map(t => ({
+            ...t, 
+            id_conta: destinoSelecionado === 'conta' ? idConta : null,
+            id_cartao: destinoSelecionado === 'cartao' ? idCartao : null
+        }));
 
         renderizarTabelaRevisao(transacoesExtraidas);
-        
         document.getElementById('statusImportacao').style.display = 'none';
         document.getElementById('areaRevisao').style.display = 'block';
 
     } catch (error) {
-        alert('Ops! Ocorreu um erro ao processar o extrato com a IA. Tente novamente.');
+        alert('Erro ao processar o extrato. Tente novamente.');
         document.getElementById('statusImportacao').style.display = 'none';
         console.error(error);
     }
@@ -441,15 +506,14 @@ function renderizarTabelaRevisao(transacoes) {
     const tbody = document.querySelector('#tabelaRevisao tbody');
     tbody.innerHTML = '';
 
-    transacoes.forEach((t, index) => {
+    transacoes.forEach(t => {
         const tr = document.createElement('tr');
-        
-        const corValor = t.tipo_transacao === 'Saida' ? 'color: red;' : 'color: green;';
+        const corValor = t.tipo_transacao === 'Saida' ? 'color: #ef4444;' : 'color: #10b981;';
         
         tr.innerHTML = `
             <td>${t.data}</td>
             <td>${t.descricao}</td>
-            <td style="${corValor}">R$ ${parseFloat(t.valor).toFixed(2).replace('.', ',')}</td>
+            <td style="${corValor}; font-weight: 600;">R$ ${parseFloat(t.valor).toFixed(2).replace('.', ',')}</td>
             <td>${t.categoria}</td>
             <td>${t.forma_pagamento}</td>
         `;
@@ -459,23 +523,19 @@ function renderizarTabelaRevisao(transacoes) {
 
 async function salvarImportacaoNoBanco() {
     if (transacoesExtraidas.length === 0) return;
-
     try {
         const response = await fetch('/transacoes/salvarImportacao', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ transacoes: transacoesExtraidas })
         });
-
         if (response.ok) {
-            alert('Transações importadas com sucesso!');
             window.location.reload();
         } else {
-            alert('Erro ao salvar as transações no banco de dados.');
+            alert('Erro ao salvar no banco de dados.');
         }
     } catch (error) {
-        alert('Erro ao comunicar com o servidor.');
-        console.error(error);
+        alert('Erro de comunicação.');
     }
 }
 </script>
