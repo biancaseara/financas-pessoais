@@ -116,24 +116,24 @@ class MotorPreditivo {
     }
 
     public function analisarExtratoTexto($textoBruto) {
-        $apiKey =$_ENV['GEMINI_API_KEY'];
+        $apiKey = $_ENV['GEMINI_API_KEY'];
         $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" . $apiKey;
 
-        $prompt = "Atue como um extrator de dados financeiros. Seu objetivo é ler o texto bruto de um extrato do Nubank/outros bancos e extrair as transações.
+        $prompt = "Atue como um extrator de dados financeiros focado na precisão. O texto bruto abaixo é de um extrato do Nubank/outros bancos. Extraia as transações.
         
         REGRAS RÍGIDAS:
-        1. ANONIMIZAÇÃO: Ignore nomes próprios, CPFs e dados do titular do extrato.
-        2. ESTRUTURA DO TEXTO: A data aparece uma vez (ex: '02 SET 2026') e as linhas abaixo pertencem a ela até aparecer nova data.
-        3. LIMPEZA: Ignore linhas contendo apenas 'Total de saídas', 'Total de entradas', 'Saldo', mensagens do banco, e remova CNPJs/Agência/Conta das descrições.
-        4. VALORES: Retorne apenas o número float positivo (ex: 1415.48). Se houver um '-' na frente da string original, o 'tipo_transacao' é 'Saida'.
-        5. SAÍDA OBRIGATÓRIA: Você DEVE retornar EXATAMENTE um array JSON puro. Não utilize marcação markdown (```json). Não inclua nenhum texto explicativo.
+        1. ESTRUTURA: A data aparece uma vez (ex: '02 SET 2026') e as linhas de movimentação abaixo pertencem a ela até surgir uma nova data. Converta o mês para número (SET = 09).
+        2. LIMPEZA ABSOLUTA: Ignore completamente linhas com 'Total de saídas', 'Total de entradas', 'Saldo', e mensagens de atendimento.
+        3. DESCRIÇÃO: Remova CNPJs, nomes próprios longos ou códigos de agência. Deixe apenas o nome comercial essencial.
+        4. VALORES E TIPO: Retorne apenas o número float (ex: 1415.48). Se houver um símbolo '-' antes do valor, marque o 'tipo_transacao' como 'Saida'. Se houver '+', marque como 'Entrada'.
+        5. SAÍDA OBRIGATÓRIA: DEVE retornar EXATAMENTE um array JSON puro. Não explique a resposta.
         
         EXEMPLO DO FORMATO ESPERADO:
         [
           {
             \"data\": \"2026-09-02\",
-            \"descricao\": \"Nome do Local\",
-            \"valor\": 1415.48,
+            \"descricao\": \"EBANX IP LTDA\",
+            \"valor\": 12.90,
             \"tipo_transacao\": \"Saida\",
             \"forma_pagamento\": \"Pix\",
             \"categoria\": \"Outros\",
@@ -153,7 +153,25 @@ class MotorPreditivo {
                 ]
             ],
             "generationConfig" => [
-                "temperature" => 0.1
+                "temperature" => 0.0 
+            ],
+            "safetySettings" => [
+                [
+                    "category" => "HARM_CATEGORY_DANGEROUS_CONTENT",
+                    "threshold" => "BLOCK_NONE"
+                ],
+                [
+                    "category" => "HARM_CATEGORY_HARASSMENT",
+                    "threshold" => "BLOCK_NONE"
+                ],
+                [
+                    "category" => "HARM_CATEGORY_HATE_SPEECH",
+                    "threshold" => "BLOCK_NONE"
+                ],
+                [
+                    "category" => "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                    "threshold" => "BLOCK_NONE"
+                ]
             ]
         ];
 
@@ -169,14 +187,13 @@ class MotorPreditivo {
         $resultado = json_decode($response, true);
 
         if (isset($resultado['candidates'][0]['content']['parts'][0]['text'])) {
-            $textoIA = trim($resultado['candidates'][0]['content']['parts'][0]['text']);
+            $textoIA = $resultado['candidates'][0]['content']['parts'][0]['text'];
             
-            $textoIA = str_replace(['```json', '```'], '', $textoIA);
-            
-            return trim($textoIA);
+            if (preg_match('/\[\s*\{.*\}\s*\]/s', $textoIA, $matches)) {
+                return $matches[0];
+            }
         }
 
         return "[]"; 
-    }
-}
+    }}
 ?>
