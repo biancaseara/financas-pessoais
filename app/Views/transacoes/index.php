@@ -167,8 +167,8 @@
         </form>
     </div>
 
-    <div class="acoes-topo">
-        <button type="button" class="btn btn-secondary" onclick="abrirModalImportacao()">
+    <div class="acoes-topo form-actions">
+        <button type="button" class="btn-primary w-full" onclick="abrirModalImportacao()">
             <i class="icon-upload"></i> Importar Extrato
         </button>
     </div>
