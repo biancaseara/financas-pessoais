@@ -225,6 +225,14 @@ class TransacoesController extends Controller
             return;
         }
 
+        if (!isset($_SESSION['id_usuario'])) {
+            http_response_code(401);
+            echo json_encode(['erro' => 'Usuário não autenticado.']);
+            return;
+        }
+
+        $id_usuario = $_SESSION['id_usuario'];
+
         $json = file_get_contents('php://input');
         $dados = json_decode($json, true);
 
@@ -234,32 +242,43 @@ class TransacoesController extends Controller
             return;
         }
 
-        require_once __DIR__ . '/../Models/Transacao.php';
-        require_once __DIR__ . '/../Models/Categoria.php';
-        
-        $transacaoModel = new \Transacao();
-        $categoriaModel = new \Categoria();
-
+        $transacaoModel = $this->model('Transacao');
         $sucesso = 0;
 
         foreach ($dados['transacoes'] as $t) {
             
-            $idCategoria = 1; 
+            $id_conta = !empty($t['id_conta']) ? $t['id_conta'] : null;
+            $id_categoria = null;
+            $descricao = strip_tags(trim($t['descricao']));
+            $valor = (float) str_replace(',', '.', $t['valor']);
+            $data = $t['data'];
+            $tipo_transacao = $t['tipo_transacao'];
+            $forma_pagamento = $t['forma_pagamento'];
 
-            $dadosInsert = [
-                'id_conta'        => $t['id_conta'],
-                'id_categoria'    => $idCategoria,
-                'descricao'       => $t['descricao'],
-                'valor'           => str_replace(',', '.', $t['valor']),
-                'data_transacao'  => $t['data'],
-                'tipo_transacao'  => $t['tipo_transacao'],
-                'forma_pagamento' => $t['forma_pagamento']
-            ];
-
-            $transacaoModel->insert($dadosInsert);
-            $sucesso++;
+            try {
+                $transacaoModel->cadastrar(
+                    $id_usuario, 
+                    $id_conta, 
+                    $id_categoria, 
+                    $descricao, 
+                    $valor, 
+                    $data, 
+                    $tipo_transacao, 
+                    $forma_pagamento, 
+                    null,
+                    null 
+                );
+                $sucesso++;
+            } catch (Exception $e) {
+                error_log("Erro ao importar transação: " . $e->getMessage());
+            }
         }
 
-        echo json_encode(['status' => 'sucesso', 'inseridas' => $sucesso]);
+        if ($sucesso > 0) {
+            echo json_encode(['status' => 'sucesso', 'inseridas' => $sucesso]);
+        } else {
+            http_response_code(500);
+            echo json_encode(['erro' => 'Nenhuma transação pôde ser salva no banco.']);
+        }
     }
 }
