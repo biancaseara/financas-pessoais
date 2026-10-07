@@ -129,7 +129,6 @@ class IaController extends Controller {
 
         $sucessoAPI = false;
 
-        // Loop Triplo Mágico: Tenta chave por chave, e modelo por modelo
         foreach ($listaChaves as $chaveApi) {
             if ($sucessoAPI) break;
             if (empty($chaveApi)) continue;
@@ -159,7 +158,7 @@ class IaController extends Controller {
                 if ($erroCurl) {
                     error_log("Erro de cURL no Preditiv.ia: " . $erroCurl);
                     $logModel->registrar($id_usuario, "analisar (Erro cURL)", 500, 0, 0, $tempoRespostaMs);
-                    continue; // Erro de conexão, tenta o próximo modelo
+                    continue; 
                 }
 
                 $resultado = json_decode($resposta, true);
@@ -171,7 +170,7 @@ class IaController extends Controller {
 
                 if (isset($resultado['error'])) {
                     error_log("Erro na API do Gemini ({$modelo} - {$httpCode}): " . json_encode($resultado['error']));
-                    continue; // Erro da API (ex: 429 quota exceeded), tenta o próximo modelo/chave
+                    continue; 
                 }
 
                 if ($httpCode === 200 && isset($resultado['candidates'][0]['content']['parts'][0]['text'])) {
@@ -179,7 +178,7 @@ class IaController extends Controller {
                     $textoBruto = str_replace(['```json', '```'], '', $textoBruto);
                     $mensagemIA = trim($textoBruto);
                     $sucessoAPI = true;
-                    break; // Sai do loop de modelos
+                    break; 
                 }
             }
         }
@@ -248,70 +247,26 @@ class IaController extends Controller {
         exit;
     }
 
-    public function analisarExtratoCSV($jsonCsv) {
-        $apiKey = $_ENV['GEMINI_API_KEY'];
-        $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" . $apiKey;
-
-        $prompt = "Você é um categorizador financeiro de banco de dados.
-        O array JSON abaixo possui transações bancárias. Os valores, datas e tipos já estão 100% corretos.
-        Sua ÚNICA tarefa é analisar cada objeto e devolver O MESMO ARRAY, alterando estritamente 2 chaves:
+    private function _chamarGemini($prompt, $endpoint = 'generico') {
+        $id_usuario = $_SESSION['id_usuario'] ?? null;
+        $logModel = clone $this->model('LogApi');
         
-        1. 'descricao': Limpe o nome. Remova instituições repetitivas (ex: MERCADO PAGO, NU PAGAMENTOS, IP LTDA), remova 'Transferência enviada pelo Pix -' e deixe um nome curto de quem enviou/recebeu ou o estabelecimento comercial.
-        2. 'categoria': Mude de 'Outros' para a categoria mais lógica (ex: Alimentação, Transporte, Saúde, Moradia, Serviços, Educação, Lazer, Receitas, Cartões).
-        
-        REGRA: Devolva APENAS o array JSON limpo. Nenhuma palavra a mais, nenhuma marcação markdown.
-        
-        JSON DE ENTRADA:
-        " . $jsonCsv;
-
-        $data = [
-            "contents" => [["parts" => [["text" => $prompt]]]],
-            "generationConfig" => ["temperature" => 0.0],
-            "safetySettings" => [
-                ["category" => "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold" => "BLOCK_NONE"],
-                ["category" => "HARM_CATEGORY_HARASSMENT", "threshold" => "BLOCK_NONE"],
-                ["category" => "HARM_CATEGORY_HATE_SPEECH", "threshold" => "BLOCK_NONE"],
-                ["category" => "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold" => "BLOCK_NONE"]
-            ]
-        ];
-
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-        $response = curl_exec($ch);
-        curl_close($ch);
-
-        $resultado = json_decode($response, true);
-        if (isset($resultado['candidates'][0]['content']['parts'][0]['text'])) {
-            $textoIA = $resultado['candidates'][0]['content']['parts'][0]['text'];
-            $inicio = strpos($textoIA, '[');
-            $fim = strrpos($textoIA, ']');
-            if ($inicio !== false && $fim !== false) {
-                return substr($textoIA, $inicio, $fim - $inicio + 1);
-            }
-        }
-        return "[]"; 
-    }
-
-    private function _chamarGemini($prompt,$endpoint = 'generico') {
-        $id_usuario =$_SESSION['id_usuario'] ?? null;
-        $logModel = clone$this->model('LogApi');
-        
-        $chavesRaw = getenv('GEMINI_API_KEY') ?:$_ENV['GEMINI_API_KEY'];
+        $chavesRaw = getenv('GEMINI_API_KEY') ?: $_ENV['GEMINI_API_KEY'];
         $chavesRaw = trim($chavesRaw, " '\"\t\n\r\0\x0B"); 
-        $listaChaves = array_map('trim', explode(',', $chavesRaw));$dados = [
+        $listaChaves = array_map('trim', explode(',', $chavesRaw));
+        
+        $dados = [
             "contents" => [["parts" => [["text" => $prompt]]]],
             "generationConfig" => ["responseMimeType" => "application/json"]
         ];
 
         $modelosDisponiveis = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-flash-latest'];
         
-        foreach ($listaChaves as$chaveApi) {
+        foreach ($listaChaves as $chaveApi) {
             if (empty($chaveApi)) continue;
 
-            foreach ($modelosDisponiveis as $modelo) {$url = "https://generativelanguage.googleapis.com/v1beta/models/{$modelo}:generateContent?key=" . $chaveApi;
+            foreach ($modelosDisponiveis as $modelo) {
+                $url = "https://generativelanguage.googleapis.com/v1beta/models/{$modelo}:generateContent?key=" . $chaveApi;
                 $ch = curl_init($url);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                 curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
@@ -319,8 +274,7 @@ class IaController extends Controller {
                 curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($dados));
                 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); 
                 curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-                
-                curl_setopt($ch, CURLOPT_TIMEOUT, 60); 
+                curl_setopt($ch, CURLOPT_TIMEOUT, 60);
 
                 $inicioTimer = microtime(true);
 
@@ -328,18 +282,18 @@ class IaController extends Controller {
                 $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                 curl_close($ch);
 
-                $tempoRespostaMs = round((microtime(true) -$inicioTimer) * 1000);
+                $tempoRespostaMs = round((microtime(true) - $inicioTimer) * 1000);
                 $resultado = json_decode($resposta, true);
 
-                $tokensPrompt =$resultado['usageMetadata']['promptTokenCount'] ?? 0;
-                $tokensCompletion =$resultado['usageMetadata']['candidatesTokenCount'] ?? 0;
+                $tokensPrompt = $resultado['usageMetadata']['promptTokenCount'] ?? 0;
+                $tokensCompletion = $resultado['usageMetadata']['candidatesTokenCount'] ?? 0;
 
                 if ($id_usuario) {
-                    $logModel->registrar($id_usuario, "{$endpoint} ({$modelo})", $httpCode,$tokensPrompt, $tokensCompletion,$tempoRespostaMs);
+                    $logModel->registrar($id_usuario, "{$endpoint} ({$modelo})", $httpCode, $tokensPrompt, $tokensCompletion, $tempoRespostaMs);
                 }
 
                 if ($httpCode === 200 && isset($resultado['candidates'][0]['content']['parts'][0]['text'])) {
-                    $textoBruto =$resultado['candidates'][0]['content']['parts'][0]['text'];
+                    $textoBruto = $resultado['candidates'][0]['content']['parts'][0]['text'];
                     return trim(str_replace(['```json', '```'], '', $textoBruto));
                 }
             }
@@ -353,45 +307,73 @@ class IaController extends Controller {
         ]);
     }
 
-    public function processarExtrato() {
-        set_time_limit(180); 
+    public function analisarExtratoCSV($jsonCsv) {
+        $prompt = "Você é um categorizador financeiro de banco de dados.
+        O array JSON abaixo possui transações bancárias. Os valores, datas e tipos já estão 100% corretos.
+        Sua ÚNICA tarefa é analisar cada objeto e devolver O MESMO ARRAY, alterando estritamente 2 chaves:
         
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST' \vert{}\vert{} !isset($_FILES['arquivo_extrato'])) {
+        1. 'descricao': Limpe o nome. Remova instituições repetitivas (ex: MERCADO PAGO, NU PAGAMENTOS, IP LTDA), remova 'Transferência enviada pelo Pix -' e deixe um nome curto de quem enviou/recebeu ou o estabelecimento comercial.
+        2. 'categoria': Mude de 'Outros' para a categoria mais lógica (ex: Alimentação, Transporte, Saúde, Moradia, Serviços, Educação, Lazer, Receitas, Cartões).
+        
+        REGRA: Devolva APENAS o array JSON limpo. Nenhuma palavra a mais, nenhuma marcação markdown.
+        
+        JSON DE ENTRADA:
+        " . $jsonCsv;
+
+        return $this->_chamarGemini($prompt, 'analisarExtratoCSV');
+    }
+
+    public function processarExtrato() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_FILES['arquivo_extrato'])) {
             http_response_code(400);
             echo json_encode(['erro' => 'Arquivo CSV não enviado.']);
             return;
         }
 
-        $arquivo =$_FILES['arquivo_extrato']['tmp_name'];
-        $textoCru = file_get_contents($arquivo);
+        $arquivo = $_FILES['arquivo_extrato']['tmp_name'];
+        $transacoesTratadas = [];
 
-        $linhas = explode("\n", $textoCru);
-        $textoCruLimitado = implode("\n", array_slice($linhas, 0, 300));
+        if (($handle = fopen($arquivo, "r")) !== FALSE) {
+            fgetcsv($handle, 1000, ","); 
+            
+            while (($dados = fgetcsv($handle, 1000, ",")) !== FALSE) {
+                if (count($dados) >= 4) {
+                    $dtParts = explode('/', $dados[0]);
+                    $dataF = count($dtParts) == 3 ? $dtParts[2].'-'.$dtParts[1].'-'.$dtParts[0] : $dados[0];
+                    
+                    $valor = (float) $dados[1];
+                    $tipo = $valor < 0 ? 'Saida' : 'Entrada';
+                    $desc = $dados[3];
+                    
+                    $forma = 'Outros';
+                    if (stripos($desc, 'pix') !== false) $forma = 'Pix';
+                    elseif (stripos($desc, 'débito') !== false || stripos($desc, 'compra') !== false) $forma = 'Débito';
+                    elseif (stripos($desc, 'fatura') !== false) $forma = 'Crédito';
+                    
+                    $transacoesTratadas[] = [
+                        'data' => $dataF,
+                        'valor' => abs($valor), 
+                        'tipo_transacao' => $tipo,
+                        'descricao' => $desc,
+                        'forma_pagamento' => $forma,
+                        'categoria' => 'Outros',
+                        'parcelas' => null
+                    ];
+                }
+            }
+            fclose($handle);
+        }
 
-        $prompt = "Você é um processador financeiro corporativo. 
-        Abaixo está o conteúdo bruto de um extrato bancário (CSV). Pode ser do Nubank, Bradesco, Banco do Brasil, PicPay, etc. Os separadores podem ser vírgulas ou pontos e vírgulas, os valores podem estar separados em colunas de 'Crédito' e 'Débito', e podem conter sujeira como '−R$ 10,00'.
-        Sua tarefa é analisar as linhas brutas, ignorar cabeçalhos inúteis e extrair as transações, devolvendo um ARRAY JSON limpo.
+        if (empty($transacoesTratadas)) {
+             echo json_encode([]);
+             return;
+        }
 
-        REGRAS PARA CADA OBJETO DO JSON:
-        1. 'data': Converta a data da transação para o formato 'YYYY-MM-DD'.
-        2. 'valor': Extraia o valor financeiro como um FLOAT ABSOLUTO (apenas números e ponto. Ex: 15.90). Remova sinais de menos, 'R$' ou vírgulas.
-        3. 'tipo_transacao': Se o dinheiro saiu da conta (débito/sinal negativo), use 'Saida'. Se entrou na conta (crédito/sinal positivo), use 'Entrada'.
-        4. 'descricao': Limpe a descrição. Remova instituições repetitivas (MERCADO PAGO, etc), retire CNPJs/códigos e deixe o nome limpo de quem enviou/recebeu ou da loja.
-        5. 'forma_pagamento': Deduza pelo texto se foi 'Pix', 'Crédito', 'Débito', 'Boleto' ou 'Outros'. Se for Resgate/Aplicação RDB, use 'Outros'.
-        6. 'categoria': Categorize (Alimentação, Transporte, Saúde, Moradia, Serviços, Educação, Lazer, Renda, Transferência, Outros).
-
-        REGRA DE RETORNO ESTREITA: Devolva EXCLUSIVAMENTE o array JSON puro (iniciando em [ e terminando em ]). Sem formatação markdown (```json), sem backticks, sem introduções.
-        
-        EXTRATO BRUTO:
-        " . $textoCruLimitado;
-
-        $jsonTransacoes = $this->_chamarGemini($prompt, 'processarExtrato');
+        $jsonTransacoes = $this->analisarExtratoCSV(json_encode($transacoesTratadas));
         
         $testeJson = json_decode($jsonTransacoes, true);
-        
-        if (empty($testeJson) || !is_array($testeJson) || isset($testeJson['titulo'])) {
-            http_response_code(500);
-            echo json_encode(['erro' => 'A IA demorou muito para responder ou não identificou o formato.']);
+        if (empty($testeJson) || !is_array($testeJson)) {
+            echo json_encode($transacoesTratadas);
             return;
         }
 
@@ -399,3 +381,4 @@ class IaController extends Controller {
         echo $jsonTransacoes;
     }
 }
+?>
