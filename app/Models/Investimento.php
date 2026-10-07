@@ -70,5 +70,30 @@ class Investimento {
         $stmt = $this->pdo->prepare("INSERT INTO tipos_investimento (id_usuario, nome_tipo, categoria_grupo) VALUES (?, ?, ?)");
         return $stmt->execute([$id_usuario, $nome_tipo, $grupo]);
     }
+    public function listarHistorico($id_investimento) {
+        $stmt = $this->pdo->prepare("SELECT * FROM historico_investimentos WHERE id_investimento = ? ORDER BY data_movimento DESC, id_historico DESC");
+        $stmt->execute([$id_investimento]);
+        return $stmt->fetchAll();
+    }
+
+    public function adicionarMovimentacao($id_investimento, $id_usuario, $tipo_movimento, $valor, $data_movimento, $observacao) {
+        $inv = $this->buscarPorId($id_investimento, $id_usuario);
+        if (!$inv) return false;
+
+        $sql = "INSERT INTO historico_investimentos (id_investimento, tipo_movimento, valor, data_movimento, observacao) VALUES (?, ?, ?, ?, ?)";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$id_investimento, $tipo_movimento, $valor, $data_movimento, $observacao]);
+
+        if ($tipo_movimento === 'Resgate') {
+            $novo_valor = $inv['valor_aplicado'] - $valor;
+        } else {
+            $novo_valor = $inv['valor_aplicado'] + $valor;
+        }
+
+        $sqlUpdate = "UPDATE investimentos SET valor_aplicado = ? WHERE id_investimento = ?";
+        $this->pdo->prepare($sqlUpdate)->execute([$novo_valor, $id_investimento]);
+
+        return true;
+    }
 }
 ?>

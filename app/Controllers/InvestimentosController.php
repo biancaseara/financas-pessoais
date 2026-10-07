@@ -56,16 +56,34 @@ class InvestimentosController extends Controller {
         $investimentoModel = $this->model('Investimento');
         $investimento = $investimentoModel->buscarPorId($id, $_SESSION['id_usuario']);
         $tipos = $investimentoModel->listarTipos($_SESSION['id_usuario']);
+        $historico = $investimentoModel->listarHistorico($id);
 
         if ($investimento) {
             $this->view('investimentos/edit', [
-                'titulo' => 'Atualizar Investimento',
+                'titulo' => 'Painel do Ativo',
                 'investimento' => $investimento,
                 'tipos' => $tipos,
-                'csrf_token' => $_SESSION['csrf_token']
+                'historico' => $historico,
+                'csrf_token' => $_SESSION['csrf_token'] ?? ''
             ]);
         } else {
             header("Location: /financas/investimentos");
+        }
+    }
+
+    public function storeMovimentacao($id) {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $investimentoModel = $this->model('Investimento');
+            
+            $tipo_movimento = $_POST['tipo_movimento'];
+            $valor = (float) $_POST['valor'];
+            $data_movimento = $_POST['data_movimento'];
+            $observacao = strip_tags(trim($_POST['observacao']));
+
+            $investimentoModel->adicionarMovimentacao($id, $_SESSION['id_usuario'], $tipo_movimento, $valor, $data_movimento, $observacao);
+            
+            $this->setFlash('success', 'Movimentação registrada e saldo atualizado!');
+            header("Location: /financas/investimentos/edit/" . $id);
         }
     }
 
