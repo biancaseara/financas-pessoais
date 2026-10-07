@@ -232,7 +232,6 @@ class TransacoesController extends Controller
         }
 
         $id_usuario = $_SESSION['id_usuario'];
-
         $json = file_get_contents('php://input');
         $dados = json_decode($json, true);
 
@@ -243,34 +242,52 @@ class TransacoesController extends Controller
         }
 
         $transacaoModel = $this->model('Transacao');
+        $faturaModel = $this->model('Fatura'); 
+        
+        $categoriaModel = clone $this->model('Categoria');
+        $categoriasUser = $categoriaModel->listarTodos($id_usuario);
+        $id_categoria_padrao = !empty($categoriasUser) ? $categoriasUser[0]['id_categoria'] : null;
+
         $sucesso = 0;
 
         foreach ($dados['transacoes'] as $t) {
             
             $id_conta = !empty($t['id_conta']) ? $t['id_conta'] : null;
-            $id_categoria = null;
+            $id_cartao = !empty($t['id_cartao']) ? $t['id_cartao'] : null;
+            $id_fatura = null;
+            
             $descricao = strip_tags(trim($t['descricao']));
             $valor = (float) str_replace(',', '.', $t['valor']);
             $data = $t['data'];
             $tipo_transacao = $t['tipo_transacao'];
-            $forma_pagamento = $t['forma_pagamento'];
+            $forma_pagamento = $t['forma_pagamento'] ?? 'Outros';
+
+            if ($id_cartao) {
+                $dataFatura = date('Y-m', strtotime($data));
+                $id_fatura = $faturaModel->buscarOuCriarAberta($id_cartao, $dataFatura);
+                $id_conta = null;
 
             try {
                 $transacaoModel->cadastrar(
                     $id_usuario, 
                     $id_conta, 
-                    $id_categoria, 
+                    $id_categoria_padrao, 
                     $descricao, 
                     $valor, 
                     $data, 
                     $tipo_transacao, 
                     $forma_pagamento, 
-                    null,
-                    null 
+                    null, 
+                    $id_fatura
                 );
+                
+                if ($id_fatura) {
+                    $faturaModel->atualizarValorTotal($id_fatura);
+                }
+                
                 $sucesso++;
             } catch (Exception $e) {
-                error_log("Erro ao importar transação: " . $e->getMessage());
+                error_log("Erro importação PREDITIV.IA: " . $e->getMessage());
             }
         }
 
@@ -278,7 +295,7 @@ class TransacoesController extends Controller
             echo json_encode(['status' => 'sucesso', 'inseridas' => $sucesso]);
         } else {
             http_response_code(500);
-            echo json_encode(['erro' => 'Nenhuma transação pôde ser salva no banco.']);
+            echo json_encode(['erro' => 'Falha ao gravar no banco.']);
         }
     }
 }
