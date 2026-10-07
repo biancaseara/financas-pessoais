@@ -11,10 +11,16 @@ class Dashboard {
     public function getResumo($id_usuario) {
         $mesAtual = date('Y-m');
 
-        // 1. Patrimônio Líquido (Soma de TODO o dinheiro em contas, não importa a data)
-        $stmtPatrimonio = $this->pdo->prepare("SELECT SUM(saldo_inicial) as total FROM contas WHERE id_usuario = ?");
-        $stmtPatrimonio->execute([$id_usuario]);
-        $patrimonio = $stmtPatrimonio->fetch()['total'] ?? 0;
+        // 1. Patrimônio Líquido
+        $stmtContas = $this->pdo->prepare("SELECT SUM(saldo_inicial) as total FROM contas WHERE id_usuario = ?");
+        $stmtContas->execute([$id_usuario]);
+        $totalContas = $stmtContas->fetch()['total'] ?? 0;
+
+        $stmtInvestimentos = $this->pdo->prepare("SELECT SUM(valor_aplicado) as total FROM investimentos WHERE id_usuario = ?");
+        $stmtInvestimentos->execute([$id_usuario]);
+        $totalInvestimentos = $stmtInvestimentos->fetch()['total'] ?? 0;
+
+        $patrimonio = $totalContas + $totalInvestimentos;
 
         // 2. Receitas do Mês Atual
         $sqlReceitas = "SELECT SUM(t.valor) as total 
