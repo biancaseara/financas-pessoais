@@ -10,39 +10,50 @@ class Transacao
         $this->pdo = $db->getConnection();
     }
 
-    public function listarTodos($id_usuario, $limite = 10, $offset = 0)
+    public function listarTodos($id_usuario, $limite = 10, $offset = 0, $mes_ano = null)
     {
         $limite = (int) $limite;
         $offset = (int) $offset;
+        $params = [$id_usuario, $id_usuario];
 
         $sql = "SELECT t.*, c.nome_banco, cat.nome_categoria 
                 FROM transacoes t 
                 LEFT JOIN contas c ON t.id_conta = c.id_conta 
                 LEFT JOIN categorias cat ON t.id_categoria = cat.id_categoria 
-                WHERE (c.id_usuario = ? OR t.id_fatura IN (SELECT id_fatura FROM faturas f JOIN cartoes car ON f.id_cartao = car.id_cartao WHERE car.id_usuario = ?))
-                ORDER BY t.data_transacao DESC
-                LIMIT $limite OFFSET $offset";
+                WHERE (c.id_usuario = ? OR t.id_fatura IN (SELECT id_fatura FROM faturas f JOIN cartoes car ON f.id_cartao = car.id_cartao WHERE car.id_usuario = ?))";
+
+        if ($mes_ano) {
+            $sql .= " AND DATE_FORMAT(t.data_transacao, '%Y-%m') = ?";
+            $params[] = $mes_ano;
+        }
+
+        $sql .= " ORDER BY t.data_transacao DESC LIMIT $limite OFFSET $offset";
         
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([$id_usuario, $id_usuario]);
+        $stmt->execute($params);
         return $stmt->fetchAll();
     }
 
-    public function contarTodos($id_usuario)
+    public function contarTodos($id_usuario, $mes_ano = null)
     {
+        $params = [$id_usuario, $id_usuario];
         $sql = "SELECT COUNT(*) as total 
                 FROM transacoes t 
                 LEFT JOIN contas c ON t.id_conta = c.id_conta 
                 WHERE (c.id_usuario = ? OR t.id_fatura IN (SELECT id_fatura FROM faturas f JOIN cartoes car ON f.id_cartao = car.id_cartao WHERE car.id_usuario = ?))";
         
+        if ($mes_ano) {
+            $sql .= " AND DATE_FORMAT(t.data_transacao, '%Y-%m') = ?";
+            $params[] = $mes_ano;
+        }
+
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([$id_usuario, $id_usuario]);
+        $stmt->execute($params);
         $resultado = $stmt->fetch();
         return $resultado['total'] ?? 0;
     }
 
-    public function buscarPorId($id, $id_usuario)
-    {
+    public function buscarPorId($id, $id_usuario) {
         $sql = "SELECT t.* FROM transacoes t 
                 LEFT JOIN contas c ON t.id_conta = c.id_conta 
                 WHERE t.id_transacao = ? AND (c.id_usuario = ? OR t.id_fatura IS NOT NULL)";
@@ -51,8 +62,7 @@ class Transacao
         return $stmt->fetch();
     }
 
-    public function cadastrar($id_usuario, $id_conta, $id_categoria, $descricao, $valor, $data_transacao, $tipo_transacao, $forma_pagamento = 'Outros', $id_conta_destino = null, $id_fatura = null)
-    {
+    public function cadastrar($id_usuario, $id_conta, $id_categoria, $descricao, $valor, $data_transacao, $tipo_transacao, $forma_pagamento = 'Outros', $id_conta_destino = null, $id_fatura = null) {
         if ($tipo_transacao == 'Transferencia' && empty($id_conta_destino)) {
             throw new Exception("Erro crítico: Conta de destino não informada para a transferência.");
         }

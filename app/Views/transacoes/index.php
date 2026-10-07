@@ -266,7 +266,19 @@
 
     <div class="card table-container">
         <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
-            <h4 style="margin: 0;"><?= htmlspecialchars($titulo, ENT_QUOTES, 'UTF-8') ?></h4>
+            <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+                <h4 style="margin: 0;"><?= htmlspecialchars($titulo, ENT_QUOTES, 'UTF-8') ?></h4>
+                
+                <form action="/financas/transacoes" method="GET" id="formMes" style="margin: 0; display: flex; align-items: center; gap: 8px;">
+                    <input type="month" name="mes" class="form-control" 
+                           value="<?= $mes_atual ? htmlspecialchars($mes_atual) : date('Y-m') ?>" 
+                           onchange="document.getElementById('formMes').submit();"
+                           style="padding: 6px 12px; height: auto; width: auto; cursor: pointer;">
+                    <?php if ($mes_atual): ?>
+                        <a href="/financas/transacoes?mes=todos" class="btn-outline" style="padding: 6px 12px; text-decoration: none; font-size: 13px;" title="Ver Tudo">Tudo</a>
+                    <?php endif; ?>
+                </form>
+            </div>
             
             <button type="button" class="btn-primary" onclick="abrirModalImportacao()" style="width: auto; padding: 8px 16px;">
                 <i class="ph ph-upload-simple"></i> Importar Extrato
@@ -344,11 +356,13 @@
                 </tbody>
             </table>
         </div>
+
         <?php if (isset($total_paginas) && $total_paginas > 1): ?>
+        <?php $strMes = $mes_atual ? "mes={$mes_atual}&" : ""; ?>
         <div class="pagination-container" style="display: flex; justify-content: center; gap: 8px; padding: 24px 16px; border-top: 1px solid var(--border-color); flex-wrap: wrap;">
             
             <?php if ($pagina_atual > 1): ?>
-                <a href="?pagina=<?= $pagina_atual - 1 ?>" class="btn-outline" style="padding: 6px 12px; border-radius: 6px; text-decoration: none; display: flex; align-items: center; gap: 4px;">
+                <a href="?<?= $strMes ?>pagina=<?= $pagina_atual - 1 ?>" class="btn-outline" style="padding: 6px 12px; border-radius: 6px; text-decoration: none; display: flex; align-items: center; gap: 4px;">
                     <i class="ph ph-caret-left"></i> Anterior
                 </a>
             <?php endif; ?>
@@ -362,14 +376,14 @@
                     $start = max(1, $end - $max_links + 1);
                 }
                 for ($i = $start; $i <= $end; $i++): ?>
-                    <a href="?pagina=<?= $i ?>" class="<?= $i == $pagina_atual ? 'btn-primary' : 'btn-outline' ?>" style="padding: 6px 12px; border-radius: 6px; text-decoration: none; min-width: 36px; text-align: center;">
+                    <a href="?<?= $strMes ?>pagina=<?= $i ?>" class="<?= $i == $pagina_atual ? 'btn-primary' : 'btn-outline' ?>" style="padding: 6px 12px; border-radius: 6px; text-decoration: none; min-width: 36px; text-align: center;">
                         <?= $i ?>
                     </a>
                 <?php endfor; ?>
             </div>
 
             <?php if ($pagina_atual < $total_paginas): ?>
-                <a href="?pagina=<?= $pagina_atual + 1 ?>" class="btn-outline" style="padding: 6px 12px; border-radius: 6px; text-decoration: none; display: flex; align-items: center; gap: 4px;">
+                <a href="?<?= $strMes ?>pagina=<?= $pagina_atual + 1 ?>" class="btn-outline" style="padding: 6px 12px; border-radius: 6px; text-decoration: none; display: flex; align-items: center; gap: 4px;">
                     Próxima <i class="ph ph-caret-right"></i>
                 </a>
             <?php endif; ?>

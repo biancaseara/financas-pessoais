@@ -60,6 +60,7 @@ class Dashboard {
                 LEFT JOIN contas c ON t.id_conta = c.id_conta 
                 LEFT JOIN categorias cat ON t.id_categoria = cat.id_categoria 
                 WHERE (c.id_usuario = ? OR t.id_fatura IN (SELECT id_fatura FROM faturas f JOIN cartoes car ON f.id_cartao = car.id_cartao WHERE car.id_usuario = ?))
+                AND t.data_transacao <= CURDATE()
                 ORDER BY t.data_transacao DESC LIMIT 5";
         
         $stmt = $this->pdo->prepare($sql);

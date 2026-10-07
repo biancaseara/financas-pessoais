@@ -24,16 +24,19 @@ class TransacoesController extends Controller
             $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
         }
 
+        $mes_ano_filtro = isset($_GET['mes']) ? $_GET['mes'] : date('Y-m');
+        if ($mes_ano_filtro === 'todos') $mes_ano_filtro = null;
+
         $pagina_atual = isset($_GET['pagina']) ? (int)$_GET['pagina'] : 1;
         if ($pagina_atual < 1) $pagina_atual = 1;
         
         $limite = 10;
         $offset = ($pagina_atual - 1) * $limite;
 
-        $total_transacoes = $transacaoModel->contarTodos($id_usuario);
+        $total_transacoes = $transacaoModel->contarTodos($id_usuario, $mes_ano_filtro);
         $total_paginas = ceil($total_transacoes / $limite);
         
-        $transacoes_paginadas = $transacaoModel->listarTodos($id_usuario, $limite, $offset);
+        $transacoes_paginadas = $transacaoModel->listarTodos($id_usuario, $limite, $offset, $mes_ano_filtro);
 
         $this->view('transacoes/index', [
             'titulo' => 'Extrato de Transações',
@@ -41,6 +44,7 @@ class TransacoesController extends Controller
             'contas' => $contaModel->listarTodos($id_usuario),
             'categorias' => $categoriaModel->listarTodos($id_usuario),
             'cartoes' => $cartaoModel->listarTodos($id_usuario),
+            'mes_atual' => $mes_ano_filtro,
             'csrf_token' => $_SESSION['csrf_token'],
             'pagina_atual' => $pagina_atual,
             'total_paginas' => $total_paginas
