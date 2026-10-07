@@ -295,26 +295,23 @@ class IaController extends Controller {
         return "[]"; 
     }
 
-    private function _chamarGemini($prompt, $endpoint = 'generico') {
-        $id_usuario = $_SESSION['id_usuario'] ?? null;
-        $logModel = clone $this->model('LogApi');
+    private function _chamarGemini($prompt,$endpoint = 'generico') {
+        $id_usuario =$_SESSION['id_usuario'] ?? null;
+        $logModel = clone$this->model('LogApi');
         
-        $chavesRaw = getenv('GEMINI_API_KEY') ?: $_ENV['GEMINI_API_KEY'];
+        $chavesRaw = getenv('GEMINI_API_KEY') ?:$_ENV['GEMINI_API_KEY'];
         $chavesRaw = trim($chavesRaw, " '\"\t\n\r\0\x0B"); 
-        $listaChaves = array_map('trim', explode(',', $chavesRaw));
-        
-        $dados = [
+        $listaChaves = array_map('trim', explode(',', $chavesRaw));$dados = [
             "contents" => [["parts" => [["text" => $prompt]]]],
             "generationConfig" => ["responseMimeType" => "application/json"]
         ];
 
         $modelosDisponiveis = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-flash-latest'];
         
-        foreach ($listaChaves as $chaveApi) {
+        foreach ($listaChaves as$chaveApi) {
             if (empty($chaveApi)) continue;
 
-            foreach ($modelosDisponiveis as $modelo) {
-                $url = "https://generativelanguage.googleapis.com/v1beta/models/{$modelo}:generateContent?key=" . $chaveApi;
+            foreach ($modelosDisponiveis as $modelo) {$url = "https://generativelanguage.googleapis.com/v1beta/models/{$modelo}:generateContent?key=" . $chaveApi;
                 $ch = curl_init($url);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                 curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
@@ -322,7 +319,8 @@ class IaController extends Controller {
                 curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($dados));
                 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); 
                 curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-                curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+                
+                curl_setopt($ch, CURLOPT_TIMEOUT, 60); 
 
                 $inicioTimer = microtime(true);
 
@@ -330,18 +328,18 @@ class IaController extends Controller {
                 $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                 curl_close($ch);
 
-                $tempoRespostaMs = round((microtime(true) - $inicioTimer) * 1000);
+                $tempoRespostaMs = round((microtime(true) -$inicioTimer) * 1000);
                 $resultado = json_decode($resposta, true);
 
-                $tokensPrompt = $resultado['usageMetadata']['promptTokenCount'] ?? 0;
-                $tokensCompletion = $resultado['usageMetadata']['candidatesTokenCount'] ?? 0;
+                $tokensPrompt =$resultado['usageMetadata']['promptTokenCount'] ?? 0;
+                $tokensCompletion =$resultado['usageMetadata']['candidatesTokenCount'] ?? 0;
 
                 if ($id_usuario) {
-                    $logModel->registrar($id_usuario, "{$endpoint} ({$modelo})", $httpCode, $tokensPrompt, $tokensCompletion, $tempoRespostaMs);
+                    $logModel->registrar($id_usuario, "{$endpoint} ({$modelo})", $httpCode,$tokensPrompt, $tokensCompletion,$tempoRespostaMs);
                 }
 
                 if ($httpCode === 200 && isset($resultado['candidates'][0]['content']['parts'][0]['text'])) {
-                    $textoBruto = $resultado['candidates'][0]['content']['parts'][0]['text'];
+                    $textoBruto =$resultado['candidates'][0]['content']['parts'][0]['text'];
                     return trim(str_replace(['```json', '```'], '', $textoBruto));
                 }
             }
@@ -356,6 +354,8 @@ class IaController extends Controller {
     }
 
     public function processarExtrato() {
+        set_time_limit(180); 
+        
         if ($_SERVER['REQUEST_METHOD'] !== 'POST' \vert{}\vert{} !isset($_FILES['arquivo_extrato'])) {
             http_response_code(400);
             echo json_encode(['erro' => 'Arquivo CSV não enviado.']);
@@ -363,7 +363,6 @@ class IaController extends Controller {
         }
 
         $arquivo =$_FILES['arquivo_extrato']['tmp_name'];
-        
         $textoCru = file_get_contents($arquivo);
 
         $linhas = explode("\n", $textoCru);
@@ -389,9 +388,10 @@ class IaController extends Controller {
         $jsonTransacoes = $this->_chamarGemini($prompt, 'processarExtrato');
         
         $testeJson = json_decode($jsonTransacoes, true);
-        if (empty($testeJson) || !is_array($testeJson)) {
+        
+        if (empty($testeJson) || !is_array($testeJson) || isset($testeJson['titulo'])) {
             http_response_code(500);
-            echo json_encode(['erro' => 'A IA não conseguiu interpretar o formato do seu banco. Tente outro arquivo ou corte o cabeçalho.']);
+            echo json_encode(['erro' => 'A IA demorou muito para responder ou não identificou o formato.']);
             return;
         }
 
