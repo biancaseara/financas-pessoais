@@ -356,60 +356,42 @@ class IaController extends Controller {
     }
 
     public function processarExtrato() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_FILES['arquivo_extrato'])) {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST' \vert{}\vert{} !isset($_FILES['arquivo_extrato'])) {
             http_response_code(400);
             echo json_encode(['erro' => 'Arquivo CSV não enviado.']);
             return;
         }
 
-        $arquivo = $_FILES['arquivo_extrato']['tmp_name'];
-        $transacoesTratadas = [];
-
-        if (($handle = fopen($arquivo, "r")) !== FALSE) {
-            fgetcsv($handle, 1000, ",");
-            
-            while (($dados = fgetcsv($handle, 1000, ",")) !== FALSE) {
-                if (count($dados) >= 4) {
-                    $dtParts = explode('/', $dados[0]);
-                    $dataF = count($dtParts) == 3 ? $dtParts[2].'-'.$dtParts[1].'-'.$dtParts[0] : $dados[0];
-                    
-                    $valor = (float) $dados[1];
-                    $tipo = $valor < 0 ? 'Saida' : 'Entrada';
-                    $desc = $dados[3];
-                    
-                    $forma = 'Outros';
-                    if (stripos($desc, 'pix') !== false) $forma = 'Pix';
-                    elseif (stripos($desc, 'débito') !== false || stripos($desc, 'compra') !== false) $forma = 'Débito';
-                    elseif (stripos($desc, 'fatura') !== false) $forma = 'Crédito';
-                    
-                    $transacoesTratadas[] = [
-                        'data' => $dataF,
-                        'valor' => abs($valor), 
-                        'tipo_transacao' => $tipo,
-                        'descricao' => $desc,
-                        'forma_pagamento' => $forma,
-                        'categoria' => 'Outros',
-                        'parcelas' => null
-                    ];
-                }
-            }
-            fclose($handle);
-        }
-
-        if (empty($transacoesTratadas)) {
-             echo json_encode([]);
-             return;
-        }
-
-        require_once __DIR__ . '/../Models/MotorPreditivo.php';
-        $motor = new \MotorPreditivo();
+        $arquivo =$_FILES['arquivo_extrato']['tmp_name'];
         
-        $jsonTransacoes = $motor->analisarExtratoCSV(json_encode($transacoesTratadas));
+        $textoCru = file_get_contents($arquivo);
+
+        $linhas = explode("\n", $textoCru);
+        $textoCruLimitado = implode("\n", array_slice($linhas, 0, 300));
+
+        $prompt = "Você é um processador financeiro corporativo. 
+        Abaixo está o conteúdo bruto de um extrato bancário (CSV). Pode ser do Nubank, Bradesco, Banco do Brasil, PicPay, etc. Os separadores podem ser vírgulas ou pontos e vírgulas, os valores podem estar separados em colunas de 'Crédito' e 'Débito', e podem conter sujeira como '−R$ 10,00'.
+        Sua tarefa é analisar as linhas brutas, ignorar cabeçalhos inúteis e extrair as transações, devolvendo um ARRAY JSON limpo.
+
+        REGRAS PARA CADA OBJETO DO JSON:
+        1. 'data': Converta a data da transação para o formato 'YYYY-MM-DD'.
+        2. 'valor': Extraia o valor financeiro como um FLOAT ABSOLUTO (apenas números e ponto. Ex: 15.90). Remova sinais de menos, 'R$' ou vírgulas.
+        3. 'tipo_transacao': Se o dinheiro saiu da conta (débito/sinal negativo), use 'Saida'. Se entrou na conta (crédito/sinal positivo), use 'Entrada'.
+        4. 'descricao': Limpe a descrição. Remova instituições repetitivas (MERCADO PAGO, etc), retire CNPJs/códigos e deixe o nome limpo de quem enviou/recebeu ou da loja.
+        5. 'forma_pagamento': Deduza pelo texto se foi 'Pix', 'Crédito', 'Débito', 'Boleto' ou 'Outros'. Se for Resgate/Aplicação RDB, use 'Outros'.
+        6. 'categoria': Categorize (Alimentação, Transporte, Saúde, Moradia, Serviços, Educação, Lazer, Renda, Transferência, Outros).
+
+        REGRA DE RETORNO ESTREITA: Devolva EXCLUSIVAMENTE o array JSON puro (iniciando em [ e terminando em ]). Sem formatação markdown (```json), sem backticks, sem introduções.
+        
+        EXTRATO BRUTO:
+        " . $textoCruLimitado;
+
+        $jsonTransacoes = $this->_chamarGemini($prompt, 'processarExtrato');
         
         $testeJson = json_decode($jsonTransacoes, true);
-        if (empty($testeJson)) {
-
-            echo json_encode($transacoesTratadas);
+        if (empty($testeJson) || !is_array($testeJson)) {
+            http_response_code(500);
+            echo json_encode(['erro' => 'A IA não conseguiu interpretar o formato do seu banco. Tente outro arquivo ou corte o cabeçalho.']);
             return;
         }
 

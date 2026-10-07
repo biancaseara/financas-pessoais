@@ -256,7 +256,7 @@
                     </table>
                 </div>
                 <div class="form-actions" style="margin-top: 20px;">
-                    <button type="button" class="btn-primary w-full" style="background-color: var(--success-color, #10b981);" onclick="salvarImportacaoNoBanco()">
+                    <button type="button" class="btn-primary w-full" style="background-color: var(--success-color, #10b981);" onclick="salvarImportacaoNoBanco(this)">
                         <i class="ph ph-check-circle"></i> Confirmar e Salvar
                     </button>
                 </div>
@@ -345,7 +345,7 @@
             </table>
         </div>
         <?php if (isset($total_paginas) && $total_paginas > 1): ?>
-        <div class="pagination-container" style="display: flex; justify-content: center; gap: 8px; padding: 24px 16px; border-top: 1px solid var(--border-color);">
+        <div class="pagination-container" style="display: flex; justify-content: center; gap: 8px; padding: 24px 16px; border-top: 1px solid var(--border-color); flex-wrap: wrap;">
             
             <?php if ($pagina_atual > 1): ?>
                 <a href="?pagina=<?= $pagina_atual - 1 ?>" class="btn-outline" style="padding: 6px 12px; border-radius: 6px; text-decoration: none; display: flex; align-items: center; gap: 4px;">
@@ -353,8 +353,15 @@
                 </a>
             <?php endif; ?>
 
-            <div style="display: flex; gap: 4px; align-items: center;">
-                <?php for ($i = 1; $i <= $total_paginas; $i++): ?>
+            <div style="display: flex; gap: 4px; align-items: center; flex-wrap: wrap;">
+                <?php 
+                $max_links = 5;
+                $start = max(1, $pagina_atual - floor($max_links / 2));
+                $end = min($total_paginas, $start + $max_links - 1);
+                if ($end - $start + 1 < $max_links) {
+                    $start = max(1, $end - $max_links + 1);
+                }
+                for ($i = $start; $i <= $end; $i++): ?>
                     <a href="?pagina=<?= $i ?>" class="<?= $i == $pagina_atual ? 'btn-primary' : 'btn-outline' ?>" style="padding: 6px 12px; border-radius: 6px; text-decoration: none; min-width: 36px; text-align: center;">
                         <?= $i ?>
                     </a>
@@ -368,7 +375,7 @@
             <?php endif; ?>
             
         </div>
-        <?php endif; ?>        
+        <?php endif; ?>      
     </div>
 </div>
 
@@ -515,8 +522,13 @@ function renderizarTabelaRevisao(transacoes) {
     });
 }
 
-async function salvarImportacaoNoBanco() {
+async function salvarImportacaoNoBanco(btnElement) {
     if (transacoesExtraidas.length === 0) return;
+    
+    btnElement.disabled = true;
+    btnElement.style.opacity = '0.7';
+    btnElement.innerHTML = '<i class="ph ph-spinner ph-spin"></i> Salvando dados...';
+
     try {
         const response = await fetch('/financas/transacoes/salvarImportacao', {
             method: 'POST',
@@ -527,9 +539,13 @@ async function salvarImportacaoNoBanco() {
             window.location.reload();
         } else {
             alert('Erro ao salvar no banco de dados.');
+            btnElement.disabled = false;
+            btnElement.innerHTML = '<i class="ph ph-check-circle"></i> Confirmar e Salvar';
         }
     } catch (error) {
         alert('Erro de comunicação.');
+        btnElement.disabled = false;
+        btnElement.innerHTML = '<i class="ph ph-check-circle"></i> Confirmar e Salvar';
     }
 }
 </script>
