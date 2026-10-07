@@ -334,16 +334,16 @@ class IaController extends Controller {
         $transacoesTratadas = [];
 
         if (($handle = fopen($arquivo, "r")) !== FALSE) {
-            fgetcsv($handle, 1000, ","); 
+            fgetcsv($handle, 1000, ",");
             
             while (($dados = fgetcsv($handle, 1000, ",")) !== FALSE) {
                 if (count($dados) >= 4) {
-                    $dtParts = explode('/', $dados[0]);
-                    $dataF = count($dtParts) == 3 ? $dtParts[2].'-'.$dtParts[1].'-'.$dtParts[0] : $dados[0];
+                    $dtParts = explode('/', trim($dados[0]));
+                    $dataF = count($dtParts) == 3 ? $dtParts[2].'-'.$dtParts[1].'-'.$dtParts[0] : trim($dados[0]);
                     
-                    $valor = (float) $dados[1];
+                    $valor = (float) trim($dados[1]);
                     $tipo = $valor < 0 ? 'Saida' : 'Entrada';
-                    $desc = $dados[3];
+                    $desc = trim($dados[3]);
                     
                     $forma = 'Outros';
                     if (stripos($desc, 'pix') !== false) $forma = 'Pix';
@@ -370,9 +370,10 @@ class IaController extends Controller {
         }
 
         $jsonTransacoes = $this->analisarExtratoCSV(json_encode($transacoesTratadas));
-        
         $testeJson = json_decode($jsonTransacoes, true);
-        if (empty($testeJson) || !is_array($testeJson)) {
+        
+        if (empty($testeJson) || !is_array($testeJson) || isset($testeJson['titulo']) || isset($testeJson['erro'])) {
+            header('Content-Type: application/json');
             echo json_encode($transacoesTratadas);
             return;
         }
