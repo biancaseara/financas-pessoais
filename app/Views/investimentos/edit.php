@@ -17,22 +17,25 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Tipo de Ativo</label>
+                    <label style="display: flex; justify-content: space-between; align-items: center;">
+                        Tipo de Ativo
+                        <button type="button" onclick="document.getElementById('modalNovoTipo').style.display='block'" style="background: none; border: none; color: var(--primary-color); cursor: pointer; font-size: 0.85rem; font-weight: 600;">+ Criar Novo</button>
+                    </label>
                     <div class="input-with-icon">
                         <i class="ph ph-chart-pie-slice"></i>
                         <select name="tipo" class="form-control" required>
-                            <optgroup label="🟢 Mais Seguros (Renda Fixa)">
-                                <option value="Tesouro Direto" <?= ($investimento['tipo'] == 'Tesouro Direto') ? 'selected' : '' ?>>Tesouro Direto (Empréstimo ao Governo)</option>
-                                <option value="CDB" <?= ($investimento['tipo'] == 'CDB') ? 'selected' : '' ?>>CDB (Empréstimo para Bancos)</option>
-                                <option value="LCI/LCA" <?= ($investimento['tipo'] == 'LCI/LCA') ? 'selected' : '' ?>>LCI / LCA (Isento de IR)</option>
-                                <option value="Poupança" <?= ($investimento['tipo'] == 'Poupança') ? 'selected' : '' ?>>Poupança (Rendimento Baixo)</option>
-                            </optgroup>
-                            <optgroup label="🟠 Maior Risco (Renda Variável)">
-                                <option value="Ações" <?= ($investimento['tipo'] == 'Ações') ? 'selected' : '' ?>>Ações (Pedaços de Empresas)</option>
-                                <option value="FIIs" <?= ($investimento['tipo'] == 'FIIs') ? 'selected' : '' ?>>FIIs (Fundos Imobiliários - Aluguéis)</option>
-                                <option value="Criptomoedas" <?= ($investimento['tipo'] == 'Criptomoedas') ? 'selected' : '' ?>>Criptomoedas (Bitcoin, etc)</option>
-                            </optgroup>
-                            <option value="Outros" <?= ($investimento['tipo'] == 'Outros') ? 'selected' : '' ?>>Outros</option>
+                            <option value="" disabled selected>Qual o tipo deste ativo?</option>
+                            <?php 
+                            $grupoAtual = '';
+                            foreach ($tipos as $t): 
+                                if ($grupoAtual != $t['categoria_grupo']) {
+                                    if ($grupoAtual != '') echo '</optgroup>';
+                                    echo '<optgroup label="'. htmlspecialchars($t['categoria_grupo']) .'">';
+                                    $grupoAtual = $t['categoria_grupo'];
+                                }
+                            ?>
+                                <option value="<?= htmlspecialchars($t['nome_tipo']) ?>" <?= ($investimento['tipo'] == $t['nome_tipo']) ? 'selected' : '' ?>><?= htmlspecialchars($t['nome_tipo']) ?></option>
+                            <?php endforeach; if ($grupoAtual != '') echo '</optgroup>'; ?>
                         </select>
                     </div>
                 </div>
@@ -79,5 +82,31 @@
                 </button>
             </div>
         </form>
+    </div>
+
+    <div id="modalNovoTipo" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 400px;">
+            <span class="close" onclick="document.getElementById('modalNovoTipo').style.display='none'">&times;</span>
+            <h3 style="margin-bottom: 15px;">Nova Categoria de Ativo</h3>
+            <form action="/financas/investimentos/storeTipo" method="POST">
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8') ?>">
+                
+                <div class="form-group">
+                    <label>Nome da Categoria</label>
+                    <input type="text" name="nome_tipo" class="form-control" placeholder="Ex: Caixinhas do Nubank" required style="padding: 10px;">
+                </div>
+                
+                <div class="form-group" style="margin-top: 15px;">
+                    <label>Grupo de Risco</label>
+                    <select name="grupo" class="form-control" required style="padding: 10px;">
+                        <option value="Renda Fixa">Renda Fixa (Baixo Risco)</option>
+                        <option value="Renda Variável">Renda Variável (Alto Risco)</option>
+                        <option value="Outros">Outros</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn-primary w-full" style="margin-top: 20px;">Salvar Categoria</button>
+            </form>
+        </div>
     </div>
 </div>
