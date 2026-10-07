@@ -266,6 +266,7 @@ class TransacoesController extends Controller
                 $dataFatura = date('Y-m', strtotime($data));
                 $id_fatura = $faturaModel->buscarOuCriarAberta($id_cartao, $dataFatura);
                 $id_conta = null;
+            } // ESSA ERA A CHAVE QUE FALTAVA
 
             try {
                 $transacaoModel->cadastrar(
