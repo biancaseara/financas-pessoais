@@ -8,7 +8,7 @@ class WebhookController extends Controller {
             $conteudoJson = file_get_contents("php://input");
             $payload = json_decode($conteudoJson, true);
 
-            if (!$payload || !isset($payload['chat_id']) \vert{}\vert{} !isset($payload['dados_ia'])) {
+            if (!$payload || !isset($payload['chat_id']) || !isset($payload['dados_ia'])) {
                 http_response_code(400);
                 echo json_encode(["erro" => "Payload invalido ou dados ausentes"]);
                 exit;
@@ -121,7 +121,6 @@ class WebhookController extends Controller {
                 $desc_final = ($parcelas > 1) ? $descricao . " ($i/$parcelas)" : $descricao;
                 $data_lancamento = date('Y-m-d', strtotime("+$i months -1 month", strtotime($data)));
                 
-                // Se for crédito e parcelado, precisamos criar as faturas futuras
                 $id_fatura_lancamento =$id_fatura;
                 if ($forma_pagamento == 'Crédito' && $i > 1) {
                     $mes_ano_futuro = date('Y-m', strtotime($data_lancamento));
