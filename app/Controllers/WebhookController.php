@@ -8,7 +8,7 @@ class WebhookController extends Controller {
             $conteudoJson = file_get_contents("php://input");
             $payload = json_decode($conteudoJson, true);
 
-            if (!$payload || !isset($payload['chat_id']) || !isset($payload['dados_ia'])) {
+            if (!$payload or !isset($payload['chat_id']) or !isset($payload['dados_ia'])) {
                 http_response_code(400);
                 echo json_encode(["erro" => "Payload invalido ou dados ausentes"]);
                 exit;
@@ -30,12 +30,19 @@ class WebhookController extends Controller {
             }
             $id_usuario =$usuario['id_usuario'];
 
-            // 2. Extrai e Formata Dados Básicos
+            // 2. Extrai e Formata Dados Básicos (Com as Novas Formas de Pagamento)
             $data =$dados['data'] ?? date('Y-m-d');
             if (strpos($data, '/') !== false) $data = implode('-', array_reverse(explode('/',$data)));
             
-            $forma_pagamento = ucfirst(strtolower($dados['forma_pagamento'] ?? 'Debito'));
-            if ($forma_pagamento == 'Credito')$forma_pagamento = 'Crédito'; // Padronização
+            $fp_raw = strtolower(trim($dados['forma_pagamento'] ?? 'debito'));
+            if (strpos($fp_raw, 'credit') !== false or strpos($fp_raw, 'crédit') !== false) {
+                $forma_pagamento = 'Crédito';
+            } elseif (strpos($fp_raw, 'pix') !== false) {$forma_pagamento = 'Pix';
+            } elseif (strpos($fp_raw, 'boleto') !== false) {$forma_pagamento = 'Boleto';
+            } elseif (strpos($fp_raw, 'dinheiro') !== false or strpos($fp_raw, 'vivo') !== false) {$forma_pagamento = 'Dinheiro';
+            } else {
+                $forma_pagamento = 'Débito'; // Padrão
+            }
             
             $nome_categoria_ia =$dados['categoria'] ?? 'Outros';
             $descricao =$dados['descricao'] ?? 'Gasto via Telegram';
@@ -65,6 +72,8 @@ class WebhookController extends Controller {
             $nome_origem_ia = strtolower(trim($dados['conta_origem'] ?? ''));$id_conta = null;
             $id_fatura = null;
             $nome_destino_final = '';
+            
+            $faturaModel =$this->model('Fatura');
 
             if ($forma_pagamento == 'Crédito') {
                 $cartaoModel = $this->model('Cartao');$cartoes = $cartaoModel->listarTodos($id_usuario);
@@ -74,25 +83,15 @@ class WebhookController extends Controller {
                     http_response_code(400); exit;
                 }
                 
-                // Tenta achar o cartão pelo nome
-                $cartaoSelecionado =$cartoes[0]; // Fallback
+                $cartaoSelecionado =$cartoes[0];
                 foreach ($cartoes as$c) {
                     if (strpos(strtolower($c['nome_cartao']),$nome_origem_ia) !== false) {
                         $cartaoSelecionado =$c; break;
                     }
                 }
                 
-                // Busca ou cria fatura para a data
-                $faturaModel =$this->model('Fatura');
                 $mes_ano = date('Y-m', strtotime($data));
-                $fatura =$faturaModel->buscarPorCartaoEMes($cartaoSelecionado['id_cartao'],$mes_ano);
-                
-                if (!$fatura) {
-                    $faturaModel->cadastrar($cartaoSelecionado['id_cartao'], $mes_ano, 'Aberta', 0, date('Y-m-t', strtotime($data)));
-                    $id_fatura =$this->model('Fatura')->pdo->lastInsertId();
-                } else {
-                    $id_fatura =$fatura['id_fatura'];
-                }
+                $id_fatura =$faturaModel->buscarOuCriarAberta($cartaoSelecionado['id_cartao'],$mes_ano);
                 $nome_destino_final = "Cartão " . $cartaoSelecionado['nome_cartao'];
                 
             } else {
@@ -103,8 +102,7 @@ class WebhookController extends Controller {
                     http_response_code(400); exit;
                 }
 
-                // Tenta achar a conta pelo nome
-                $contaSelecionada =$contas[0]; // Fallback
+                $contaSelecionada =$contas[0];
                 foreach ($contas as$c) {
                     if (strpos(strtolower($c['nome_banco']),$nome_origem_ia) !== false) {
                         $contaSelecionada =$c; break;
@@ -114,7 +112,7 @@ class WebhookController extends Controller {
                 $nome_destino_final = "Conta " . $contaSelecionada['nome_banco'];
             }
 
-            // 5. Salva a Transação (Trata parcelamento se houver)
+            // 5. Salva a Transação
             $transacaoModel =$this->model('Transacao');
             
             for ($i = 1; $i <= $parcelas; $i++) {
@@ -122,25 +120,31 @@ class WebhookController extends Controller {
                 $data_lancamento = date('Y-m-d', strtotime("+$i months -1 month", strtotime($data)));
                 
                 $id_fatura_lancamento =$id_fatura;
-                if ($forma_pagamento == 'Crédito' && $i > 1) {
+                
+                if ($forma_pagamento == 'Crédito' and $i > 1) {
                     $mes_ano_futuro = date('Y-m', strtotime($data_lancamento));
-                    $fatura_futura =$faturaModel->buscarPorCartaoEMes($cartaoSelecionado['id_cartao'],$mes_ano_futuro);
-                    if (!$fatura_futura) {
-                        $faturaModel->cadastrar($cartaoSelecionado['id_cartao'], $mes_ano_futuro, 'Aberta', 0, date('Y-m-t', strtotime($data_lancamento)));
-                        $id_fatura_lancamento =$this->model('Fatura')->pdo->lastInsertId();
-                    } else {
-                        $id_fatura_lancamento =$fatura_futura['id_fatura'];
-                    }
+                    $id_fatura_lancamento =$faturaModel->buscarOuCriarAberta($cartaoSelecionado['id_cartao'],$mes_ano_futuro);
                 }
 
                 $transacaoModel->cadastrar(
-                    $id_usuario,$id_conta, $id_categoria,$desc_final, $valor_parcela,$data_lancamento, 'Saida', $forma_pagamento,$id_fatura_lancamento, null
+                    $id_usuario,$id_conta, 
+                    $id_categoria,$desc_final, 
+                    $valor_parcela,$data_lancamento, 
+                    'Saida', 
+                    $forma_pagamento,
+                    null,
+                    $id_fatura_lancamento
                 );
+                
+                if ($forma_pagamento == 'Crédito' and $id_fatura_lancamento) {
+                    $faturaModel->atualizarValorTotal($id_fatura_lancamento);
+                }
             }
 
             // 6. Confirmação
             $msgSucesso = "✅ *Despesa Registrada!*\n\n";
-            $msgSucesso .= "💰 *Valor:* R$ " . number_format($valor_total, 2, ',', '.') . ($parcelas > 1 ? " (em {$parcelas}x)" : "") . "\n";
+            $msgSucesso .= "💰 *Valor:* R$ " . number_format($valor_total, 2, ',', '.') . ($parcelas > 1 ? " (em {$parcelas}x de R$ " . number_format($valor_parcela, 2, ',', '.') . ")" : "") . "\n";
+            $msgSucesso .= "💳 *Tipo:* " . $forma_pagamento . "\n";
             $msgSucesso .= "🏷️ *Categoria:* " . htmlspecialchars($nome_categoria_ia) . "\n";
             $msgSucesso .= "🏦 *Origem:* " . htmlspecialchars($nome_destino_final) . "\n";
             
