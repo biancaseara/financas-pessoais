@@ -40,3 +40,4 @@ class Categoria {
         return $stmt->execute([$id, $id_usuario]);
     }
 }
+?>

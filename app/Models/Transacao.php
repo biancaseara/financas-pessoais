@@ -180,3 +180,4 @@ class Transacao
         return $resultado['total'] ?? 0;
     }
 }
+?>

@@ -120,3 +120,5 @@ class CategoriasController extends Controller
         }
     }
 }
+
+?>

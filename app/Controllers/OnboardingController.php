@@ -110,3 +110,4 @@ class OnboardingController extends Controller {
         exit;
     }
 }
+?>

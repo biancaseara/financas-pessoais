@@ -108,3 +108,4 @@ class Dashboard {
         return $stmt->fetchAll();
     }
 }
+?>

@@ -113,3 +113,4 @@ class Usuario {
         return $stmt->execute([$novaSenhaHash, $id_usuario]);
     }
 }
+?>

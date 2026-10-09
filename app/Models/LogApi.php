@@ -41,3 +41,4 @@ class LogApi {
         return $this->pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
     }
 }
+?>

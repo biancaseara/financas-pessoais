@@ -53,3 +53,4 @@ class DespesaRecorrente {
         return $stmt->fetch() !== false;
     }
 }
+?>

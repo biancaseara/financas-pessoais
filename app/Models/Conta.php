@@ -46,3 +46,4 @@ class Conta {
         return $resultado['total'] ?? 0;
     }
 }
+?>

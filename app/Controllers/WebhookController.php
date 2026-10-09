@@ -166,3 +166,4 @@ class WebhookController extends Controller {
         file_get_contents($url, false, stream_context_create($opcoes));
     }
 }
+?>

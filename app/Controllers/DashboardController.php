@@ -57,3 +57,4 @@ class DashboardController extends Controller
         $this->view('dashboard', $dados);
     }
 }
+?>

@@ -80,3 +80,4 @@ class TelegramController extends Controller {
         }
     }
 }
+?>

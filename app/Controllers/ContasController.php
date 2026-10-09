@@ -137,3 +137,4 @@ class ContasController extends Controller
         }
     }
 }
+?>
