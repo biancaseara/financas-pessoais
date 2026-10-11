@@ -95,5 +95,28 @@ class Investimento {
 
         return true;
     }
+    
+    public function listarEnvelopes($id_investimento, $id_usuario) {
+        $stmt = $this->pdo->prepare("SELECT * FROM envelopes WHERE id_investimento = ? AND id_usuario = ? ORDER BY nome_envelope");
+        $stmt->execute([$id_investimento, $id_usuario]);
+        return $stmt->fetchAll();
+    }
+
+    public function cadastrarEnvelope($id_investimento, $id_usuario, $nome_envelope, $valor_alocado) {
+        $sql = "INSERT INTO envelopes (id_investimento, id_usuario, nome_envelope, valor_alocado) VALUES (?, ?, ?, ?)";
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute([$id_investimento, $id_usuario, $nome_envelope, $valor_alocado]);
+    }
+
+    public function atualizarEnvelope($id_envelope, $id_investimento, $id_usuario, $nome_envelope, $valor_alocado) {
+        $sql = "UPDATE envelopes SET nome_envelope = ?, valor_alocado = ? WHERE id_envelope = ? AND id_investimento = ? AND id_usuario = ?";
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute([$nome_envelope, $valor_alocado, $id_envelope, $id_investimento, $id_usuario]);
+    }
+
+    public function deletarEnvelope($id_envelope, $id_investimento, $id_usuario) {
+        $stmt = $this->pdo->prepare("DELETE FROM envelopes WHERE id_envelope = ? AND id_investimento = ? AND id_usuario = ?");
+        return $stmt->execute([$id_envelope, $id_investimento, $id_usuario]);
+    }
 }
 ?>

@@ -57,6 +57,8 @@ class InvestimentosController extends Controller {
         $investimento = $investimentoModel->buscarPorId($id, $_SESSION['id_usuario']);
         $tipos = $investimentoModel->listarTipos($_SESSION['id_usuario']);
         $historico = $investimentoModel->listarHistorico($id);
+        
+        $envelopes = $investimentoModel->listarEnvelopes($id, $_SESSION['id_usuario']);
 
         if ($investimento) {
             $this->view('investimentos/edit', [
@@ -64,6 +66,7 @@ class InvestimentosController extends Controller {
                 'investimento' => $investimento,
                 'tipos' => $tipos,
                 'historico' => $historico,
+                'envelopes' => $envelopes,
                 'csrf_token' => $_SESSION['csrf_token'] ?? ''
             ]);
         } else {
@@ -113,6 +116,42 @@ class InvestimentosController extends Controller {
             $investimentoModel->deletar($id, $_SESSION['id_usuario']);
             $this->setFlash('success', 'Investimento removido.');
             header("Location: /financas/investimentos");
+        }
+    }
+
+    public function storeEnvelope($id_investimento) {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $investimentoModel = $this->model('Investimento');
+            $nome_envelope = strip_tags(trim($_POST['nome_envelope']));
+            $valor_alocado = (float) $_POST['valor_alocado'];
+            
+            $investimentoModel->cadastrarEnvelope($id_investimento, $_SESSION['id_usuario'], $nome_envelope, $valor_alocado);
+            
+            $this->setFlash('success', 'Caixinha/Envelope criado com sucesso!');
+            header("Location: /financas/investimentos/edit/" . $id_investimento);
+        }
+    }
+
+    public function updateEnvelope($id_investimento, $id_envelope) {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $investimentoModel = $this->model('Investimento');
+            $nome_envelope = strip_tags(trim($_POST['nome_envelope']));
+            $valor_alocado = (float) str_replace(['.', ','], ['', '.'], $_POST['valor_alocado']);
+
+            $investimentoModel->atualizarEnvelope($id_envelope, $id_investimento, $_SESSION['id_usuario'], $nome_envelope, $valor_alocado);
+            
+            $this->setFlash('success', 'Saldo do envelope atualizado!');
+            header("Location: /financas/investimentos/edit/" . $id_investimento);
+        }
+    }
+
+    public function deleteEnvelope($id_investimento, $id_envelope) {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $investimentoModel = $this->model('Investimento');
+            $investimentoModel->deletarEnvelope($id_envelope, $id_investimento, $_SESSION['id_usuario']);
+            
+            $this->setFlash('success', 'Envelope removido. O saldo retornou ao valor livre.');
+            header("Location: /financas/investimentos/edit/" . $id_investimento);
         }
     }
 }
