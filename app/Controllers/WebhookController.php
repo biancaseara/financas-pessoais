@@ -69,46 +69,59 @@ class WebhookController extends Controller {
             }
 
             // 4. Lógica Inteligente de Conta / Cartão
-            $nome_origem_ia = strtolower(trim($dados['conta_origem'] ?? ''));$id_conta = null;
+            $nome_origem_ia = strtolower(trim($dados['conta_origem'] ?? ''));
+            $id_conta = null;
             $id_fatura = null;
             $nome_destino_final = '';
             
-            $faturaModel =$this->model('Fatura');
+            $faturaModel = $this->model('Fatura');
 
             if ($forma_pagamento == 'Crédito') {
-                $cartaoModel = $this->model('Cartao');$cartoes = $cartaoModel->listarTodos($id_usuario);
+                $cartaoModel = $this->model('Cartao');
+                $cartoes = $cartaoModel->listarTodos($id_usuario);
                 
                 if (empty($cartoes)) {
                     $this->enviarMensagemTelegram($chat_id, "⚠️ Você não tem cartões de crédito cadastrados para lançar essa despesa.");
                     http_response_code(400); exit;
                 }
                 
-                $cartaoSelecionado =$cartoes[0];
-                foreach ($cartoes as$c) {
-                    if (strpos(strtolower($c['nome_cartao']),$nome_origem_ia) !== false) {
-                        $cartaoSelecionado =$c; break;
+                $cartaoSelecionado = $cartoes[0]; // Fallback
+                foreach ($cartoes as $c) {
+                    $nome_db = strtolower(trim($c['nome_cartao']));
+                    
+                    $is_nubank = ($nome_origem_ia == 'nubank' && $nome_db == 'roxinho') || ($nome_origem_ia == 'roxinho' && $nome_db == 'nubank');
+                    
+                    if (strpos($nome_db, $nome_origem_ia) !== false || strpos($nome_origem_ia, $nome_db) !== false || $is_nubank) {
+                        $cartaoSelecionado = $c; 
+                        break;
                     }
                 }
                 
                 $mes_ano = date('Y-m', strtotime($data));
-                $id_fatura =$faturaModel->buscarOuCriarAberta($cartaoSelecionado['id_cartao'],$mes_ano);
+                $id_fatura = $faturaModel->buscarOuCriarAberta($cartaoSelecionado['id_cartao'], $mes_ano);
                 $nome_destino_final = "Cartão " . $cartaoSelecionado['nome_cartao'];
                 
             } else {
-                $contaModel = $this->model('Conta');$contas = $contaModel->listarTodos($id_usuario);
+                $contaModel = $this->model('Conta');
+                $contas = $contaModel->listarTodos($id_usuario);
                 
                 if (empty($contas)) {
                     $this->enviarMensagemTelegram($chat_id, "⚠️ Cadastre uma conta bancária primeiro.");
                     http_response_code(400); exit;
                 }
 
-                $contaSelecionada =$contas[0];
-                foreach ($contas as$c) {
-                    if (strpos(strtolower($c['nome_banco']),$nome_origem_ia) !== false) {
-                        $contaSelecionada =$c; break;
+                $contaSelecionada = $contas[0]; // Fallback
+                foreach ($contas as $c) {
+                    $nome_db = strtolower(trim($c['nome_banco']));
+                    
+                    $is_nubank = ($nome_origem_ia == 'nubank' && $nome_db == 'roxinho') || ($nome_origem_ia == 'roxinho' && $nome_db == 'nubank');
+
+                    if (strpos($nome_db, $nome_origem_ia) !== false || strpos($nome_origem_ia, $nome_db) !== false || $is_nubank) {
+                        $contaSelecionada = $c; 
+                        break;
                     }
                 }
-                $id_conta =$contaSelecionada['id_conta'];
+                $id_conta = $contaSelecionada['id_conta'];
                 $nome_destino_final = "Conta " . $contaSelecionada['nome_banco'];
             }
 
