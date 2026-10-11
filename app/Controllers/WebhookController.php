@@ -155,11 +155,13 @@ class WebhookController extends Controller {
             }
 
             // 6. Confirmação
-            $msgSucesso = "✅ *Despesa Registrada!*\n\n";
+            $data_formatada = date('d/m/Y', strtotime($data));
+            $msgSucesso = "✅ *Despesa Registrada com Sucesso!*\n\n";
+            $msgSucesso .= "📅 *Data:* " . $data_formatada . "\n";
             $msgSucesso .= "💰 *Valor:* R$ " . number_format($valor_total, 2, ',', '.') . ($parcelas > 1 ? " (em {$parcelas}x de R$ " . number_format($valor_parcela, 2, ',', '.') . ")" : "") . "\n";
-            $msgSucesso .= "💳 *Tipo:* " . $forma_pagamento . "\n";
+            $msgSucesso .= "💳 *Forma de Pagamento:* " . $forma_pagamento . "\n";
             $msgSucesso .= "🏷️ *Categoria:* " . htmlspecialchars($nome_categoria_ia) . "\n";
-            $msgSucesso .= "🏦 *Origem:* " . htmlspecialchars($nome_destino_final) . "\n";
+            $msgSucesso .= "🏦 *Origem/Conta:* " . htmlspecialchars($nome_destino_final) . "\n";
             
             $this->enviarMensagemTelegram($chat_id,$msgSucesso);
 
