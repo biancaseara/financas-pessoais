@@ -1102,6 +1102,153 @@ label {
   margin-top: auto;
 }
 
+/* ESTILOS DOS ENVELOPES (CAIXINHAS) */
+.envelope-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+}
+.envelope-header h4 {
+    margin: 0;
+}
+.envelope-header i {
+    margin-right: 8px;
+    color: var(--color-ia-purple);
+}
+.envelope-badge {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+}
+.envelope-body {
+    padding: 0 20px 20px 20px;
+}
+.envelope-progress-container {
+    width: 100%;
+    background: var(--bg-main);
+    border-radius: 8px;
+    height: 12px;
+    margin-bottom: 24px;
+    overflow: hidden;
+    display: flex;
+}
+.envelope-progress-bar {
+    background: var(--color-ia-purple);
+    height: 100%;
+    transition: 0.5s;
+}
+.envelopes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+}
+.envelope-create-btn {
+    border: 2px dashed var(--border-color);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.envelope-create-btn:hover {
+    background: var(--bg-main);
+}
+.envelope-create-btn i {
+    font-size: 2rem;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+.envelope-create-btn span {
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+.envelope-form-container {
+    border: 1px solid var(--color-ia-purple);
+    border-radius: 12px;
+    padding: 16px;
+    background: rgba(139, 92, 246, 0.05);
+}
+
+.envelope-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px; 
+}
+.envelope-input {
+    padding: 8px;
+    font-size: 0.9rem;
+}
+.envelope-form-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px; 
+}
+.envelope-form-actions .btn-primary {
+    flex: 1;
+    padding: 6px;
+    font-size: 0.85rem;
+}
+.envelope-form-actions .btn-outline {
+    padding: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.envelope-card {
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 16px;
+    background: var(--bg-surface);
+    position: relative;
+}
+.envelope-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+}
+.envelope-card-title {
+    color: var(--text-primary);
+    font-size: 1.05rem;
+}
+.envelope-card-title i {
+    color: var(--color-ia-purple);
+}
+.envelope-delete-form {
+    margin: 0;
+}
+.envelope-delete-btn {
+    background: none;
+    border: none;
+    color: #ef4444;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.envelope-update-form {
+    display: flex;
+    gap: 10px; 
+    align-items: center; 
+}
+.envelope-update-input {
+    padding: 8px;
+    font-size: 0.95rem;
+    font-weight: bold;
+    width: 100%;
+}
+.envelope-update-btn {
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 /* ESTILIZAÇÃO DE METAS */
 .goal-card {
   padding: 24px;

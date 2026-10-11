@@ -27,34 +27,34 @@
 
     <!-- Sistema de Envelopes (Caixinhas) -->
     <div class="card mb-4">
-        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; padding: 20px;">
-            <h4 style="margin: 0;"><i class="ph ph-folder-notch-open" style="margin-right: 8px; color: var(--color-ia-purple);"></i> Meus Envelopes</h4>
-            <span class="badge" style="background: var(--bg-surface); color: var(--text-primary);">Saldo Livre: <strong>R$ <?= number_format($saldo_livre, 2, ',', '.') ?></strong></span>
+        <div class="card-header envelope-header">
+            <h4><i class="ph ph-folder-notch-open"></i> Meus Envelopes</h4>
+            <span class="badge envelope-badge">Saldo Livre: <strong>R$ <?= number_format($saldo_livre, 2, ',', '.') ?></strong></span>
         </div>
         
-        <div class="card-body" style="padding: 0 20px 20px 20px;">
+        <div class="card-body envelope-body">
             <!-- Barra de Progresso do Capital -->
-            <div style="width: 100%; background: var(--bg-main); border-radius: 8px; height: 12px; margin-bottom: 24px; overflow: hidden; display: flex;">
-                <div style="width: <?= min(100, $porcentagem_alocada) ?>%; background: var(--color-ia-purple); height: 100%; transition: 0.5s;"></div>
+            <div class="envelope-progress-container">
+                <div class="envelope-progress-bar" style="width: <?= min(100, $porcentagem_alocada) ?>%;"></div>
             </div>
 
-            <div class="envelopes-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px;">
+            <div class="envelopes-grid">
                 
                 <!-- Botão de Criar Novo -->
-                <div style="border: 2px dashed var(--border-color); border-radius: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; cursor: pointer; transition: 0.2s;" onclick="document.getElementById('formNovoEnvelope').style.display='block'; this.style.display='none';">
-                    <i class="ph ph-plus-circle" style="font-size: 2rem; color: var(--text-secondary); margin-bottom: 8px;"></i>
-                    <span style="color: var(--text-secondary); font-weight: 500;">Criar Envelope</span>
+                <div class="envelope-create-btn" onclick="document.getElementById('formNovoEnvelope').style.display='block'; this.style.display='none';">
+                    <i class="ph ph-plus-circle"></i>
+                    <span>Criar Envelope</span>
                 </div>
 
                 <!-- Formulário Oculto para Criar -->
-                <div id="formNovoEnvelope" style="display: none; border: 1px solid var(--color-ia-purple); border-radius: 12px; padding: 16px; background: rgba(139, 92, 246, 0.05);">
-                    <form action="/financas/investimentos/storeEnvelope/<?= $investimento['id_investimento'] ?>" method="POST">
+                <div id="formNovoEnvelope" class="envelope-form-container" style="display: none;">
+                    <form action="/financas/investimentos/storeEnvelope/<?= $investimento['id_investimento'] ?>" method="POST" class="envelope-form">
                         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token, ENT_QUOTES, 'UTF-8') ?>">
-                        <input type="text" name="nome_envelope" class="form-control mb-2" placeholder="Ex: Cabelo" required style="padding: 8px; font-size: 0.9rem;">
-                        <input type="number" step="0.01" name="valor_alocado" class="form-control mb-2" placeholder="R$ 0,00" required style="padding: 8px; font-size: 0.9rem;">
-                        <div style="display: flex; gap: 8px;">
-                            <button type="submit" class="btn-primary" style="flex: 1; padding: 6px; font-size: 0.85rem;">Salvar</button>
-                            <button type="button" class="btn-outline danger" style="padding: 6px;" onclick="document.getElementById('formNovoEnvelope').style.display='none'; document.getElementById('formNovoEnvelope').previousElementSibling.style.display='flex';"><i class="ph ph-x"></i></button>
+                        <input type="text" name="nome_envelope" class="form-control envelope-input" placeholder="Ex: Cabelo" required>
+                        <input type="number" step="0.01" name="valor_alocado" class="form-control envelope-input" placeholder="R$ 0,00" required>
+                        <div class="envelope-form-actions">
+                            <button type="submit" class="btn-primary">Salvar</button>
+                            <button type="button" class="btn-outline danger" onclick="document.getElementById('formNovoEnvelope').style.display='none'; document.getElementById('formNovoEnvelope').previousElementSibling.style.display='flex';"><i class="ph ph-x"></i></button>
                         </div>
                     </form>
                 </div>
@@ -62,19 +62,19 @@
                 <!-- Lista de Envelopes Existentes -->
                 <?php if (!empty($envelopes)): ?>
                     <?php foreach ($envelopes as $env): ?>
-                        <div style="border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; background: var(--bg-surface); position: relative;">
-                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
-                                <strong style="color: var(--text-primary); font-size: 1.05rem;"><i class="ph ph-tag" style="color: var(--color-ia-purple);"></i> <?= htmlspecialchars($env['nome_envelope']) ?></strong>
+                        <div class="envelope-card">
+                            <div class="envelope-card-header">
+                                <strong class="envelope-card-title"><i class="ph ph-tag"></i> <?= htmlspecialchars($env['nome_envelope']) ?></strong>
                                 
-                                <form action="/financas/investimentos/deleteEnvelope/<?= $investimento['id_investimento'] ?>/<?= $env['id_envelope'] ?>" method="POST" style="margin: 0;">
-                                    <button type="submit" style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 4px;" onclick="return confirm('Deletar envelope? O dinheiro voltará para o saldo livre.');"><i class="ph ph-trash"></i></button>
+                                <form action="/financas/investimentos/deleteEnvelope/<?= $investimento['id_investimento'] ?>/<?= $env['id_envelope'] ?>" method="POST" class="envelope-delete-form">
+                                    <button type="submit" class="envelope-delete-btn" onclick="return confirm('Deletar envelope? O dinheiro voltará para o saldo livre.');"><i class="ph ph-trash"></i></button>
                                 </form>
                             </div>
                             
                             <!-- Formulário rápido para atualizar saldo -->
-                            <form action="/financas/investimentos/updateEnvelope/<?= $investimento['id_investimento'] ?>/<?= $env['id_envelope'] ?>" method="POST" style="display: flex; gap: 8px;">
-                                <input type="number" step="0.01" name="valor_alocado" class="form-control" value="<?= $env['valor_alocado'] ?>" required style="padding: 6px; font-size: 0.95rem; font-weight: bold; width: 100%;">
-                                <button type="submit" class="btn-outline" style="padding: 6px 10px;" title="Atualizar Saldo"><i class="ph ph-check"></i></button>
+                            <form action="/financas/investimentos/updateEnvelope/<?= $investimento['id_investimento'] ?>/<?= $env['id_envelope'] ?>" method="POST" class="envelope-update-form">
+                                <input type="number" step="0.01" name="valor_alocado" class="form-control envelope-update-input" value="<?= $env['valor_alocado'] ?>" required>
+                                <button type="submit" class="btn-outline envelope-update-btn" title="Atualizar Saldo"><i class="ph ph-check"></i></button>
                             </form>
                         </div>
                     <?php endforeach; ?>
